@@ -17,6 +17,17 @@ const symptomsPool = [
   'Dor de barriga', 'Tornozelo torcido'
 ];
 
+// Frutas sem acentos, fáceis de escrever por uma criança
+export const FRUITS = [
+  'morango', 'banana', 'laranja', 'uva', 'melancia', 'cereja', 'manga',
+  'kiwi', 'pera', 'meloa', 'framboesa', 'ameixa', 'figo', 'coco', 'lima',
+  'mirtilo', 'abacate', 'tangerina', 'papaia', 'goiaba', 'ananas', 'maca'
+];
+
+export function randomFruit() {
+  return FRUITS[Math.floor(Math.random() * FRUITS.length)];
+}
+
 export function generatePatientName() {
   const first = firstNames[Math.floor(Math.random() * firstNames.length)];
   const last = lastNames[Math.floor(Math.random() * lastNames.length)];

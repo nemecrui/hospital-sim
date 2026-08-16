@@ -12,8 +12,11 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Código fácil de partilhar (nome de fruta), ex.: "morango"
+  code String? @unique
+
   // Configuração de jogo
-  players    Int    @default(1) // nº de jogadoras humanas (1 ou 2)
+  players    Int    @default(1) // nº de jogadoras humanas (1 a 3)
   humanRoles String @default("[]") // JSON array dos papéis humanos; os restantes são CPU
 
   patients Patient[]

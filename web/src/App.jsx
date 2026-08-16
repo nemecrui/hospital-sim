@@ -38,6 +38,7 @@ export default function App() {
         if (res.ok && !cancelled) {
           const s = await res.json();
           setConfig({
+            code: s.code || null,
             players: s.players ?? 1,
             humanRoles: safeParse(s.humanRoles)
           });
@@ -76,7 +77,12 @@ export default function App() {
 
   // Sessão ainda não configurada → ecrã de setup
   if (config.humanRoles.length === 0) {
-    return <Setup sessionId={sessionId} onDone={setConfig} />;
+    return (
+      <Setup
+        sessionId={sessionId}
+        onDone={(c) => setConfig((prev) => ({ ...prev, ...c }))}
+      />
+    );
   }
 
   if (!role) {
@@ -137,10 +143,11 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
 
   const humanRoles = config.humanRoles;
   const cpuRoles = ROLES.filter((r) => !humanRoles.includes(r.id));
+  const shareCode = config.code || sessionId;
 
   const copyCode = async () => {
     try {
-      await navigator.clipboard.writeText(sessionId);
+      await navigator.clipboard.writeText(shareCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -160,9 +167,11 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
         <h1 className="mb-6 text-center text-4xl font-bold">🏥 Hospital</h1>
 
         <div className="mb-4 rounded-xl bg-blue-50 p-3 text-center">
-          <div className="text-xs text-blue-500">Código da sessão (partilha com a mana)</div>
+          <div className="text-xs text-blue-500">
+            Palavra-passe do jogo (diz à mana esta fruta 🍓)
+          </div>
           <div className="flex items-center justify-center gap-2">
-            <code className="text-sm font-bold text-blue-800">{sessionId}</code>
+            <code className="text-xl font-bold text-blue-800">{shareCode}</code>
             <button onClick={copyCode} className="text-xs underline">
               {copied ? '✓ copiado' : 'copiar'}
             </button>

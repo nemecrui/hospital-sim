@@ -1,3 +1,16 @@
+import { FRUITS, randomFruit } from '../utils/generators.js';
+
+// Gera um código-fruta único (ex.: "morango"; "morango-42" se já existir)
+async function makeUniqueCode(prisma) {
+  for (let i = 0; i < 12; i++) {
+    const base = randomFruit();
+    const code = i < FRUITS.length ? base : `${base}-${Math.floor(Math.random() * 90) + 10}`;
+    const exists = await prisma.session.findUnique({ where: { code } });
+    if (!exists) return code;
+  }
+  return `sala-${Math.floor(Math.random() * 100000)}`;
+}
+
 export default async function sessionsRoutes(fastify) {
   const { prisma } = fastify;
 
@@ -5,8 +18,10 @@ export default async function sessionsRoutes(fastify) {
   fastify.post('/sessions', async (request, reply) => {
     const { players, humanRoles } = request.body || {};
     try {
+      const code = await makeUniqueCode(prisma);
       const session = await prisma.session.create({
         data: {
+          code,
           players: players ? Number(players) : 1,
           humanRoles: JSON.stringify(Array.isArray(humanRoles) ? humanRoles : []),
           stats: { create: {} }
@@ -17,6 +32,19 @@ export default async function sessionsRoutes(fastify) {
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ error: 'Failed to create session' });
+    }
+  });
+
+  // GET /api/sessions/by-code/:code - Resolver código-fruta para sessão
+  fastify.get('/sessions/by-code/:code', async (request, reply) => {
+    const code = String(request.params.code || '').trim().toLowerCase();
+    try {
+      const session = await prisma.session.findUnique({ where: { code } });
+      if (!session) return reply.code(404).send({ error: 'Session not found' });
+      return session;
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to fetch session' });
     }
   });
 

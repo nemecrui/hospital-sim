@@ -22,15 +22,17 @@ export default function Home({ onSessionReady }) {
   };
 
   const joinSession = async () => {
-    if (!joinCode.trim()) return;
+    const code = joinCode.trim().toLowerCase();
+    if (!code) return;
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/sessions/${joinCode.trim()}`);
+      const res = await fetch(`${API_URL}/sessions/by-code/${encodeURIComponent(code)}`);
       if (!res.ok) throw new Error();
-      onSessionReady(joinCode.trim());
+      const session = await res.json();
+      onSessionReady(session.id);
     } catch {
-      setError('Código de sessão não encontrado.');
+      setError('Não encontrei essa fruta. Confere com quem começou o jogo.');
     } finally {
       setBusy(false);
     }
@@ -58,7 +60,7 @@ export default function Home({ onSessionReady }) {
 
         <input
           className="input mb-3"
-          placeholder="Cola aqui o código da sessão"
+          placeholder="Escreve a fruta (ex: morango)"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value)}
         />
