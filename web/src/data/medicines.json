@@ -1,0 +1,8 @@
+[
+  { "name": "Paracetamol", "dose": "500mg", "frequency": "3x/dia" },
+  { "name": "Ibuprofeno", "dose": "200mg", "frequency": "2x/dia" },
+  { "name": "Antibiótico", "dose": "1x/dia", "frequency": "7 dias" },
+  { "name": "Xarope para a tosse", "dose": "5ml", "frequency": "3x/dia" },
+  { "name": "Repouso", "duration": "2 dias" },
+  { "name": "Beber muita água", "duration": "sempre" }
+]

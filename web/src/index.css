@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-hospital-bg text-gray-800;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply rounded-2xl font-bold shadow-md transition-transform;
+  }
+  .btn:active {
+    transform: scale(0.95);
+  }
+  .card {
+    @apply rounded-2xl border-2 border-black/10 bg-white shadow-sm;
+  }
+  .input {
+    @apply w-full px-4 py-2 border-2 border-pink-200 rounded-xl focus:outline-none focus:border-hospital-pink;
+  }
+}

@@ -1,0 +1,5 @@
+[
+  { "id": 1, "name": "João Silva", "age": 8, "symptoms": ["tosse", "nariz entupido"], "defaultDiagnosis": "constipação" },
+  { "id": 2, "name": "Maria Santos", "age": 7, "symptoms": ["dor de cabeça", "febre"], "defaultDiagnosis": "gripe" },
+  { "id": 3, "name": "Pedro Costa", "age": 10, "symptoms": ["dor de garganta"], "defaultDiagnosis": "amigdalite" }
+]

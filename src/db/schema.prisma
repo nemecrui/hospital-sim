@@ -1,0 +1,69 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Configuração de jogo
+  players    Int    @default(1) // nº de jogadoras humanas (1 ou 2)
+  humanRoles String @default("[]") // JSON array dos papéis humanos; os restantes são CPU
+
+  patients Patient[]
+  stats    Stats?
+
+  @@index([createdAt])
+}
+
+model Patient {
+  id        String  @id @default(cuid())
+  sessionId String
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Info básica
+  name    String
+  age     Int
+  symptoms String // JSON stringified array
+  urgency String @default("normal") // "normal" | "urgent"
+
+  // Workflow status: waiting | consulting | treating | discharged
+  status String @default("waiting")
+
+  // Quem está a atender (multiplayer)
+  assignedTo String?
+
+  // Dados clínicos
+  temp      Float?
+  hr        Int?
+  bp        String?
+  diagnosis String?
+  medicine  String? // JSON stringified array
+  notes     String?
+  rating    Int? // 1-5
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sessionId])
+  @@index([status])
+  @@index([urgency])
+}
+
+model Stats {
+  id        String  @id @default(cuid())
+  sessionId String  @unique
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  totalTreated Int   @default(0)
+  avgWaitTime  Float @default(0)
+  satisfaction Float @default(0)
+
+  @@index([sessionId])
+}
