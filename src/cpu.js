@@ -2,10 +2,11 @@
 import {
   generatePatient,
   suggestTriageColor,
-  HEALTH_BY_COLOR
+  HEALTH_BY_COLOR,
+  randomExamResult
 } from './utils/generators.js';
 
-const ALL_ROLES = ['secretaria', 'medica', 'enfermeira'];
+const ALL_ROLES = ['secretaria', 'medica', 'enfermeira', 'tad'];
 
 const DIAGNOSES = [
   'Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite',
@@ -96,6 +97,22 @@ async function tickSession(prisma, session) {
             medicine: JSON.stringify(items),
             health: 100
           }
+        });
+      }
+    }
+  }
+
+  // 🔬 TAD CPU — faz os exames pedidos e devolve ao médico
+  if (cpuRoles.includes('tad')) {
+    for (const p of patients.filter((p) => p.status === 'exams')) {
+      if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        const list = safeParse(p.exams, []).map((e) => ({
+          ...e,
+          result: e.result || randomExamResult(e.name)
+        }));
+        await prisma.patient.update({
+          where: { id: p.id },
+          data: { status: 'diagnosis', assignedTo: 'CPU', exams: JSON.stringify(list) }
         });
       }
     }

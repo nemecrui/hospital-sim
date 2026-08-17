@@ -29,6 +29,7 @@ export default async function statsRoutes(fastify) {
         byStatus: {
           triage: patients.filter((p) => p.status === 'triage').length,
           diagnosis: patients.filter((p) => p.status === 'diagnosis').length,
+          exams: patients.filter((p) => p.status === 'exams').length,
           treatment: patients.filter((p) => p.status === 'treatment').length,
           discharge: patients.filter((p) => p.status === 'discharge').length,
           discharged: discharged.length

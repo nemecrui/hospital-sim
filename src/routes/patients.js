@@ -1,4 +1,4 @@
-import { generatePatient, generateQueixas, HEALTH_BY_COLOR } from '../utils/generators.js';
+import { generatePatient, generateQueixas, HEALTH_BY_COLOR, examEmoji } from '../utils/generators.js';
 
 const MAX_ACTIVE = 3; // só entram novos doentes se houver menos de 3 por tratar
 const DOSE_WINDOW_S = 240; // as tomas distribuem-se por 240s (3 tomas=80s, 2 tomas=120s)
@@ -13,7 +13,8 @@ function serialize(p) {
   return {
     ...p,
     symptoms: p.symptoms ? safeJson(p.symptoms, []) : [],
-    medicine: p.medicine ? safeJson(p.medicine, []) : []
+    medicine: p.medicine ? safeJson(p.medicine, []) : [],
+    exams: p.exams ? safeJson(p.exams, []) : []
   };
 }
 
@@ -155,6 +156,77 @@ export default async function patientsRoutes(fastify) {
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ error: 'Failed to prescribe' });
+    }
+  });
+
+  // PATCH /api/patients/:id/request-exams - Médica pede exames (vai ao TAD)
+  // exams: [{ name, emoji }] ou [names]
+  fastify.patch('/patients/:id/request-exams', async (request, reply) => {
+    const { id } = request.params;
+    const { exams, diagnosis } = request.body || {};
+    try {
+      const list = (Array.isArray(exams) ? exams : []).map((e) => {
+        const name = typeof e === 'string' ? e : e.name;
+        const emoji = (typeof e === 'object' && e.emoji) || examEmoji(name);
+        return { name, emoji, result: null };
+      });
+      if (list.length === 0) return reply.code(400).send({ error: 'Sem exames' });
+      const patient = await prisma.patient.update({
+        where: { id },
+        data: {
+          status: 'exams',
+          diagnosis: diagnosis ?? undefined,
+          exams: JSON.stringify(list)
+        }
+      });
+      return serialize(patient);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to request exams' });
+    }
+  });
+
+  // PATCH /api/patients/:id/exam-result - TAD define o resultado de um exame
+  fastify.patch('/patients/:id/exam-result', async (request, reply) => {
+    const { id } = request.params;
+    const { examName, result } = request.body || {};
+    try {
+      const patient = await prisma.patient.findUnique({ where: { id } });
+      if (!patient) return reply.code(404).send({ error: 'Patient not found' });
+      const list = safeJson(patient.exams, []);
+      const ex = list.find((e) => e.name === examName);
+      if (!ex) return reply.code(400).send({ error: 'Exame não pedido' });
+      ex.result = result;
+      const updated = await prisma.patient.update({
+        where: { id },
+        data: { exams: JSON.stringify(list) }
+      });
+      return serialize(updated);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to set exam result' });
+    }
+  });
+
+  // PATCH /api/patients/:id/exams-done - TAD devolve ao médico (todos com resultado)
+  fastify.patch('/patients/:id/exams-done', async (request, reply) => {
+    const { id } = request.params;
+    const { playerId } = request.body || {};
+    try {
+      const patient = await prisma.patient.findUnique({ where: { id } });
+      if (!patient) return reply.code(404).send({ error: 'Patient not found' });
+      const list = safeJson(patient.exams, []);
+      if (list.some((e) => !e.result)) {
+        return reply.code(409).send({ error: 'Ainda faltam exames por fazer' });
+      }
+      const updated = await prisma.patient.update({
+        where: { id },
+        data: { status: 'diagnosis', assignedTo: playerId ?? null }
+      });
+      return serialize(updated);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to finish exams' });
     }
   });
 

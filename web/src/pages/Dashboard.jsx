@@ -16,6 +16,7 @@ function Stat({ label, value, emoji }) {
 const FLOW = [
   { key: 'triage', label: '🩺 Triagem' },
   { key: 'diagnosis', label: '🔍 Médica' },
+  { key: 'exams', label: '🔬 Exames' },
   { key: 'treatment', label: '💊 Tratamento' },
   { key: 'discharge', label: '📤 Pronto p/ alta' },
   { key: 'discharged', label: '✅ Alta' }

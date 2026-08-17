@@ -21,6 +21,23 @@ export default function Home({ onSessionReady }) {
     }
   };
 
+  const deleteAll = async () => {
+    if (!confirm('Apagar TODAS as sessões? Isto limpa tudo e não se pode desfazer.')) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/sessions`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      localStorage.removeItem('sessionId');
+      const body = await res.json().catch(() => ({}));
+      setError(`✅ Apaguei ${body.deleted ?? 0} sessão(ões).`);
+    } catch {
+      setError('Não consegui apagar as sessões.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const joinSession = async () => {
     const code = joinCode.trim().toLowerCase();
     if (!code) return;
@@ -73,6 +90,16 @@ export default function Home({ onSessionReady }) {
         </button>
 
         {error && <p className="mt-4 text-center text-sm text-hospital-danger">{error}</p>}
+
+        <div className="mt-6 border-t border-gray-100 pt-3 text-center">
+          <button
+            onClick={deleteAll}
+            disabled={busy}
+            className="text-xs text-gray-400 hover:text-hospital-danger hover:underline disabled:opacity-50"
+          >
+            🧹 Apagar todas as sessões
+          </button>
+        </div>
       </div>
     </div>
   );

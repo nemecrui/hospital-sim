@@ -4,7 +4,8 @@ import { API_URL } from '../utils/api.js';
 const ROLES = [
   { id: 'secretaria', label: '👩‍💼 Secretária' },
   { id: 'medica', label: '👨‍⚕️ Médica' },
-  { id: 'enfermeira', label: '👩‍⚕️ Enfermeira' }
+  { id: 'enfermeira', label: '👩‍⚕️ Enfermeira' },
+  { id: 'tad', label: '🔬 Técnico (TAD)' }
 ];
 
 export default function Setup({ sessionId, onDone }) {
@@ -52,7 +53,7 @@ export default function Setup({ sessionId, onDone }) {
 
         <label className="mb-2 block text-sm font-semibold">Quantas jogadoras?</label>
         <div className="mb-6 flex gap-3">
-          {[1, 2, 3].map((n) => (
+          {[1, 2, 3, 4].map((n) => (
             <button
               key={n}
               onClick={() => setCount(n)}

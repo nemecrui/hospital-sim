@@ -52,16 +52,45 @@ export const CONDITIONS = [
   { name: 'Barriga a roncar', weight: 1 },
   { name: 'Joelho esfolado', weight: 1 },
   { name: 'Ranho verde', weight: 1 },
-  { name: 'Comeu muitos doces', weight: 1 }
+  { name: 'Comeu muitos doces', weight: 1 },
+  { name: 'Engoliu uma mosca', weight: 1 },
+  { name: 'Língua presa num gelado', weight: 1 },
+  { name: 'Cabelo em pé', weight: 1 },
+  { name: 'Peido preso', weight: 1 },
+  { name: 'Nariz a assobiar', weight: 1 },
+  { name: 'Pé a cheirar mal', weight: 1 },
+  { name: 'Riso sem parar', weight: 1 },
+  { name: 'Meleca no dedo', weight: 1 },
+  { name: 'Ronco de dinossauro', weight: 1 },
+  { name: 'Olho a piscar sozinho', weight: 1 },
+  { name: 'Bebeu sumo pelo nariz', weight: 1 }
 ];
 
+// Cada doente tem apenas UMA queixa (para simplificar).
 export function generateQueixas() {
-  const count = Math.random() > 0.5 ? 2 : 1;
-  const chosen = new Set();
-  while (chosen.size < count) {
-    chosen.add(CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)].name);
-  }
-  return [...chosen];
+  return [CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)].name];
+}
+
+// Exames complementares (pedidos pelo médico, feitos pelo TAD)
+export const EXAMS = [
+  { name: 'ECG', emoji: '📈', results: ['Coração normal ❤️', 'Batimento acelerado', 'Batimento devagar'] },
+  { name: 'Ecografia', emoji: '🫧', results: ['Barriga normal', 'Comeu demais 🍔', 'Muitos gases 💨'] },
+  { name: 'Raio-X', emoji: '🩻', results: ['Ossos normais', 'Osso partido 🦴', 'Engoliu uma moeda 🪙'] },
+  { name: 'TAC', emoji: '🧠', results: ['Cabeça normal', 'Muitas ideias 💡'] },
+  { name: 'Ressonância (RM)', emoji: '🧲', results: ['Tudo bem', 'Precisa de descanso 😴'] },
+  { name: 'Análise de sangue', emoji: '🩸', results: ['Tudo normal', 'Falta de ferro', 'Uma infeção 🦠'] },
+  { name: 'Análise de urina', emoji: '🧪', results: ['Normal', 'Infeção urinária'] },
+  { name: 'Audiograma', emoji: '👂', results: ['Ouve bem 👍', 'Ouve pouco'] }
+];
+
+export function examEmoji(name) {
+  return EXAMS.find((e) => e.name === name)?.emoji || '🔬';
+}
+
+export function randomExamResult(name) {
+  const ex = EXAMS.find((e) => e.name === name);
+  if (!ex) return 'Normal';
+  return ex.results[Math.floor(Math.random() * ex.results.length)];
 }
 
 // Sugere a cor da pulseira a partir das queixas (usado pelo CPU)

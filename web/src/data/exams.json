@@ -1,0 +1,10 @@
+[
+  { "name": "ECG", "emoji": "📈", "results": ["Coração normal ❤️", "Batimento acelerado", "Batimento devagar"] },
+  { "name": "Ecografia", "emoji": "🫧", "results": ["Barriga normal", "Comeu demais 🍔", "Muitos gases 💨"] },
+  { "name": "Raio-X", "emoji": "🩻", "results": ["Ossos normais", "Osso partido 🦴", "Engoliu uma moeda 🪙"] },
+  { "name": "TAC", "emoji": "🧠", "results": ["Cabeça normal", "Muitas ideias 💡"] },
+  { "name": "Ressonância (RM)", "emoji": "🧲", "results": ["Tudo bem", "Precisa de descanso 😴"] },
+  { "name": "Análise de sangue", "emoji": "🩸", "results": ["Tudo normal", "Falta de ferro", "Uma infeção 🦠"] },
+  { "name": "Análise de urina", "emoji": "🧪", "results": ["Normal", "Infeção urinária"] },
+  { "name": "Audiograma", "emoji": "👂", "results": ["Ouve bem 👍", "Ouve pouco"] }
+]

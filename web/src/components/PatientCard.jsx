@@ -4,6 +4,7 @@ import icons from '../data/icons.json';
 const STATUS_LABELS = {
   triage: { text: 'Triagem', emoji: '🩺', color: 'bg-yellow-100 text-yellow-800' },
   diagnosis: { text: 'Médica', emoji: '🔍', color: 'bg-blue-100 text-blue-800' },
+  exams: { text: 'Exames', emoji: '🔬', color: 'bg-indigo-100 text-indigo-800' },
   treatment: { text: 'Tratamento', emoji: '💊', color: 'bg-purple-100 text-purple-800' },
   discharge: { text: 'Pronto p/ alta', emoji: '📤', color: 'bg-teal-100 text-teal-800' },
   discharged: { text: 'Alta', emoji: '✅', color: 'bg-green-100 text-green-800' }

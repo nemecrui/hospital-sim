@@ -6,11 +6,12 @@ import QueixaChips from '../components/QueixaChips.jsx';
 import Wristband from '../components/Wristband.jsx';
 import diagnoses from '../data/diagnoses.json';
 import meds from '../data/meds.json';
+import examsData from '../data/exams.json';
 import icons from '../data/icons.json';
 import { speak } from '../utils/tts.js';
 
 export default function Medica({ playerId }) {
-  const { patients, pollPatients, prescribe, discharge } = useContext(HospitalContext);
+  const { patients, pollPatients, prescribe, requestExams, discharge } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
 
   usePoll(pollPatients, 2000);
@@ -18,12 +19,17 @@ export default function Medica({ playerId }) {
   const patient = active ? patients.find((p) => p.id === active) : null;
 
   if (patient && patient.status === 'diagnosis') {
-    return <Consulta patient={patient} onBack={() => setActive(null)} prescribe={prescribe} />;
+    return (
+      <Consulta
+        patient={patient}
+        onBack={() => setActive(null)}
+        prescribe={prescribe}
+        requestExams={requestExams}
+      />
+    );
   }
   if (patient && patient.status === 'discharge') {
-    return (
-      <Alta patient={patient} playerId={playerId} discharge={discharge} onBack={() => setActive(null)} />
-    );
+    return <Alta patient={patient} playerId={playerId} discharge={discharge} onBack={() => setActive(null)} />;
   }
 
   const paraConsulta = patients.filter((p) => p.status === 'diagnosis');
@@ -34,9 +40,7 @@ export default function Medica({ playerId }) {
       <section>
         <h3 className="mb-2 text-lg font-bold">🔍 Para observar ({paraConsulta.length})</h3>
         <div className="space-y-3">
-          {paraConsulta.length === 0 && (
-            <p className="text-sm text-gray-400">Sem doentes para observar.</p>
-          )}
+          {paraConsulta.length === 0 && <p className="text-sm text-gray-400">Sem doentes para observar.</p>}
           {paraConsulta.map((p) => (
             <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Observar ▶" />
           ))}
@@ -56,19 +60,31 @@ export default function Medica({ playerId }) {
   );
 }
 
-function Consulta({ patient, onBack, prescribe }) {
-  const [diagnosis, setDiagnosis] = useState('');
-  const [chosen, setChosen] = useState([]); // nomes dos medicamentos
+function Consulta({ patient, onBack, prescribe, requestExams }) {
+  const [diagnosis, setDiagnosis] = useState(patient.diagnosis || '');
+  const [chosenMeds, setChosenMeds] = useState([]);
+  const [chosenExams, setChosenExams] = useState([]);
   const [busy, setBusy] = useState(false);
 
-  const toggle = (name) =>
-    setChosen((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
+  const temResultados = (patient.exams || []).some((e) => e.result);
 
-  const confirmar = async () => {
-    if (!diagnosis || chosen.length === 0) return;
+  const toggle = (arr, set, name) =>
+    set(arr.includes(name) ? arr.filter((n) => n !== name) : [...arr, name]);
+
+  const pedirExames = async () => {
+    if (chosenExams.length === 0) return;
+    setBusy(true);
+    const exams = examsData.filter((e) => chosenExams.includes(e.name)).map((e) => ({ name: e.name, emoji: e.emoji }));
+    const ok = await requestExams(patient.id, exams, diagnosis || undefined);
+    setBusy(false);
+    if (ok) onBack();
+  };
+
+  const prescrever = async () => {
+    if (!diagnosis || chosenMeds.length === 0) return;
     setBusy(true);
     const items = meds
-      .filter((m) => chosen.includes(m.name))
+      .filter((m) => chosenMeds.includes(m.name))
       .map((m) => ({ name: m.name, emoji: m.emoji, type: m.type, total: m.doses }));
     const ok = await prescribe(patient.id, diagnosis, items);
     setBusy(false);
@@ -82,12 +98,27 @@ function Consulta({ patient, onBack, prescribe }) {
       </h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} label="Queixas" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} label="Queixa" />
         <div className="mt-3 flex gap-4 text-sm text-gray-600">
           <span>🌡️ {patient.temp ? `${patient.temp} °C` : '—'}</span>
           <span>❤️ {patient.hr ? `${patient.hr} bpm` : '—'}</span>
         </div>
       </div>
+
+      {temResultados && (
+        <div className="card p-4">
+          <h4 className="mb-2 text-sm font-bold">🔬 Resultados dos exames</h4>
+          <div className="space-y-1">
+            {patient.exams.map((e) => (
+              <div key={e.name} className="flex items-center gap-2 text-sm">
+                <span className="text-xl">{e.emoji}</span>
+                <span className="font-semibold">{e.name}:</span>
+                <span>{e.result || '—'}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card p-4">
         <label className="mb-2 block text-sm font-semibold">🩺 Diagnóstico</label>
@@ -110,38 +141,63 @@ function Consulta({ patient, onBack, prescribe }) {
         </div>
       </div>
 
+      {/* Pedir exames (vai ao TAD) */}
       <div className="card p-4">
-        <label className="mb-2 block text-sm font-semibold">💊 Prescrição (o que a enfermeira vai dar)</label>
+        <label className="mb-2 block text-sm font-semibold">🔬 Pedir exames (opcional — vão ao Técnico)</label>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {examsData.map((e) => (
+            <label
+              key={e.name}
+              className={`flex cursor-pointer items-center gap-2 rounded-xl border-2 p-2 text-sm ${
+                chosenExams.includes(e.name) ? 'border-hospital-cyan bg-blue-50' : 'border-gray-100'
+              }`}
+            >
+              <input type="checkbox" checked={chosenExams.includes(e.name)} onChange={() => toggle(chosenExams, setChosenExams, e.name)} />
+              <span className="text-2xl">{e.emoji}</span>
+              <span>{e.name}</span>
+            </label>
+          ))}
+        </div>
+        <button
+          onClick={pedirExames}
+          disabled={chosenExams.length === 0 || busy}
+          className="btn mt-3 w-full bg-gradient-to-r from-hospital-cyan to-blue-400 py-2 text-white hover:shadow-lg disabled:opacity-50"
+        >
+          🔬 Enviar ao Técnico para exames
+        </button>
+      </div>
+
+      {/* Prescrever tratamento (vai à enfermeira) */}
+      <div className="card p-4">
+        <label className="mb-2 block text-sm font-semibold">💊 Prescrição (vai à enfermeira)</label>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {meds.map((m) => (
             <label
               key={m.name}
               className={`flex cursor-pointer items-center gap-2 rounded-xl border-2 p-2 text-sm ${
-                chosen.includes(m.name) ? 'border-hospital-pink bg-pink-50' : 'border-gray-100'
+                chosenMeds.includes(m.name) ? 'border-hospital-pink bg-pink-50' : 'border-gray-100'
               }`}
             >
-              <input type="checkbox" checked={chosen.includes(m.name)} onChange={() => toggle(m.name)} />
+              <input type="checkbox" checked={chosenMeds.includes(m.name)} onChange={() => toggle(chosenMeds, setChosenMeds, m.name)} />
               <span className="text-2xl">{m.emoji}</span>
               <span>
-                {m.name} · {m.doses}× {m.type === 'curativo' ? '(curativo)' : ''}
+                {m.name} · {m.doses}×
               </span>
             </label>
           ))}
         </div>
-      </div>
-
-      <div className="flex gap-3">
         <button
-          onClick={confirmar}
-          disabled={!diagnosis || chosen.length === 0 || busy}
-          className="btn flex-1 bg-gradient-to-r from-hospital-pink to-pink-500 py-3 text-white hover:shadow-lg disabled:opacity-50"
+          onClick={prescrever}
+          disabled={!diagnosis || chosenMeds.length === 0 || busy}
+          className="btn mt-3 w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-2 text-white hover:shadow-lg disabled:opacity-50"
         >
           ✓ Prescrever e enviar à enfermeira
         </button>
-        <button onClick={onBack} className="btn bg-white px-4 py-3 text-gray-700 hover:bg-gray-100">
-          ↩ Voltar
-        </button>
       </div>
+
+      <button onClick={onBack} className="btn w-full bg-white px-4 py-3 text-gray-700 hover:bg-gray-100">
+        ↩ Voltar
+      </button>
     </div>
   );
 }

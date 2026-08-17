@@ -52,6 +52,7 @@ model Patient {
   bp        String?
   diagnosis String?
   medicine  String? // JSON: [{ name, emoji, type, total, given, lastGivenAt }]
+  exams     String? // JSON: [{ name, emoji, result }] (pedidos pelo médico, feitos pelo TAD)
   notes     String?
   rating    Int? // 1-5
 

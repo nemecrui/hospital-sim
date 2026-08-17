@@ -5,6 +5,7 @@ import Setup from './pages/Setup.jsx';
 import Secretaria from './pages/Secretaria.jsx';
 import Medica from './pages/Medica.jsx';
 import Enfermeira from './pages/Enfermeira.jsx';
+import Tad from './pages/Tad.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
 import { API_URL } from './utils/api.js';
@@ -12,7 +13,8 @@ import { API_URL } from './utils/api.js';
 const ROLES = [
   { id: 'secretaria', label: '👩‍💼 Secretária', from: 'from-pink-400', to: 'to-pink-500' },
   { id: 'medica', label: '👨‍⚕️ Médica', from: 'from-blue-400', to: 'to-blue-500' },
-  { id: 'enfermeira', label: '👩‍⚕️ Enfermeira', from: 'from-green-400', to: 'to-green-500' }
+  { id: 'enfermeira', label: '👩‍⚕️ Enfermeira', from: 'from-green-400', to: 'to-green-500' },
+  { id: 'tad', label: '🔬 Técnico (TAD)', from: 'from-indigo-400', to: 'to-indigo-500' }
 ];
 
 export default function App() {
@@ -122,6 +124,7 @@ export default function App() {
         {role === 'secretaria' && <Secretaria />}
         {role === 'medica' && <Medica playerId={playerId} />}
         {role === 'enfermeira' && <Enfermeira playerId={playerId} />}
+        {role === 'tad' && <Tad playerId={playerId} />}
         {role === 'dashboard' && <Dashboard />}
       </div>
     </HospitalProvider>

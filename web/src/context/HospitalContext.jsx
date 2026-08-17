@@ -89,6 +89,60 @@ export function HospitalProvider({ children, sessionId }) {
     [pollPatients]
   );
 
+  // Médica — pedir exames (vai ao TAD)
+  const requestExams = useCallback(
+    async (patientId, exams, diagnosis) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/request-exams`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exams, diagnosis })
+      });
+      if (res.ok) {
+        playSound('complete');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
+  // TAD — definir o resultado de um exame
+  const examResult = useCallback(
+    async (patientId, examName, result) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/exam-result`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ examName, result })
+      });
+      if (res.ok) {
+        playSound('success');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
+  // TAD — devolver ao médico
+  const examsDone = useCallback(
+    async (patientId, playerId) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/exams-done`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId })
+      });
+      if (res.ok) {
+        playSound('complete');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
   // Enfermeira — aplicar uma dose. Devolve { ok, wait? }
   const giveDose = useCallback(
     async (patientId, itemName) => {
@@ -171,6 +225,9 @@ export function HospitalProvider({ children, sessionId }) {
         registerPatient,
         triage,
         prescribe,
+        requestExams,
+        examResult,
+        examsDone,
         giveDose,
         toDischarge,
         discharge,

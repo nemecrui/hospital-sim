@@ -42,6 +42,17 @@ export default async function sessionsRoutes(fastify) {
     }
   });
 
+  // DELETE /api/sessions - Apagar TODAS as sessões (manutenção)
+  fastify.delete('/sessions', async (request, reply) => {
+    try {
+      const { count } = await prisma.session.deleteMany({});
+      return { deleted: count };
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to delete sessions' });
+    }
+  });
+
   // GET /api/sessions/by-code/:code - Resolver código-fruta para sessão
   fastify.get('/sessions/by-code/:code', async (request, reply) => {
     const code = String(request.params.code || '').trim().toLowerCase();
