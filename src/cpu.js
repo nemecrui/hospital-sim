@@ -1,41 +1,54 @@
-// Motor CPU: faz avançar automaticamente os doentes dos papéis que NÃO são
-// controlados por uma jogadora humana. Corre no servidor (fonte única da verdade).
-import { generatePatient } from './utils/generators.js';
+// Motor CPU: faz avançar automaticamente os doentes dos papéis sem jogadora humana.
+import {
+  generatePatient,
+  suggestTriageColor,
+  HEALTH_BY_COLOR
+} from './utils/generators.js';
 
 const ALL_ROLES = ['secretaria', 'medica', 'enfermeira'];
 
 const DIAGNOSES = [
-  'Constipação', 'Gripe', 'Amigdalite', 'Otite (dor de ouvido)',
-  'Dor de barriga', 'Alergia', 'Ferimento ligeiro', 'Entorse (torção)',
-  'Febre', 'Enxaqueca'
+  'Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite',
+  'Alergia', 'Ferida', 'Entorse', 'Enxaqueca', 'Febre'
 ];
-const MEDICINES = [
-  'Paracetamol', 'Ibuprofeno', 'Xarope para a tosse', 'Repouso', 'Beber muita água'
+const MEDS = [
+  { name: 'Paracetamol', emoji: '💊', type: 'med', total: 3 },
+  { name: 'Ibuprofeno', emoji: '💊', type: 'med', total: 2 },
+  { name: 'Xarope', emoji: '🥄', type: 'med', total: 3 },
+  { name: 'Penso', emoji: '🩹', type: 'curativo', total: 1 },
+  { name: 'Repouso', emoji: '😴', type: 'med', total: 1 }
 ];
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-// Quanto tempo (ms) o CPU "pensa" antes de agir, para parecer natural
 const THINK_MS = 6000;
-const SPAWN_MS = 9000; // intervalo entre chegadas geradas pela secretária-CPU
-const MAX_WAITING = 3;
+const SPAWN_MS = 9000;
+const MAX_ACTIVE = 3;
 
-async function tickSession(prisma, session, log) {
-  const human = safeParse(session.humanRoles);
+function safeParse(json, fallback) {
+  try {
+    const v = JSON.parse(json ?? 'null');
+    return v ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function tickSession(prisma, session) {
+  const human = safeParse(session.humanRoles, []);
   const cpuRoles = ALL_ROLES.filter((r) => !human.includes(r));
   if (cpuRoles.length === 0) return;
 
   const now = Date.now();
   const patients = await prisma.patient.findMany({ where: { sessionId: session.id } });
+  const active = patients.filter((p) => p.status !== 'discharged');
 
-  // 👩‍💼 Secretária CPU — mantém a fila com doentes novos
+  // 👩‍💼 Secretária CPU — cria doentes (nome+idade) se houver menos de 3 ativos
   if (cpuRoles.includes('secretaria')) {
-    const waiting = patients.filter((p) => p.status === 'waiting');
     const lastCreated = patients.reduce(
       (max, p) => Math.max(max, new Date(p.createdAt).getTime()),
       0
     );
-    if (waiting.length < MAX_WAITING && now - lastCreated > SPAWN_MS) {
+    if (active.length < MAX_ACTIVE && now - lastCreated > SPAWN_MS) {
       const g = generatePatient();
       await prisma.patient.create({
         data: {
@@ -43,67 +56,85 @@ async function tickSession(prisma, session, log) {
           name: g.name,
           age: g.age,
           symptoms: JSON.stringify(g.symptoms),
-          urgency: g.urgency,
-          status: 'waiting'
+          status: 'triage'
         }
       });
     }
   }
 
-  // 👨‍⚕️ Médica CPU — consulta + prescreve (waiting -> treating)
-  if (cpuRoles.includes('medica')) {
-    for (const p of patients.filter((p) => p.status === 'waiting')) {
+  // 👩‍⚕️ Enfermeira CPU — triagem e tratamento
+  if (cpuRoles.includes('enfermeira')) {
+    // Triagem: triage -> diagnosis
+    for (const p of patients.filter((p) => p.status === 'triage')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        const queixas = safeParse(p.symptoms, []);
+        const color = suggestTriageColor(queixas);
         await prisma.patient.update({
           where: { id: p.id },
           data: {
-            status: 'treating',
+            status: 'diagnosis',
             assignedTo: 'CPU',
             temp: Number((36 + Math.random() * 3).toFixed(1)),
             hr: 60 + Math.floor(Math.random() * 40),
-            diagnosis: pick(DIAGNOSES),
-            medicine: JSON.stringify([pick(MEDICINES)])
+            triageColor: color,
+            health: HEALTH_BY_COLOR[color] ?? 60
           }
         });
       }
     }
-  }
-
-  // 👩‍⚕️ Enfermeira CPU — trata + dá alta (treating -> discharged)
-  if (cpuRoles.includes('enfermeira')) {
-    for (const p of patients.filter((p) => p.status === 'treating')) {
+    // Tratamento: treatment -> discharge (aplica tudo e cura)
+    for (const p of patients.filter((p) => p.status === 'treatment')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        const items = safeParse(p.medicine, []).map((it) => ({ ...it, given: it.total }));
         await prisma.patient.update({
           where: { id: p.id },
           data: {
-            status: 'discharged',
+            status: 'discharge',
             assignedTo: 'CPU',
-            notes: 'Tratado pela equipa automática.',
-            rating: 4 + Math.floor(Math.random() * 2)
+            medicine: JSON.stringify(items),
+            health: 100
           }
+        });
+      }
+    }
+  }
+
+  // 👨‍⚕️ Médica CPU — diagnóstico e alta
+  if (cpuRoles.includes('medica')) {
+    // Diagnóstico: diagnosis -> treatment
+    for (const p of patients.filter((p) => p.status === 'diagnosis')) {
+      if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        const chosen = pick(MEDS);
+        const items = [{ ...chosen, given: 0, lastGivenAt: 0 }];
+        await prisma.patient.update({
+          where: { id: p.id },
+          data: {
+            status: 'treatment',
+            diagnosis: pick(DIAGNOSES),
+            medicine: JSON.stringify(items)
+          }
+        });
+      }
+    }
+    // Alta: discharge -> discharged
+    for (const p of patients.filter((p) => p.status === 'discharge')) {
+      if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        await prisma.patient.update({
+          where: { id: p.id },
+          data: { status: 'discharged', assignedTo: 'CPU', rating: 4 + Math.floor(Math.random() * 2) }
         });
       }
     }
   }
 }
 
-function safeParse(json) {
-  try {
-    const v = JSON.parse(json || '[]');
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
-  }
-}
-
-// Arranca o loop do CPU. Devolve uma função para parar.
 export function startCpu(prisma, log, intervalMs = 3000) {
   const timer = setInterval(async () => {
     try {
       const sessions = await prisma.session.findMany();
       for (const s of sessions) {
-        if (safeParse(s.humanRoles).length === 0) continue; // ainda não configurada
-        await tickSession(prisma, s, log);
+        if (safeParse(s.humanRoles, []).length === 0) continue;
+        await tickSession(prisma, s);
       }
     } catch (err) {
       log?.error?.(err);

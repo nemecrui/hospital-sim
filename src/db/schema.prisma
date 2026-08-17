@@ -36,18 +36,22 @@ model Patient {
   symptoms String // JSON stringified array
   urgency String @default("normal") // "normal" | "urgent"
 
-  // Workflow status: waiting | consulting | treating | discharged
-  status String @default("waiting")
+  // Workflow status: triage | diagnosis | treatment | discharge | discharged
+  status String @default("triage")
 
   // Quem está a atender (multiplayer)
   assignedTo String?
+
+  // Triagem
+  triageColor String? // verde | amarela | laranja | vermelha
+  health      Int? // 0-100 (estado do doente; sobe com o tratamento)
 
   // Dados clínicos
   temp      Float?
   hr        Int?
   bp        String?
   diagnosis String?
-  medicine  String? // JSON stringified array
+  medicine  String? // JSON: [{ name, emoji, type, total, given, lastGivenAt }]
   notes     String?
   rating    Int? // 1-5
 

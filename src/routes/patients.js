@@ -1,37 +1,52 @@
-import { generatePatient } from '../utils/generators.js';
+import { generatePatient, generateQueixas, HEALTH_BY_COLOR } from '../utils/generators.js';
+
+const MAX_ACTIVE = 3; // só entram novos doentes se houver menos de 3 por tratar
+const DOSE_COOLDOWN_MS = 3500; // intervalo mínimo entre doses do mesmo medicamento
+const VALID_COLORS = ['verde', 'amarela', 'laranja', 'vermelha'];
 
 function serialize(p) {
   return {
     ...p,
-    symptoms: p.symptoms ? JSON.parse(p.symptoms) : [],
-    medicine: p.medicine ? JSON.parse(p.medicine) : []
+    symptoms: p.symptoms ? safeJson(p.symptoms, []) : [],
+    medicine: p.medicine ? safeJson(p.medicine, []) : []
   };
+}
+
+function safeJson(str, fallback) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
+  }
+}
+
+async function countActive(prisma, sessionId) {
+  return prisma.patient.count({
+    where: { sessionId, status: { not: 'discharged' } }
+  });
 }
 
 export default async function patientsRoutes(fastify) {
   const { prisma } = fastify;
 
-  // POST /api/patients - Registar doente (Secretária)
+  // POST /api/patients - Secretária regista doente (só nome + idade)
+  // As queixas são geradas no servidor (surpresa para a triagem).
   fastify.post('/patients', async (request, reply) => {
-    const { sessionId, name, age, symptoms, urgency } = request.body || {};
-
+    const { sessionId, name, age } = request.body || {};
     if (!sessionId || !name || age == null) {
       return reply.code(400).send({ error: 'Missing required fields (sessionId, name, age)' });
     }
-
     try {
-      const symptomsArr = Array.isArray(symptoms)
-        ? symptoms
-        : (symptoms ? [symptoms] : []);
-
+      if ((await countActive(prisma, sessionId)) >= MAX_ACTIVE) {
+        return reply.code(409).send({ error: 'Too many active patients' });
+      }
       const patient = await prisma.patient.create({
         data: {
           sessionId,
           name,
           age: Number(age),
-          symptoms: JSON.stringify(symptomsArr),
-          urgency: urgency === 'urgent' ? 'urgent' : 'normal',
-          status: 'waiting'
+          symptoms: JSON.stringify(generateQueixas()),
+          status: 'triage'
         }
       });
       return reply.code(201).send(serialize(patient));
@@ -41,11 +56,14 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
-  // POST /api/patients/random - Gerar doente aleatório (Secretária)
+  // POST /api/patients/random - Gerar doente aleatório (Secretária), respeita o limite
   fastify.post('/patients/random', async (request, reply) => {
     const { sessionId } = request.body || {};
     if (!sessionId) return reply.code(400).send({ error: 'sessionId required' });
     try {
+      if ((await countActive(prisma, sessionId)) >= MAX_ACTIVE) {
+        return reply.code(409).send({ error: 'Too many active patients' });
+      }
       const g = generatePatient();
       const patient = await prisma.patient.create({
         data: {
@@ -53,8 +71,7 @@ export default async function patientsRoutes(fastify) {
           name: g.name,
           age: g.age,
           symptoms: JSON.stringify(g.symptoms),
-          urgency: g.urgency,
-          status: 'waiting'
+          status: 'triage'
         }
       });
       return reply.code(201).send(serialize(patient));
@@ -64,14 +81,14 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
-  // GET /api/patients?sessionId=xxx - Listar doentes
+  // GET /api/patients?sessionId=xxx
   fastify.get('/patients', async (request, reply) => {
     const { sessionId } = request.query;
     if (!sessionId) return reply.code(400).send({ error: 'sessionId required' });
     try {
       const patients = await prisma.patient.findMany({
         where: { sessionId },
-        orderBy: [{ urgency: 'desc' }, { status: 'asc' }, { createdAt: 'asc' }]
+        orderBy: [{ createdAt: 'asc' }]
       });
       return patients.map(serialize);
     } catch (err) {
@@ -80,40 +97,53 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
-  // PATCH /api/patients/:id/consult - Médica começa consulta (regista vitais)
-  fastify.patch('/patients/:id/consult', async (request, reply) => {
+  // PATCH /api/patients/:id/triage - Enfermeira: sinais vitais, queixas, pulseira
+  fastify.patch('/patients/:id/triage', async (request, reply) => {
     const { id } = request.params;
-    const { playerId, temp, hr, bp } = request.body || {};
+    const { playerId, temp, hr, symptoms, triageColor } = request.body || {};
+    if (!VALID_COLORS.includes(triageColor)) {
+      return reply.code(400).send({ error: 'Invalid triageColor' });
+    }
     try {
       const patient = await prisma.patient.update({
         where: { id },
         data: {
-          status: 'consulting',
+          status: 'diagnosis',
           assignedTo: playerId ?? null,
           temp: temp != null ? Number(temp) : null,
           hr: hr != null ? Number(hr) : null,
-          bp: bp ?? null
+          triageColor,
+          health: HEALTH_BY_COLOR[triageColor] ?? 60,
+          ...(Array.isArray(symptoms) ? { symptoms: JSON.stringify(symptoms) } : {})
         }
       });
       return serialize(patient);
     } catch (err) {
       fastify.log.error(err);
-      return reply.code(500).send({ error: 'Failed to update patient' });
+      return reply.code(500).send({ error: 'Failed to triage patient' });
     }
   });
 
-  // PATCH /api/patients/:id/prescribe - Médica prescreve
+  // PATCH /api/patients/:id/prescribe - Médica: diagnóstico + prescrição
+  // items: [{ name, emoji, type, total }]
   fastify.patch('/patients/:id/prescribe', async (request, reply) => {
     const { id } = request.params;
-    const { diagnosis, medicine } = request.body || {};
+    const { diagnosis, items } = request.body || {};
     try {
-      const medArr = Array.isArray(medicine) ? medicine : (medicine ? [medicine] : []);
+      const list = (Array.isArray(items) ? items : []).map((it) => ({
+        name: it.name,
+        emoji: it.emoji || '💊',
+        type: it.type || 'med',
+        total: Math.max(1, Number(it.total) || 1),
+        given: 0,
+        lastGivenAt: 0
+      }));
       const patient = await prisma.patient.update({
         where: { id },
         data: {
-          status: 'treating',
+          status: 'treatment',
           diagnosis: diagnosis ?? null,
-          medicine: JSON.stringify(medArr)
+          medicine: JSON.stringify(list)
         }
       });
       return serialize(patient);
@@ -123,10 +153,73 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
-  // PATCH /api/patients/:id/treat - Enfermeira trata + alta
-  fastify.patch('/patients/:id/treat', async (request, reply) => {
+  // PATCH /api/patients/:id/dose - Enfermeira aplica UMA dose/curativo
+  fastify.patch('/patients/:id/dose', async (request, reply) => {
     const { id } = request.params;
-    const { playerId, notes, rating } = request.body || {};
+    const { itemName } = request.body || {};
+    try {
+      const patient = await prisma.patient.findUnique({ where: { id } });
+      if (!patient) return reply.code(404).send({ error: 'Patient not found' });
+
+      const items = safeJson(patient.medicine, []);
+      const item = items.find((it) => it.name === itemName);
+      if (!item) return reply.code(400).send({ error: 'Item not prescribed' });
+
+      if (item.given >= item.total) {
+        return reply.code(409).send({ error: 'Já foi dada toda a dose prescrita' });
+      }
+      const now = Date.now();
+      if (now - (item.lastGivenAt || 0) < DOSE_COOLDOWN_MS) {
+        const wait = Math.ceil((DOSE_COOLDOWN_MS - (now - item.lastGivenAt)) / 1000);
+        return reply.code(429).send({ error: `Espera ${wait}s antes da próxima dose`, wait });
+      }
+
+      // Aplicar dose
+      item.given += 1;
+      item.lastGivenAt = now;
+
+      // Subir a saúde de forma a chegar a 100 na última unidade
+      const remainingUnits = items.reduce((s, it) => s + (it.total - it.given), 0) + 1; // inclui a atual
+      const current = patient.health ?? 50;
+      const increment = Math.ceil((100 - current) / remainingUnits);
+      const health = Math.min(100, current + increment);
+
+      const updated = await prisma.patient.update({
+        where: { id },
+        data: { medicine: JSON.stringify(items), health }
+      });
+      return serialize(updated);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to apply dose' });
+    }
+  });
+
+  // PATCH /api/patients/:id/to-discharge - Enfermeira envia para alta (doente bom)
+  fastify.patch('/patients/:id/to-discharge', async (request, reply) => {
+    const { id } = request.params;
+    const { playerId } = request.body || {};
+    try {
+      const patient = await prisma.patient.findUnique({ where: { id } });
+      if (!patient) return reply.code(404).send({ error: 'Patient not found' });
+      if ((patient.health ?? 0) < 100) {
+        return reply.code(409).send({ error: 'O doente ainda não está totalmente bom' });
+      }
+      const updated = await prisma.patient.update({
+        where: { id },
+        data: { status: 'discharge', assignedTo: playerId ?? null }
+      });
+      return serialize(updated);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to send to discharge' });
+    }
+  });
+
+  // PATCH /api/patients/:id/discharge - Médica dá alta
+  fastify.patch('/patients/:id/discharge', async (request, reply) => {
+    const { id } = request.params;
+    const { playerId, rating, notes } = request.body || {};
     try {
       const patient = await prisma.patient.update({
         where: { id },
@@ -134,7 +227,7 @@ export default async function patientsRoutes(fastify) {
           status: 'discharged',
           assignedTo: playerId ?? null,
           notes: notes ?? null,
-          rating: rating != null ? Math.min(5, Math.max(1, Number(rating))) : null
+          rating: rating != null ? Math.min(5, Math.max(1, Number(rating))) : 5
         }
       });
       return serialize(patient);
@@ -144,7 +237,7 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
-  // DELETE /api/patients/:id - Apagar doente (dev only)
+  // DELETE /api/patients/:id (dev)
   fastify.delete('/patients/:id', async (request, reply) => {
     const { id } = request.params;
     try {

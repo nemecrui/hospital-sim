@@ -28,6 +28,50 @@ export function randomFruit() {
   return FRUITS[Math.floor(Math.random() * FRUITS.length)];
 }
 
+// Queixas possíveis (com peso de gravidade 1=leve .. 3=grave) para a triagem
+export const CONDITIONS = [
+  { name: 'Febre', weight: 2 },
+  { name: 'Tosse', weight: 1 },
+  { name: 'Dor de cabeça', weight: 1 },
+  { name: 'Dor de barriga', weight: 2 },
+  { name: 'Dor de garganta', weight: 1 },
+  { name: 'Ferimento', weight: 2 },
+  { name: 'Constipação', weight: 1 },
+  { name: 'Dor no ouvido', weight: 1 },
+  { name: 'Alergia', weight: 2 },
+  { name: 'Tornozelo torcido', weight: 2 },
+  { name: 'Picada de inseto', weight: 1 },
+  { name: 'Enjoo', weight: 1 }
+];
+
+export function generateQueixas() {
+  const count = Math.random() > 0.5 ? 2 : 1;
+  const chosen = new Set();
+  while (chosen.size < count) {
+    chosen.add(CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)].name);
+  }
+  return [...chosen];
+}
+
+// Sugere a cor da pulseira a partir das queixas (usado pelo CPU)
+export function suggestTriageColor(queixas) {
+  const weights = queixas.map(
+    (q) => CONDITIONS.find((c) => c.name === q)?.weight || 1
+  );
+  const max = Math.max(1, ...weights);
+  if (max >= 3) return 'vermelha';
+  if (max === 2) return Math.random() > 0.5 ? 'laranja' : 'amarela';
+  return 'verde';
+}
+
+// Saúde inicial consoante a pulseira (mais grave = mais baixa)
+export const HEALTH_BY_COLOR = {
+  verde: 75,
+  amarela: 60,
+  laranja: 45,
+  vermelha: 30
+};
+
 export function generatePatientName() {
   const first = firstNames[Math.floor(Math.random() * firstNames.length)];
   const last = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -39,16 +83,9 @@ export function generateSymptom() {
 }
 
 export function generatePatient() {
-  const count = Math.floor(Math.random() * 3) + 1;
-  const chosen = new Set();
-  while (chosen.size < count) {
-    chosen.add(generateSymptom());
-  }
-
   return {
     name: generatePatientName(),
-    age: Math.floor(Math.random() * 60) + 5,
-    symptoms: [...chosen],
-    urgency: Math.random() > 0.8 ? 'urgent' : 'normal'
+    age: Math.floor(Math.random() * 12) + 3, // 3–14 anos
+    symptoms: generateQueixas()
   };
 }

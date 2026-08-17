@@ -1,88 +1,84 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
-import diagnoses from '../data/diagnoses.json';
 import { generateArrival } from '../utils/generators.js';
-import { playSound } from '../utils/sound.js';
+
+const MAX_ACTIVE = 3;
 
 export default function Secretaria() {
-  const { patients, pollPatients, registerPatient, loading } = useContext(HospitalContext);
+  const { patients, pollPatients, registerPatient } = useContext(HospitalContext);
   const [arrival, setArrival] = useState(() => generateArrival());
-  const [form, setForm] = useState({ name: '', age: '', symptom: '', urgency: 'normal' });
+  const [form, setForm] = useState({ name: '', age: '' });
   const [feedback, setFeedback] = useState(null);
+  const [busy, setBusy] = useState(false);
 
   usePoll(pollPatients, 2000);
 
+  const active = useMemo(() => patients.filter((p) => p.status !== 'discharged'), [patients]);
+  const salaCheia = active.length >= MAX_ACTIVE;
+
   const nextArrival = () => {
     setArrival(generateArrival());
-    setForm({ name: '', age: '', symptom: '', urgency: 'normal' });
+    setForm({ name: '', age: '' });
     setFeedback(null);
   };
 
   const handleRegister = async () => {
-    if (!form.name || !form.age) return;
-
+    if (!form.name || !form.age || busy) return;
+    setBusy(true);
     const okName = form.name.trim().toLowerCase() === arrival.name.toLowerCase();
     const okAge = parseInt(form.age, 10) === arrival.age;
-    const okSymptom = form.symptom === arrival.symptom;
-    const score = [okName, okAge, okSymptom].filter(Boolean).length;
+    const score = [okName, okAge].filter(Boolean).length;
 
-    const ok = await registerPatient(
-      form.name.trim(),
-      parseInt(form.age, 10),
-      form.symptom ? [form.symptom] : [],
-      form.urgency
-    );
-
-    if (ok) {
-      playSound(score === 3 ? 'success' : 'notification');
-      setFeedback({ score, okName, okAge, okSymptom });
-      setTimeout(nextArrival, 2600);
+    const res = await registerPatient(form.name.trim(), parseInt(form.age, 10));
+    setBusy(false);
+    if (res.ok) {
+      setFeedback({ score, okName, okAge });
+      setTimeout(nextArrival, 2400);
+    } else if (res.full) {
+      setFeedback({ full: true });
     }
   };
-
-  const waiting = patients.filter((p) => p.status === 'waiting');
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <div className="space-y-3">
-        {/* Doente que chega e "fala" */}
-        <div
-          className={`card animate-bounce-in p-4 ${
-            arrival.urgency === 'urgent' ? 'border-hospital-danger ring-2 ring-hospital-danger/30' : ''
-          }`}
-        >
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-500">
-            🚪 Chegou um doente {arrival.urgency === 'urgent' && '🔴 (parece urgente!)'}
-          </div>
-          <div className="rounded-2xl rounded-tl-none bg-blue-50 p-3 text-blue-900">
-            <p className="text-lg">
-              «Olá! Chamo-me <strong>{arrival.name}</strong>, tenho{' '}
-              <strong>{arrival.age}</strong> anos e vim por causa de{' '}
-              <strong>{arrival.symptom}</strong>.»
+        {salaCheia ? (
+          <div className="card p-6 text-center">
+            <div className="text-4xl">⏳</div>
+            <p className="mt-2 font-semibold">A sala está cheia!</p>
+            <p className="text-sm text-gray-500">
+              Espera que a equipa trate alguns doentes antes de receber mais.
             </p>
           </div>
-          <p className="mt-2 text-xs text-gray-400">
-            👉 Escreve os dados dele na ficha ao lado.
-          </p>
-        </div>
-
-        {/* Fila de espera */}
-        <div>
-          <h3 className="mb-2 text-lg font-bold">📋 Fila de espera ({waiting.length})</h3>
-          <div className="space-y-2">
-            {waiting.length === 0 && (
-              <p className="text-sm text-gray-400">Ainda não registaste ninguém.</p>
-            )}
-            {waiting.map((p) => (
-              <PatientCard key={p.id} patient={p} />
-            ))}
-          </div>
-        </div>
+        ) : (
+          <>
+            {/* Cartão de identificação do doente que chega */}
+            <div className="card overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 text-sm font-bold text-white">
+                🪪 CARTÃO DE IDENTIFICAÇÃO
+              </div>
+              <div className="flex items-center gap-4 p-4">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-50 text-5xl">
+                  {arrival.avatar}
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-gray-400">Nome</div>
+                  <div className="text-lg font-bold">{arrival.name}</div>
+                  <div className="mt-1 text-xs uppercase text-gray-400">Idade</div>
+                  <div className="text-lg font-bold">{arrival.age} anos</div>
+                </div>
+              </div>
+            </div>
+            <p className="text-center text-xs text-gray-400">
+              👉 Copia os dados do cartão para a ficha.
+            </p>
+          </>
+        )}
       </div>
 
-      {/* Ficha de registo (transcrição) */}
+      {/* Ficha de entrada (só nome + idade) */}
       <div className="card p-4">
         <h3 className="mb-3 text-lg font-bold">📝 Ficha de entrada</h3>
 
@@ -91,81 +87,58 @@ export default function Secretaria() {
           className="input mb-3"
           placeholder="Escreve o nome..."
           value={form.name}
+          disabled={salaCheia}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
         <label className="mb-1 block text-sm font-semibold">Idade</label>
         <input
-          className="input mb-3"
+          className="input mb-4"
           type="number"
           min="0"
           max="120"
           placeholder="Escreve a idade..."
           value={form.age}
+          disabled={salaCheia}
           onChange={(e) => setForm({ ...form, age: e.target.value })}
         />
 
-        <label className="mb-1 block text-sm font-semibold">Motivo da visita</label>
-        <select
-          className="input mb-3"
-          value={form.symptom}
-          onChange={(e) => setForm({ ...form, symptom: e.target.value })}
-        >
-          <option value="">— escolher —</option>
-          {diagnoses.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
-
-        <label className="mb-1 block text-sm font-semibold">Urgência</label>
-        <div className="mb-4 flex gap-4">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="urgency"
-              checked={form.urgency === 'normal'}
-              onChange={() => setForm({ ...form, urgency: 'normal' })}
-            />
-            Normal
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="urgency"
-              checked={form.urgency === 'urgent'}
-              onChange={() => setForm({ ...form, urgency: 'urgent' })}
-            />
-            🔴 Urgente
-          </label>
-        </div>
-
         <button
           onClick={handleRegister}
-          disabled={loading || !form.name || !form.age || feedback}
+          disabled={busy || salaCheia || !form.name || !form.age || (feedback && !feedback.full)}
           className="btn w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-3 text-white hover:shadow-lg disabled:opacity-50"
         >
-          {loading ? 'A registar...' : '✓ Registar doente'}
+          {busy ? 'A registar...' : '✓ Enviar para a triagem'}
         </button>
 
-        {feedback && (
+        {feedback && !feedback.full && (
           <div className="mt-3 animate-pulse-success rounded-xl bg-green-50 p-3 text-center">
             <div className="text-2xl">{'⭐'.repeat(feedback.score) || '💪'}</div>
             <p className="text-sm font-semibold text-green-800">
-              {feedback.score === 3
-                ? 'Perfeito! Escreveste tudo certinho!'
-                : 'Boa! Doente registado.'}
+              {feedback.score === 2 ? 'Perfeito! Foi para a triagem.' : 'Boa! Doente registado.'}
             </p>
-            {feedback.score < 3 && (
+            {feedback.score < 2 && (
               <p className="mt-1 text-xs text-gray-500">
                 {!feedback.okName && `Nome: ${arrival.name}. `}
-                {!feedback.okAge && `Idade: ${arrival.age}. `}
-                {!feedback.okSymptom && `Motivo: ${arrival.symptom}.`}
+                {!feedback.okAge && `Idade: ${arrival.age}.`}
               </p>
             )}
           </div>
         )}
+
+        <div className="mt-4">
+          <h4 className="mb-2 text-sm font-bold">
+            👥 Na sala ({active.length}/{MAX_ACTIVE})
+          </h4>
+          <div className="space-y-2">
+            {active.length === 0 && (
+              <p className="text-sm text-gray-400">Ainda não há doentes.</p>
+            )}
+            {active.map((p) => (
+              <PatientCard key={p.id} patient={p} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

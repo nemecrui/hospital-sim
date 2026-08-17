@@ -7,7 +7,6 @@ export const HospitalContext = createContext(null);
 export function HospitalProvider({ children, sessionId }) {
   const [patients, setPatients] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const pollPatients = useCallback(async () => {
@@ -16,13 +15,12 @@ export function HospitalProvider({ children, sessionId }) {
       if (res.ok) {
         const data = await res.json();
         setPatients((prev) => {
-          // Toca notificação se surgiu um novo doente à espera
           if (prev.length && data.length > prev.length) playSound('notification');
           return data;
         });
         setError(null);
       }
-    } catch (err) {
+    } catch {
       setError('Sem ligação ao servidor');
     }
   }, [sessionId]);
@@ -31,69 +29,37 @@ export function HospitalProvider({ children, sessionId }) {
     try {
       const res = await fetch(`${API_URL}/stats/${sessionId}`);
       if (res.ok) setStats(await res.json());
-    } catch (err) {
+    } catch {
       /* silencioso */
     }
   }, [sessionId]);
 
+  // Secretária — registar (nome + idade). Devolve { ok, full? }
   const registerPatient = useCallback(
-    async (name, age, symptoms, urgency = 'normal') => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${API_URL}/patients`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId, name, age, symptoms, urgency })
-        });
-        if (res.ok) {
-          playSound('success');
-          await pollPatients();
-          return true;
-        }
-        return false;
-      } finally {
-        setLoading(false);
+    async (name, age) => {
+      const res = await fetch(`${API_URL}/patients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, name, age })
+      });
+      if (res.ok) {
+        playSound('success');
+        await pollPatients();
+        return { ok: true };
       }
+      if (res.status === 409) return { ok: false, full: true };
+      return { ok: false };
     },
     [sessionId, pollPatients]
   );
 
-  const addRandomPatient = useCallback(async () => {
-    const res = await fetch(`${API_URL}/patients/random`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId })
-    });
-    if (res.ok) {
-      playSound('success');
-      await pollPatients();
-      return true;
-    }
-    return false;
-  }, [sessionId, pollPatients]);
-
-  const startConsult = useCallback(
-    async (patientId, playerId, vitals = {}) => {
-      const res = await fetch(`${API_URL}/patients/${patientId}/consult`, {
+  // Enfermeira — triagem
+  const triage = useCallback(
+    async (patientId, playerId, data) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/triage`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, ...vitals })
-      });
-      if (res.ok) {
-        await pollPatients();
-        return true;
-      }
-      return false;
-    },
-    [pollPatients]
-  );
-
-  const prescribe = useCallback(
-    async (patientId, diagnosis, medicine) => {
-      const res = await fetch(`${API_URL}/patients/${patientId}/prescribe`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ diagnosis, medicine })
+        body: JSON.stringify({ playerId, ...data })
       });
       if (res.ok) {
         playSound('complete');
@@ -105,12 +71,72 @@ export function HospitalProvider({ children, sessionId }) {
     [pollPatients]
   );
 
-  const discharge = useCallback(
-    async (patientId, playerId, notes, rating) => {
-      const res = await fetch(`${API_URL}/patients/${patientId}/treat`, {
+  // Médica — diagnóstico + prescrição (items)
+  const prescribe = useCallback(
+    async (patientId, diagnosis, items) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/prescribe`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, notes, rating })
+        body: JSON.stringify({ diagnosis, items })
+      });
+      if (res.ok) {
+        playSound('complete');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
+  // Enfermeira — aplicar uma dose. Devolve { ok, wait? }
+  const giveDose = useCallback(
+    async (patientId, itemName) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/dose`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemName })
+      });
+      if (res.ok) {
+        playSound('success');
+        await pollPatients();
+        return { ok: true };
+      }
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        playSound('error');
+        return { ok: false, wait: body.wait || 3 };
+      }
+      return { ok: false };
+    },
+    [pollPatients]
+  );
+
+  // Enfermeira — enviar para alta (só se saúde 100%)
+  const toDischarge = useCallback(
+    async (patientId, playerId) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/to-discharge`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId })
+      });
+      if (res.ok) {
+        playSound('complete');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
+  // Médica — dar alta
+  const discharge = useCallback(
+    async (patientId, playerId, rating) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/discharge`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId, rating })
       });
       if (res.ok) {
         playSound('complete');
@@ -124,9 +150,7 @@ export function HospitalProvider({ children, sessionId }) {
   );
 
   const resetSession = useCallback(async () => {
-    const res = await fetch(`${API_URL}/sessions/${sessionId}/reset`, {
-      method: 'POST'
-    });
+    const res = await fetch(`${API_URL}/sessions/${sessionId}/reset`, { method: 'POST' });
     if (res.ok) {
       await pollPatients();
       await pollStats();
@@ -141,14 +165,14 @@ export function HospitalProvider({ children, sessionId }) {
         sessionId,
         patients,
         stats,
-        loading,
         error,
         pollPatients,
         pollStats,
         registerPatient,
-        addRandomPatient,
-        startConsult,
+        triage,
         prescribe,
+        giveDose,
+        toDischarge,
         discharge,
         resetSession
       }}

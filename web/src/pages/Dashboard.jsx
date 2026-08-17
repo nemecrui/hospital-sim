@@ -13,9 +13,16 @@ function Stat({ label, value, emoji }) {
   );
 }
 
+const FLOW = [
+  { key: 'triage', label: '🩺 Triagem' },
+  { key: 'diagnosis', label: '🔍 Médica' },
+  { key: 'treatment', label: '💊 Tratamento' },
+  { key: 'discharge', label: '📤 Pronto p/ alta' },
+  { key: 'discharged', label: '✅ Alta' }
+];
+
 export default function Dashboard() {
-  const { patients, stats, pollPatients, pollStats, resetSession } =
-    useContext(HospitalContext);
+  const { patients, stats, pollPatients, pollStats, resetSession } = useContext(HospitalContext);
 
   usePoll(() => {
     pollPatients();
@@ -37,29 +44,19 @@ export default function Dashboard() {
       <h3 className="text-lg font-bold">📈 Resumo do dia</h3>
 
       <div className="flex gap-3">
-        <Stat label="Atendidos" value={stats?.totalTreated ?? 0} emoji="✅" />
+        <Stat label="Curados" value={stats?.totalTreated ?? 0} emoji="✅" />
         <Stat label="Espera média (min)" value={stats?.avgWaitTime ?? 0} emoji="⏱️" />
         <Stat label={`Satisfação ${stars}`} value={satisfaction} emoji="😊" />
       </div>
 
       {stats?.byStatus && (
         <div className="card p-4 text-sm">
-          <div className="flex justify-between">
-            <span>⏳ À espera</span>
-            <strong>{stats.byStatus.waiting}</strong>
-          </div>
-          <div className="flex justify-between">
-            <span>🩺 Em consulta</span>
-            <strong>{stats.byStatus.consulting}</strong>
-          </div>
-          <div className="flex justify-between">
-            <span>💊 Em tratamento</span>
-            <strong>{stats.byStatus.treating}</strong>
-          </div>
-          <div className="flex justify-between">
-            <span>✅ Alta</span>
-            <strong>{stats.byStatus.discharged}</strong>
-          </div>
+          {FLOW.map((s) => (
+            <div key={s.key} className="flex justify-between">
+              <span>{s.label}</span>
+              <strong>{stats.byStatus[s.key] ?? 0}</strong>
+            </div>
+          ))}
         </div>
       )}
 

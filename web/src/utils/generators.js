@@ -1,5 +1,3 @@
-import diagnoses from '../data/diagnoses.json';
-
 const firstNames = [
   'João', 'Maria', 'Pedro', 'Ana', 'Carlos', 'Sofia',
   'Miguel', 'Inês', 'Rui', 'Joana', 'Tiago', 'Marta',
@@ -12,14 +10,15 @@ const lastNames = [
   'Carvalho', 'Sousa', 'Fernandes', 'Marques'
 ];
 
+const avatars = ['🧒', '👦', '👧', '🧑', '👶', '👵', '👴', '👩', '👨'];
+
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Gera um doente que "chega" à receção — a secretária vai transcrevê-lo.
+// Doente que chega à receção: a secretária só transcreve nome + idade.
 export function generateArrival() {
   return {
     name: `${pick(firstNames)} ${pick(lastNames)}`,
-    age: Math.floor(Math.random() * 13) + 3, // 3–15 anos
-    symptom: pick(diagnoses),
-    urgency: Math.random() > 0.85 ? 'urgent' : 'normal'
+    age: Math.floor(Math.random() * 12) + 3, // 3–14 anos
+    avatar: pick(avatars)
   };
 }

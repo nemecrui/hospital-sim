@@ -1,108 +1,140 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
+import QueixaChips from '../components/QueixaChips.jsx';
+import HealthBar from '../components/HealthBar.jsx';
+import { WRISTBANDS } from '../components/Wristband.jsx';
+
+const COOLDOWN_MS = 3500;
 
 export default function Enfermeira({ playerId }) {
-  const { patients, pollPatients, discharge } = useContext(HospitalContext);
+  const { patients, pollPatients, triage, giveDose, toDischarge } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
-  const [doses, setDoses] = useState({});
-  const [notes, setNotes] = useState('');
-  const [rating, setRating] = useState(5);
+  const [now, setNow] = useState(Date.now());
 
   usePoll(pollPatients, 2000);
 
-  const activePatient = active ? patients.find((p) => p.id === active) : null;
+  // Relógio para atualizar os contadores de espera das doses
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(t);
+  }, []);
 
-  const open = (patient) => {
-    setActive(patient.id);
-    setDoses({});
-    setNotes('');
-    setRating(5);
-  };
+  const patient = active ? patients.find((p) => p.id === active) : null;
 
-  const giveDose = (med) => {
-    setDoses((prev) => ({ ...prev, [med]: (prev[med] || 0) + 1 }));
-  };
-
-  const finish = async () => {
-    const ok = await discharge(active, playerId, notes, rating);
-    if (ok) {
-      setActive(null);
-      setNotes('');
-      setRating(5);
-      setDoses({});
-    }
-  };
-
-  if (!activePatient) {
-    const toTreat = patients.filter((p) => p.status === 'treating');
+  if (patient && patient.status === 'triage') {
+    return <Triagem patient={patient} playerId={playerId} onBack={() => setActive(null)} triage={triage} />;
+  }
+  if (patient && patient.status === 'treatment') {
     return (
-      <div>
-        <h3 className="mb-3 text-lg font-bold">💊 Doentes em tratamento ({toTreat.length})</h3>
-        <div className="space-y-3">
-          {toTreat.length === 0 && (
-            <p className="text-sm text-gray-400">
-              Sem doentes para tratar. Espera a médica prescrever.
-            </p>
-          )}
-          {toTreat.map((p) => (
-            <PatientCard key={p.id} patient={p} onClick={open} actionLabel="Tratar ▶" />
-          ))}
-        </div>
-      </div>
+      <Tratamento
+        patient={patient}
+        now={now}
+        giveDose={giveDose}
+        toDischarge={toDischarge}
+        playerId={playerId}
+        onBack={() => setActive(null)}
+      />
     );
   }
 
-  const meds = activePatient.medicine || [];
+  const paraTriagem = patients.filter((p) => p.status === 'triage');
+  const paraTratar = patients.filter((p) => p.status === 'treatment');
+
+  return (
+    <div className="space-y-6">
+      <section>
+        <h3 className="mb-2 text-lg font-bold">🩺 Triagem ({paraTriagem.length})</h3>
+        <div className="space-y-3">
+          {paraTriagem.length === 0 && (
+            <p className="text-sm text-gray-400">Sem doentes para triar.</p>
+          )}
+          {paraTriagem.map((p) => (
+            <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Fazer triagem ▶" />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-2 text-lg font-bold">💊 Tratamento ({paraTratar.length})</h3>
+        <div className="space-y-3">
+          {paraTratar.length === 0 && (
+            <p className="text-sm text-gray-400">Sem doentes para tratar.</p>
+          )}
+          {paraTratar.map((p) => (
+            <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Tratar ▶" />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Triagem({ patient, playerId, onBack, triage }) {
+  const [vitals, setVitals] = useState({ temp: '', hr: '' });
+  const [color, setColor] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const medir = () => {
+    setVitals({
+      temp: (36 + Math.random() * 3).toFixed(1),
+      hr: String(60 + Math.floor(Math.random() * 40))
+    });
+  };
+
+  const confirmar = async () => {
+    if (!color) return;
+    setBusy(true);
+    const ok = await triage(patient.id, playerId, {
+      temp: vitals.temp || null,
+      hr: vitals.hr || null,
+      triageColor: color
+    });
+    setBusy(false);
+    if (ok) onBack();
+  };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold">👩‍⚕️ Tratamento — {activePatient.name}</h3>
-      <p className="text-sm text-gray-600">
-        Diagnóstico: <strong>{activePatient.diagnosis || '—'}</strong>
-      </p>
+      <h3 className="text-lg font-bold">
+        🩺 Triagem — {patient.name} ({patient.age} anos)
+      </h3>
 
       <div className="card p-4">
-        <h4 className="mb-3 font-bold">💊 Medicação prescrita</h4>
-        {meds.length === 0 && <p className="text-sm text-gray-400">Sem medicação prescrita.</p>}
-        <div className="space-y-2">
-          {meds.map((m) => (
-            <div key={m} className="flex items-center justify-between rounded-xl bg-pink-50 p-2">
-              <span className="text-sm">{m}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">dado {doses[m] || 0}×</span>
-                <button
-                  onClick={() => giveDose(m)}
-                  className="btn bg-hospital-pink px-3 py-1 text-sm text-white"
-                >
-                  Dar
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <QueixaChips queixas={patient.symptoms} name={patient.name} label="O doente diz que sente" />
       </div>
 
       <div className="card p-4">
-        <label className="mb-2 block text-sm font-semibold">📝 Observações</label>
-        <textarea
-          className="input mb-4"
-          rows="3"
-          placeholder="Ex: Doente melhorou significativamente."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-semibold">🌡️ Sinais vitais</span>
+          <button onClick={medir} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700 hover:bg-blue-200">
+            Medir
+          </button>
+        </div>
+        <div className="flex gap-4 text-lg">
+          <div>🌡️ {vitals.temp ? `${vitals.temp} °C` : '—'}</div>
+          <div>❤️ {vitals.hr ? `${vitals.hr} bpm` : '—'}</div>
+        </div>
+        <p className="mt-2 text-xs text-gray-400">Carrega em "Medir" para veres os sinais vitais.</p>
+      </div>
 
-        <label className="mb-2 block text-sm font-semibold">🎯 Satisfação do doente</label>
-        <div className="mb-2 flex gap-1 text-3xl">
-          {[1, 2, 3, 4, 5].map((n) => (
+      <div className="card p-4">
+        <p className="mb-2 text-sm font-semibold">Que pulseira vais dar? (mais grave = cor mais forte)</p>
+        <div className="grid grid-cols-2 gap-3">
+          {WRISTBANDS.map((b) => (
             <button
-              key={n}
-              onClick={() => setRating(n)}
-              className={n <= rating ? '' : 'opacity-30'}
+              key={b.id}
+              onClick={() => setColor(b.id)}
+              className={`btn flex items-center gap-2 py-4 text-white ${b.bg} ${
+                color === b.id ? `ring-4 ${b.ring} ring-offset-2` : 'opacity-90'
+              }`}
             >
-              ⭐
+              <span className="text-xl">{b.dot}</span>
+              <span className="text-left">
+                <span className="block font-bold">{b.label}</span>
+                <span className="block text-xs opacity-90">{b.sub}</span>
+              </span>
             </button>
           ))}
         </div>
@@ -110,15 +142,88 @@ export default function Enfermeira({ playerId }) {
 
       <div className="flex gap-3">
         <button
-          onClick={finish}
-          className="btn flex-1 bg-gradient-to-r from-green-400 to-green-500 py-3 text-white hover:shadow-lg"
+          onClick={confirmar}
+          disabled={!color || busy}
+          className="btn flex-1 bg-gradient-to-r from-green-400 to-green-500 py-3 text-white hover:shadow-lg disabled:opacity-50"
         >
-          ✓ Dar alta
+          ✓ Enviar à médica
         </button>
+        <button onClick={onBack} className="btn bg-white px-4 py-3 text-gray-700 hover:bg-gray-100">
+          ↩ Voltar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
+  const [msg, setMsg] = useState(null);
+  const items = patient.medicine || [];
+  const health = patient.health ?? 0;
+  const curado = health >= 100;
+
+  const aplicar = async (item) => {
+    const res = await giveDose(patient.id, item.name);
+    if (!res.ok && res.wait) setMsg(`⏳ Espera ${res.wait}s antes da próxima dose de ${item.name}.`);
+    else setMsg(null);
+  };
+
+  const enviarAlta = async () => {
+    const ok = await toDischarge(patient.id, playerId);
+    if (ok) onBack();
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-bold">💊 Tratamento — {patient.name}</h3>
+      <p className="text-sm text-gray-600">
+        Diagnóstico: <strong>{patient.diagnosis || '—'}</strong>
+      </p>
+
+      <div className="card p-4">
+        <HealthBar value={health} />
+      </div>
+
+      <div className="card space-y-2 p-4">
+        <h4 className="font-bold">Medicação e curativos</h4>
+        {items.length === 0 && <p className="text-sm text-gray-400">Sem prescrição.</p>}
+        {items.map((it) => {
+          const done = it.given >= it.total;
+          const cooldown = Math.max(0, COOLDOWN_MS - (now - (it.lastGivenAt || 0)));
+          const waiting = cooldown > 0 && !done;
+          return (
+            <div key={it.name} className="flex items-center justify-between rounded-xl bg-pink-50 p-2">
+              <span className="flex items-center gap-2">
+                <span className="text-2xl">{it.emoji}</span>
+                <span>
+                  <span className="font-semibold">{it.name}</span>
+                  <span className="ml-2 text-xs text-gray-500">
+                    {it.given}/{it.total} {it.type === 'curativo' ? 'aplicado' : 'doses'}
+                  </span>
+                </span>
+              </span>
+              <button
+                onClick={() => aplicar(it)}
+                disabled={done || waiting}
+                className="btn bg-hospital-pink px-3 py-1 text-sm text-white disabled:opacity-40"
+              >
+                {done ? '✓ Feito' : waiting ? `${Math.ceil(cooldown / 1000)}s` : it.type === 'curativo' ? 'Aplicar' : 'Dar dose'}
+              </button>
+            </div>
+          );
+        })}
+        {msg && <p className="text-center text-xs text-hospital-danger">{msg}</p>}
+      </div>
+
+      <div className="flex gap-3">
         <button
-          onClick={() => setActive(null)}
-          className="btn bg-white px-4 py-3 text-gray-700 hover:bg-gray-100"
+          onClick={enviarAlta}
+          disabled={!curado}
+          className="btn flex-1 bg-gradient-to-r from-teal-400 to-teal-500 py-3 text-white hover:shadow-lg disabled:opacity-50"
         >
+          {curado ? '✓ Doente bom — enviar para alta' : 'Continua o tratamento até 100%'}
+        </button>
+        <button onClick={onBack} className="btn bg-white px-4 py-3 text-gray-700 hover:bg-gray-100">
           ↩ Voltar
         </button>
       </div>

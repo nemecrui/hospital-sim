@@ -27,9 +27,10 @@ export default async function statsRoutes(fastify) {
         avgWaitTime,
         satisfaction,
         byStatus: {
-          waiting: patients.filter((p) => p.status === 'waiting').length,
-          consulting: patients.filter((p) => p.status === 'consulting').length,
-          treating: patients.filter((p) => p.status === 'treating').length,
+          triage: patients.filter((p) => p.status === 'triage').length,
+          diagnosis: patients.filter((p) => p.status === 'diagnosis').length,
+          treatment: patients.filter((p) => p.status === 'treatment').length,
+          discharge: patients.filter((p) => p.status === 'discharge').length,
           discharged: discharged.length
         }
       };
