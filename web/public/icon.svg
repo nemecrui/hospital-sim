@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF6B9D"/>
+      <stop offset="1" stop-color="#00D9FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fundo -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- cara (círculo branco) -->
+  <circle cx="256" cy="270" r="176" fill="#ffffff"/>
+
+  <!-- cruz vermelha (chapéu de enfermeira) -->
+  <g fill="#FF5A5F">
+    <rect x="236" y="112" width="40" height="96" rx="10"/>
+    <rect x="208" y="140" width="96" height="40" rx="10"/>
+  </g>
+
+  <!-- olhos -->
+  <circle cx="212" cy="286" r="20" fill="#33323A"/>
+  <circle cx="300" cy="286" r="20" fill="#33323A"/>
+
+  <!-- bochechas -->
+  <circle cx="186" cy="330" r="20" fill="#FFC2D1"/>
+  <circle cx="326" cy="330" r="20" fill="#FFC2D1"/>
+
+  <!-- sorriso -->
+  <path d="M198 336 Q256 400 314 336" fill="none" stroke="#33323A" stroke-width="16" stroke-linecap="round"/>
+</svg>

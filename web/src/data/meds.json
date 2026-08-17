@@ -2,9 +2,12 @@
   { "name": "Paracetamol", "emoji": "💊", "type": "med", "doses": 3 },
   { "name": "Ibuprofeno", "emoji": "💊", "type": "med", "doses": 2 },
   { "name": "Antibiótico", "emoji": "💉", "type": "med", "doses": 3 },
+  { "name": "Anti-alérgico", "emoji": "💊", "type": "med", "doses": 2 },
   { "name": "Xarope", "emoji": "🥄", "type": "med", "doses": 3 },
   { "name": "Soro", "emoji": "💧", "type": "med", "doses": 1 },
+  { "name": "Creme para comichão", "emoji": "🧴", "type": "curativo", "doses": 2 },
   { "name": "Gelo", "emoji": "🧊", "type": "curativo", "doses": 2 },
   { "name": "Penso", "emoji": "🩹", "type": "curativo", "doses": 1 },
+  { "name": "Gesso", "emoji": "🦴", "type": "curativo", "doses": 1 },
   { "name": "Repouso", "emoji": "😴", "type": "med", "doses": 1 }
 ]

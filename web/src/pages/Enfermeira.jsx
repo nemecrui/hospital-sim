@@ -109,14 +109,35 @@ function Triagem({ patient, playerId, onBack, triage }) {
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-semibold">🌡️ Sinais vitais</span>
           <button onClick={medir} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700 hover:bg-blue-200">
-            Medir
+            🎲 Medir automático
           </button>
         </div>
-        <div className="flex gap-4 text-lg">
-          <div>🌡️ {vitals.temp ? `${vitals.temp} °C` : '—'}</div>
-          <div>❤️ {vitals.hr ? `${vitals.hr} bpm` : '—'}</div>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <span className="text-xs text-gray-500">🌡️ Temperatura (°C)</span>
+            <input
+              className="input"
+              type="number"
+              step="0.1"
+              placeholder="37.0"
+              value={vitals.temp}
+              onChange={(e) => setVitals({ ...vitals, temp: e.target.value })}
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">❤️ Pulsação (bpm)</span>
+            <input
+              className="input"
+              type="number"
+              placeholder="80"
+              value={vitals.hr}
+              onChange={(e) => setVitals({ ...vitals, hr: e.target.value })}
+            />
+          </label>
         </div>
-        <p className="mt-2 text-xs text-gray-400">Carrega em "Medir" para veres os sinais vitais.</p>
+        <p className="mt-2 text-xs text-gray-400">
+          Escreve à mão ou carrega em "Medir automático". (Normal: ~37 °C e 60–100 bpm.)
+        </p>
       </div>
 
       <div className="card p-4">

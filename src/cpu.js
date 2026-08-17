@@ -9,13 +9,15 @@ const ALL_ROLES = ['secretaria', 'medica', 'enfermeira'];
 
 const DIAGNOSES = [
   'Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite',
-  'Alergia', 'Ferida', 'Entorse', 'Enxaqueca', 'Febre'
+  'Alergia', 'Ferida', 'Entorse', 'Enxaqueca', 'Febre', 'Osso partido'
 ];
 const MEDS = [
   { name: 'Paracetamol', emoji: '💊', type: 'med', total: 3 },
   { name: 'Ibuprofeno', emoji: '💊', type: 'med', total: 2 },
   { name: 'Xarope', emoji: '🥄', type: 'med', total: 3 },
+  { name: 'Anti-alérgico', emoji: '💊', type: 'med', total: 2 },
   { name: 'Penso', emoji: '🩹', type: 'curativo', total: 1 },
+  { name: 'Gesso', emoji: '🦴', type: 'curativo', total: 1 },
   { name: 'Repouso', emoji: '😴', type: 'med', total: 1 }
 ];
 

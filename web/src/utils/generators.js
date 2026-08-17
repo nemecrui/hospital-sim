@@ -18,7 +18,7 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 export function generateArrival() {
   return {
     name: `${pick(firstNames)} ${pick(lastNames)}`,
-    age: Math.floor(Math.random() * 12) + 3, // 3–14 anos
+    age: Math.floor(Math.random() * 97) + 3, // 3–99 anos
     avatar: pick(avatars)
   };
 }

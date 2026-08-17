@@ -41,7 +41,18 @@ export const CONDITIONS = [
   { name: 'Alergia', weight: 2 },
   { name: 'Tornozelo torcido', weight: 2 },
   { name: 'Picada de inseto', weight: 1 },
-  { name: 'Enjoo', weight: 1 }
+  { name: 'Enjoo', weight: 1 },
+  { name: 'Caiu e magoou-se', weight: 3 },
+  // Queixas caricatas e divertidas 🙂
+  { name: 'Soluços sem parar', weight: 1 },
+  { name: 'Cócegas a mais', weight: 1 },
+  { name: 'Comichão no rabo', weight: 1 },
+  { name: 'Espirros aos molhos', weight: 1 },
+  { name: 'Dente a abanar', weight: 1 },
+  { name: 'Barriga a roncar', weight: 1 },
+  { name: 'Joelho esfolado', weight: 1 },
+  { name: 'Ranho verde', weight: 1 },
+  { name: 'Comeu muitos doces', weight: 1 }
 ];
 
 export function generateQueixas() {
@@ -85,7 +96,7 @@ export function generateSymptom() {
 export function generatePatient() {
   return {
     name: generatePatientName(),
-    age: Math.floor(Math.random() * 12) + 3, // 3–14 anos
+    age: Math.floor(Math.random() * 97) + 3, // 3–99 anos
     symptoms: generateQueixas()
   };
 }
