@@ -1,8 +1,13 @@
 import { generatePatient, generateQueixas, HEALTH_BY_COLOR } from '../utils/generators.js';
 
 const MAX_ACTIVE = 3; // só entram novos doentes se houver menos de 3 por tratar
-const DOSE_COOLDOWN_MS = 3500; // intervalo mínimo entre doses do mesmo medicamento
+const DOSE_WINDOW_S = 240; // as tomas distribuem-se por 240s (3 tomas=80s, 2 tomas=120s)
 const VALID_COLORS = ['verde', 'amarela', 'laranja', 'vermelha'];
+
+// Intervalo entre doses de um medicamento com `total` tomas (em ms)
+function cooldownMsFor(total) {
+  return Math.round(DOSE_WINDOW_S / Math.max(1, total)) * 1000;
+}
 
 function serialize(p) {
   return {
@@ -169,8 +174,10 @@ export default async function patientsRoutes(fastify) {
         return reply.code(409).send({ error: 'Já foi dada toda a dose prescrita' });
       }
       const now = Date.now();
-      if (now - (item.lastGivenAt || 0) < DOSE_COOLDOWN_MS) {
-        const wait = Math.ceil((DOSE_COOLDOWN_MS - (now - item.lastGivenAt)) / 1000);
+      const cooldownMs = cooldownMsFor(item.total);
+      // A primeira toma é imediata; as seguintes respeitam o intervalo
+      if (item.given > 0 && now - (item.lastGivenAt || 0) < cooldownMs) {
+        const wait = Math.ceil((cooldownMs - (now - item.lastGivenAt)) / 1000);
         return reply.code(429).send({ error: `Espera ${wait}s antes da próxima dose`, wait });
       }
 

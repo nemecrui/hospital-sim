@@ -6,7 +6,10 @@ import QueixaChips from '../components/QueixaChips.jsx';
 import HealthBar from '../components/HealthBar.jsx';
 import { WRISTBANDS } from '../components/Wristband.jsx';
 
-const COOLDOWN_MS = 3500;
+const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
+
+const cooldownMsFor = (total) => Math.round(DOSE_WINDOW_S / Math.max(1, total)) * 1000;
+const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : `${s}s`);
 
 export default function Enfermeira({ playerId }) {
   const { patients, pollPatients, triage, giveDose, toDischarge } = useContext(HospitalContext);
@@ -210,7 +213,8 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
         {items.length === 0 && <p className="text-sm text-gray-400">Sem prescrição.</p>}
         {items.map((it) => {
           const done = it.given >= it.total;
-          const cooldown = Math.max(0, COOLDOWN_MS - (now - (it.lastGivenAt || 0)));
+          const cooldownMs = cooldownMsFor(it.total);
+          const cooldown = it.given > 0 ? Math.max(0, cooldownMs - (now - (it.lastGivenAt || 0))) : 0;
           const waiting = cooldown > 0 && !done;
           return (
             <div key={it.name} className="flex items-center justify-between rounded-xl bg-pink-50 p-2">
@@ -220,6 +224,7 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
                   <span className="font-semibold">{it.name}</span>
                   <span className="ml-2 text-xs text-gray-500">
                     {it.given}/{it.total} {it.type === 'curativo' ? 'aplicado' : 'doses'}
+                    {it.total > 1 && ` · a cada ${Math.round(DOSE_WINDOW_S / it.total)}s`}
                   </span>
                 </span>
               </span>
@@ -228,7 +233,7 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
                 disabled={done || waiting}
                 className="btn bg-hospital-pink px-3 py-1 text-sm text-white disabled:opacity-40"
               >
-                {done ? '✓ Feito' : waiting ? `${Math.ceil(cooldown / 1000)}s` : it.type === 'curativo' ? 'Aplicar' : 'Dar dose'}
+                {done ? '✓ Feito' : waiting ? fmt(Math.ceil(cooldown / 1000)) : it.type === 'curativo' ? 'Aplicar' : 'Dar dose'}
               </button>
             </div>
           );
