@@ -1,14 +1,21 @@
 import { FRUITS, randomFruit } from '../utils/generators.js';
 
-// Gera um código-fruta único (ex.: "morango"; "morango-42" se já existir)
+// Gera um código-fruta único (ex.: "morango"; "morango-2" se já existir)
+// É sempre uma fruta — nunca cai num código estranho.
 async function makeUniqueCode(prisma) {
-  for (let i = 0; i < 12; i++) {
-    const base = randomFruit();
-    const code = i < FRUITS.length ? base : `${base}-${Math.floor(Math.random() * 90) + 10}`;
+  // 1) tenta cada fruta simples, por ordem aleatória
+  const shuffled = [...FRUITS].sort(() => Math.random() - 0.5);
+  for (const base of shuffled) {
+    const exists = await prisma.session.findUnique({ where: { code: base } });
+    if (!exists) return base;
+  }
+  // 2) todas ocupadas -> fruta + número
+  for (let n = 2; n < 2000; n++) {
+    const code = `${randomFruit()}-${n}`;
     const exists = await prisma.session.findUnique({ where: { code } });
     if (!exists) return code;
   }
-  return `sala-${Math.floor(Math.random() * 100000)}`;
+  return `fruta-${Math.floor(Math.random() * 100000)}`;
 }
 
 export default async function sessionsRoutes(fastify) {
@@ -94,6 +101,12 @@ export default async function sessionsRoutes(fastify) {
         }
       });
       if (!session) return reply.code(404).send({ error: 'Session not found' });
+      // Cura sessões antigas que ficaram sem código-fruta
+      if (!session.code) {
+        const code = await makeUniqueCode(prisma);
+        await prisma.session.update({ where: { id }, data: { code } });
+        session.code = code;
+      }
       return session;
     } catch (err) {
       fastify.log.error(err);
