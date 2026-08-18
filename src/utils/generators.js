@@ -73,14 +73,14 @@ export function generateQueixas() {
 
 // Exames complementares (pedidos pelo médico, feitos pelo TAD)
 export const EXAMS = [
-  { name: 'ECG', emoji: '📈', results: ['Coração normal ❤️', 'Batimento acelerado', 'Batimento devagar'] },
-  { name: 'Ecografia', emoji: '🫧', results: ['Barriga normal', 'Comeu demais 🍔', 'Muitos gases 💨'] },
-  { name: 'Raio-X', emoji: '🩻', results: ['Ossos normais', 'Osso partido 🦴', 'Engoliu uma moeda 🪙'] },
-  { name: 'TAC', emoji: '🧠', results: ['Cabeça normal', 'Muitas ideias 💡'] },
-  { name: 'Ressonância (RM)', emoji: '🧲', results: ['Tudo bem', 'Precisa de descanso 😴'] },
-  { name: 'Análise de sangue', emoji: '🩸', results: ['Tudo normal', 'Falta de ferro', 'Uma infeção 🦠'] },
-  { name: 'Análise de urina', emoji: '🧪', results: ['Normal', 'Infeção urinária'] },
-  { name: 'Audiograma', emoji: '👂', results: ['Ouve bem 👍', 'Ouve pouco'] }
+  { name: 'ECG', emoji: '📈', results: ['Coração normal ❤️', 'Batimento acelerado', 'Batimento devagar', 'Coração aos saltos 🐰', 'Batimento de festa 🎉'] },
+  { name: 'Ecografia', emoji: '🫧', results: ['Barriga normal', 'Comeu demais 🍔', 'Muitos gases 💨', 'Borboletas na barriga 🦋', 'Engoliu ar 🎈'] },
+  { name: 'Raio-X', emoji: '🩻', results: ['Ossos normais', 'Osso partido 🦴', 'Engoliu uma moeda 🪙', 'Pipocas na barriga 🍿', 'Osso rijo como pedra 🪨'] },
+  { name: 'TAC', emoji: '🧠', results: ['Cabeça normal', 'Muitas ideias 💡', 'Sonhos a mais 💭', 'Cheia de imaginação 🌈'] },
+  { name: 'Ressonância (RM)', emoji: '🧲', results: ['Tudo bem', 'Precisa de descanso 😴', 'Precisa de férias 🏖️', 'Bateria fraca 🔋'] },
+  { name: 'Análise de sangue', emoji: '🩸', results: ['Tudo normal', 'Falta de ferro', 'Uma infeção 🦠', 'Açúcar a mais 🍭', 'Super-herói saudável 🦸'] },
+  { name: 'Análise de urina', emoji: '🧪', results: ['Normal', 'Infeção urinária', 'Bebeu pouca água 🚱', 'Xixi campeão 🏆'] },
+  { name: 'Audiograma', emoji: '👂', results: ['Ouve bem 👍', 'Ouve pouco', 'Ouve até os segredos 🤫', 'Orelhas com cera 🕯️'] }
 ];
 
 export function examEmoji(name) {

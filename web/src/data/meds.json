@@ -9,5 +9,11 @@
   { "name": "Gelo", "emoji": "🧊", "type": "curativo", "doses": 2 },
   { "name": "Penso", "emoji": "🩹", "type": "curativo", "doses": 1 },
   { "name": "Gesso", "emoji": "🦴", "type": "curativo", "doses": 1 },
-  { "name": "Repouso", "emoji": "😴", "type": "med", "doses": 1 }
+  { "name": "Repouso", "emoji": "😴", "type": "med", "doses": 1 },
+  { "name": "Chá quentinho", "emoji": "🍵", "type": "med", "doses": 2 },
+  { "name": "Sopa da avó", "emoji": "🥣", "type": "med", "doses": 1 },
+  { "name": "Beijinho de melhoras", "emoji": "😘", "type": "curativo", "doses": 1 },
+  { "name": "Mimo extra", "emoji": "🧸", "type": "med", "doses": 2 },
+  { "name": "Gargalhada", "emoji": "😂", "type": "med", "doses": 3 },
+  { "name": "Banho quente", "emoji": "🛁", "type": "curativo", "doses": 1 }
 ]

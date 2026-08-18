@@ -11,7 +11,9 @@ const ALL_ROLES = ['secretaria', 'medica', 'enfermeira', 'tad'];
 
 const DIAGNOSES = [
   'Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite',
-  'Alergia', 'Ferida', 'Entorse', 'Enxaqueca', 'Febre', 'Osso partido'
+  'Alergia', 'Ferida', 'Entorse', 'Enxaqueca', 'Febre', 'Osso partido',
+  'Excesso de guloseimas', 'Preguicite aguda', 'Barriga de trovão',
+  'Nariz de palhaço', 'Cócegas crónicas', 'Cabeça no ar'
 ];
 const MEDS = [
   { name: 'Paracetamol', emoji: '💊', type: 'med', total: 3 },
@@ -20,7 +22,11 @@ const MEDS = [
   { name: 'Anti-alérgico', emoji: '💊', type: 'med', total: 2 },
   { name: 'Penso', emoji: '🩹', type: 'curativo', total: 1 },
   { name: 'Gesso', emoji: '🦴', type: 'curativo', total: 1 },
-  { name: 'Repouso', emoji: '😴', type: 'med', total: 1 }
+  { name: 'Repouso', emoji: '😴', type: 'med', total: 1 },
+  { name: 'Chá quentinho', emoji: '🍵', type: 'med', total: 2 },
+  { name: 'Sopa da avó', emoji: '🥣', type: 'med', total: 1 },
+  { name: 'Mimo extra', emoji: '🧸', type: 'med', total: 2 },
+  { name: 'Gargalhada', emoji: '😂', type: 'med', total: 3 }
 ];
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
