@@ -105,7 +105,7 @@ function Triagem({ patient, playerId, onBack, triage }) {
       </h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} label="O doente diz que sente" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="O doente diz que sente" />
       </div>
 
       <div className="card p-4">

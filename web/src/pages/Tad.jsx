@@ -66,7 +66,7 @@ function ExamRoom({ patient, playerId, examResult, examsDone, onBack }) {
       <h3 className="text-lg font-bold">🔬 Exames — {patient.name} ({patient.age} anos)</h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} label="Queixa" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="Queixa" />
       </div>
 
       <div className="space-y-3">

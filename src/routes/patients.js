@@ -1,4 +1,4 @@
-import { generatePatient, generateQueixas, HEALTH_BY_COLOR, examEmoji } from '../utils/generators.js';
+import { generatePatient, generateQueixas, generateStory, HEALTH_BY_COLOR, examEmoji } from '../utils/generators.js';
 
 const MAX_ACTIVE = 3; // só entram novos doentes se houver menos de 3 por tratar
 const DOSE_WINDOW_S = 240; // as tomas distribuem-se por 240s (3 tomas=80s, 2 tomas=120s)
@@ -46,12 +46,14 @@ export default async function patientsRoutes(fastify) {
       if ((await countActive(prisma, sessionId)) >= MAX_ACTIVE) {
         return reply.code(409).send({ error: 'Too many active patients' });
       }
+      const symptoms = generateQueixas();
       const patient = await prisma.patient.create({
         data: {
           sessionId,
           name,
           age: Number(age),
-          symptoms: JSON.stringify(generateQueixas()),
+          symptoms: JSON.stringify(symptoms),
+          story: generateStory(symptoms[0]),
           status: 'triage'
         }
       });
@@ -77,6 +79,7 @@ export default async function patientsRoutes(fastify) {
           name: g.name,
           age: g.age,
           symptoms: JSON.stringify(g.symptoms),
+          story: g.story,
           status: 'triage'
         }
       });

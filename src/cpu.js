@@ -66,6 +66,7 @@ async function tickSession(prisma, session) {
           name: g.name,
           age: g.age,
           symptoms: JSON.stringify(g.symptoms),
+          story: g.story,
           status: 'triage'
         }
       });

@@ -34,6 +34,7 @@ model Patient {
   name    String
   age     Int
   symptoms String // JSON stringified array
+  story    String? // pequena história divertida de quando começaram os sintomas
   urgency String @default("normal") // "normal" | "urgent"
 
   // Workflow status: triage | diagnosis | treatment | discharge | discharged

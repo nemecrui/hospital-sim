@@ -17,8 +17,8 @@ async function main() {
         name: g.name,
         age: g.age,
         symptoms: JSON.stringify(g.symptoms),
-        urgency: g.urgency,
-        status: 'waiting'
+        story: g.story,
+        status: 'triage'
       }
     });
   }

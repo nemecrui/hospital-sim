@@ -1,13 +1,13 @@
 import icons from '../data/icons.json';
 import { speak } from '../utils/tts.js';
 
-// Mostra as queixas com imagem (emoji) + botão para ouvir em voz alta.
-export default function QueixaChips({ queixas = [], name, label = 'Queixas' }) {
+// Mostra a queixa (com imagem), a historinha do doente e um botão para ouvir tudo.
+export default function QueixaChips({ queixas = [], name, story, label = 'Queixa' }) {
   const list = queixas.length ? queixas : ['—'];
 
   const readAloud = () => {
     const parte = queixas.length ? queixas.join(', ') : 'nada de especial';
-    const frase = name ? `Olá, sou ${name}. Sinto ${parte}.` : `Sinto ${parte}.`;
+    const frase = `Olá, sou ${name || 'o doente'}. Tenho ${parte}. ${story || ''}`;
     speak(frase);
   };
 
@@ -23,17 +23,21 @@ export default function QueixaChips({ queixas = [], name, label = 'Queixas' }) {
           🔊 Ouvir
         </button>
       </div>
+
       <div className="flex flex-wrap gap-2">
         {list.map((q, i) => (
-          <span
-            key={i}
-            className="flex items-center gap-1 rounded-2xl bg-pink-50 px-3 py-2 text-base"
-          >
+          <span key={i} className="flex items-center gap-1 rounded-2xl bg-pink-50 px-3 py-2 text-base">
             <span className="text-2xl">{icons[q] || '❓'}</span>
             <span>{q}</span>
           </span>
         ))}
       </div>
+
+      {story && (
+        <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">
+          📖 {story}
+        </p>
+      )}
     </div>
   );
 }

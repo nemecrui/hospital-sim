@@ -98,7 +98,7 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
       </h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} label="Queixa" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="Queixa" />
         <div className="mt-3 flex gap-4 text-sm text-gray-600">
           <span>🌡️ {patient.temp ? `${patient.temp} °C` : '—'}</span>
           <span>❤️ {patient.hr ? `${patient.hr} bpm` : '—'}</span>
