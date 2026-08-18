@@ -5,7 +5,7 @@ const ROLES = [
   { id: 'secretaria', label: '👩‍💼 Secretária' },
   { id: 'medica', label: '👨‍⚕️ Médica' },
   { id: 'enfermeira', label: '👩‍⚕️ Enfermeira' },
-  { id: 'tad', label: '🔬 Técnico (TAD)' }
+  { id: 'tad', label: '🔬 Técnico (TAS)' }
 ];
 
 export default function Setup({ sessionId, onDone }) {

@@ -3,7 +3,8 @@ import {
   generatePatient,
   suggestTriageColor,
   HEALTH_BY_COLOR,
-  randomExamResult
+  randomExamResult,
+  EXAMS
 } from './utils/generators.js';
 
 const ALL_ROLES = ['secretaria', 'medica', 'enfermeira', 'tad'];
@@ -120,19 +121,27 @@ async function tickSession(prisma, session) {
 
   // 👨‍⚕️ Médica CPU — diagnóstico e alta
   if (cpuRoles.includes('medica')) {
-    // Diagnóstico: diagnosis -> treatment
+    // Diagnóstico: pede exames (~40%, se ainda não tiver) OU vai direto ao tratamento
     for (const p of patients.filter((p) => p.status === 'diagnosis')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
-        const chosen = pick(MEDS);
-        const items = [{ ...chosen, given: 0, lastGivenAt: 0 }];
-        await prisma.patient.update({
-          where: { id: p.id },
-          data: {
-            status: 'treatment',
-            diagnosis: pick(DIAGNOSES),
-            medicine: JSON.stringify(items)
-          }
-        });
+        const jaFezExames = safeParse(p.exams, []).length > 0;
+        if (!jaFezExames && Math.random() < 0.4) {
+          // Pedir 1 (às vezes 2) exames ao TAS
+          const shuffled = [...EXAMS].sort(() => Math.random() - 0.5);
+          const n = Math.random() < 0.3 ? 2 : 1;
+          const list = shuffled.slice(0, n).map((e) => ({ name: e.name, emoji: e.emoji, result: null }));
+          await prisma.patient.update({
+            where: { id: p.id },
+            data: { status: 'exams', diagnosis: pick(DIAGNOSES), exams: JSON.stringify(list) }
+          });
+        } else {
+          const chosen = pick(MEDS);
+          const items = [{ ...chosen, given: 0, lastGivenAt: 0 }];
+          await prisma.patient.update({
+            where: { id: p.id },
+            data: { status: 'treatment', diagnosis: pick(DIAGNOSES), medicine: JSON.stringify(items) }
+          });
+        }
       }
     }
     // Alta: discharge -> discharged

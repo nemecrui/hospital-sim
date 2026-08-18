@@ -14,7 +14,7 @@ const ROLES = [
   { id: 'secretaria', label: '👩‍💼 Secretária', from: 'from-pink-400', to: 'to-pink-500' },
   { id: 'medica', label: '👨‍⚕️ Médica', from: 'from-blue-400', to: 'to-blue-500' },
   { id: 'enfermeira', label: '👩‍⚕️ Enfermeira', from: 'from-green-400', to: 'to-green-500' },
-  { id: 'tad', label: '🔬 Técnico (TAD)', from: 'from-indigo-400', to: 'to-indigo-500' }
+  { id: 'tad', label: '🔬 Técnico (TAS)', from: 'from-indigo-400', to: 'to-indigo-500' }
 ];
 
 export default function App() {
