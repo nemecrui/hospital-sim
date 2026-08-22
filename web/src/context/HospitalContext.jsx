@@ -49,7 +49,13 @@ export function HospitalProvider({ children, sessionId }) {
         } catch {
           stickers = [];
         }
-        setSession({ ...s, stickersList: stickers });
+        let objectiveObj = null;
+        try {
+          objectiveObj = s.objective ? JSON.parse(s.objective) : null;
+        } catch {
+          objectiveObj = null;
+        }
+        setSession({ ...s, stickersList: stickers, objectiveObj });
       }
     } catch {
       /* silencioso */

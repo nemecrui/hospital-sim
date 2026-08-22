@@ -3,7 +3,6 @@ import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
 import Caderneta from '../components/Caderneta.jsx';
-import Confetti from '../components/Confetti.jsx';
 
 function Stat({ label, value, emoji }) {
   return (
@@ -35,8 +34,6 @@ export default function Dashboard() {
   }, 2500);
 
   const discharged = patients.filter((p) => p.status === 'discharged');
-  const goalTarget = session?.goalTarget ?? 8;
-  const goalReached = discharged.length >= goalTarget;
   const satisfaction = stats?.satisfaction ?? 0;
   const stars = '⭐'.repeat(Math.round(satisfaction)) || '—';
 
@@ -48,15 +45,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-      <Confetti show={goalReached} />
       <h3 className="text-lg font-bold">📈 Resumo do dia</h3>
-
-      {goalReached && (
-        <div className="card animate-pop bg-green-50 p-4 text-center">
-          <div className="text-3xl">🎉🏆🎉</div>
-          <p className="font-bold text-green-800">Meta do dia alcançada! Parabéns às duas!</p>
-        </div>
-      )}
 
       <div className="flex gap-3">
         <Stat label="Curados" value={stats?.totalTreated ?? 0} emoji="✅" />

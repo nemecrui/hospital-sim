@@ -104,18 +104,27 @@ const WHEN = [
   'Logo depois do lanche', 'Antes de dormir', 'Durante a sesta',
   'Hoje de manhãzinha', 'Há bocadinho', 'Na hora do recreio', 'Depois do jantar'
 ];
-const ONDE = [
-  'no parque', 'na escola', 'em casa da avó', 'no recreio', 'na aula de ginástica',
-  'na festa de anos do primo', 'a ver desenhos animados', 'enquanto brincava',
-  'no supermercado', 'na piscina', 'a andar de bicicleta', 'no jardim', 'no sofá'
-];
-const EXTRAS = [
-  'Agora não para quieto!', 'Está um bocadinho manhoso.',
-  'Diz que já se sente melhor, mas veio na mesma.',
-  'Trouxe o peluche favorito para dar coragem.', 'Chorou só um bocadinho.',
-  'Está cheio de fome, isso é bom sinal!', 'Quer um autocolante de recompensa.',
-  'Portou-se muito bem na sala de espera.', 'Veio de mão dada com a mãe.'
-];
+// Situações e detalhes conforme a faixa etária
+const ONDE_BY_AGE = {
+  crianca: ['no parque', 'no recreio', 'na aula de ginástica', 'na festa de anos do primo', 'a ver desenhos animados', 'enquanto brincava', 'na piscina', 'a andar de bicicleta', 'no jardim'],
+  jovem: ['na escola', 'no treino de futebol', 'com os amigos', 'no skate', 'na aula de dança', 'a jogar à bola', 'no intervalo'],
+  adulto: ['no trabalho', 'no ginásio', 'a cozinhar', 'no jardim', 'às compras', 'a arrumar a garagem', 'no caminho para casa'],
+  idoso: ['no jardim', 'a passear', 'em casa dos netos', 'no café', 'a tratar da horta', 'a fazer palavras-cruzadas']
+};
+const EXTRAS_BY_AGE = {
+  crianca: ['Agora não para quieto!', 'Trouxe o peluche favorito para dar coragem.', 'Chorou só um bocadinho.', 'Quer um autocolante de recompensa.', 'Veio de mão dada com a mãe.'],
+  jovem: ['Diz que está tudo bem, mas veio na mesma.', 'Não largou o telemóvel na sala de espera.', 'Ficou um bocadinho envergonhado.', 'Quer voltar depressa para os amigos.'],
+  adulto: ['Veio depressa no intervalo do almoço.', 'Está com pressa de voltar ao trabalho.', 'Ligou a avisar que se atrasa.', 'Diz que não é nada, mas a família insistiu.'],
+  idoso: ['Veio de bengala e com muito bom humor.', 'Contou três histórias na sala de espera.', 'Trouxe rebuçados para toda a gente.', 'Diz que já viu pior.']
+};
+
+function ageBand(age) {
+  if (age == null) return 'crianca';
+  if (age <= 12) return 'crianca';
+  if (age <= 17) return 'jovem';
+  if (age <= 64) return 'adulto';
+  return 'idoso';
+}
 const GENERIC_EVENTS = [
   'começou a sentir-se um bocadinho estranho', 'acordou assim e veio ver o médico',
   'não está nos seus dias', 'ficou com um arzinho amuado'
@@ -157,9 +166,10 @@ const STORY_EVENTS = {
   'Bebeu sumo pelo nariz': ['riu-se a meio de um gole', 'o sumo escolheu o caminho errado']
 };
 
-export function generateStory(symptom) {
+export function generateStory(symptom, age) {
+  const band = ageBand(age);
   const events = STORY_EVENTS[symptom] || GENERIC_EVENTS;
-  return `${one(WHEN)}, ${one(ONDE)}, ${one(events)}. ${one(EXTRAS)}`;
+  return `${one(WHEN)}, ${one(ONDE_BY_AGE[band])}, ${one(events)}. ${one(EXTRAS_BY_AGE[band])}`;
 }
 
 // Exames complementares (pedidos pelo médico, feitos pelo TAD)
@@ -243,11 +253,12 @@ export function generateSymptom() {
 
 export function generatePatient(scenario) {
   const symptoms = generateQueixas(scenario);
+  const age = Math.floor(Math.random() * 97) + 3; // 3–99 anos
   return {
     name: generatePatientName(),
-    age: Math.floor(Math.random() * 97) + 3, // 3–99 anos
+    age,
     symptoms,
-    story: generateStory(symptoms[0])
+    story: generateStory(symptoms[0], age)
   };
 }
 
@@ -269,3 +280,9 @@ export function generateEmergency() {
     story: one(EMERGENCY_STORIES)
   };
 }
+
+// Doenças que podem ser alvo de um objetivo ("curar N gripes")
+export const DISEASE_GOALS = [
+  'Gripe', 'Constipação', 'Febre', 'Alergia', 'Ferida',
+  'Osso partido', 'Amigdalite', 'Gastroenterite', 'Otite'
+];

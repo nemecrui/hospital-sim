@@ -5,8 +5,38 @@ import {
   suggestTriageColor,
   HEALTH_BY_COLOR,
   randomExamResult,
-  EXAMS
+  EXAMS,
+  DISEASE_GOALS
 } from './utils/generators.js';
+
+// Roda o cenário: tema (2–4 min) alterna com dia normal (1–2,5 min)
+function nextScenario(current) {
+  if (!current || current === 'normal') {
+    const themed = ['gripes', 'parque', 'festa'];
+    return { scenario: themed[Math.floor(Math.random() * themed.length)], durMs: (120 + Math.floor(Math.random() * 120)) * 1000 };
+  }
+  return { scenario: 'normal', durMs: (60 + Math.floor(Math.random() * 90)) * 1000 };
+}
+
+// Cria um objetivo aleatório: curar N doentes OU curar N de uma doença
+function rollObjective(patients) {
+  const discharged = patients.filter((p) => p.status === 'discharged');
+  const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  if (Math.random() < 0.5) {
+    return { id, type: 'count', target: 5 + Math.floor(Math.random() * 8), startCount: discharged.length };
+  }
+  const disease = DISEASE_GOALS[Math.floor(Math.random() * DISEASE_GOALS.length)];
+  const startCount = discharged.filter((p) => p.diagnosis === disease).length;
+  return { id, type: 'disease', disease, target: 2 + Math.floor(Math.random() * 3), startCount };
+}
+
+function objectiveProgress(obj, patients) {
+  const discharged = patients.filter((p) => p.status === 'discharged');
+  const qualifying = obj.type === 'disease'
+    ? discharged.filter((p) => p.diagnosis === obj.disease).length
+    : discharged.length;
+  return qualifying - (obj.startCount || 0);
+}
 
 const ALL_ROLES = ['secretaria', 'medica', 'enfermeira', 'tad'];
 
@@ -49,11 +79,35 @@ async function tickSession(prisma, session) {
   const patients = await prisma.patient.findMany({ where: { sessionId: session.id } });
   const active = patients.filter((p) => p.status !== 'discharged');
 
-  // 🚑 Ambulância — urgência ocasional que salta a fila (acontece mesmo com todos os papéis humanos)
+  // 🎠 Rotação de cenário (por tempo determinado; alterna tema com dia normal)
+  if (!session.scenarioUntil || now > new Date(session.scenarioUntil).getTime()) {
+    const nx = nextScenario(session.scenario);
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { scenario: nx.scenario, scenarioUntil: new Date(now + nx.durMs) }
+    });
+    session.scenario = nx.scenario;
+  }
+
+  // 🎯 Objetivo: cria se não existir; quando cumprido, gera um novo
+  const obj = safeParse(session.objective, null);
+  if (!obj) {
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { objective: JSON.stringify(rollObjective(patients)) }
+    });
+  } else if (objectiveProgress(obj, patients) >= obj.target) {
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { objective: JSON.stringify(rollObjective(patients)) }
+    });
+  }
+
+  // 🚑 Ambulância — urgência rara que salta a fila (acontece mesmo com todos os papéis humanos)
   const lastEmerg = patients
     .filter((p) => p.emergency)
     .reduce((m, p) => Math.max(m, new Date(p.createdAt).getTime()), 0);
-  if (active.length < 5 && now - lastEmerg > 45000 && Math.random() < 0.06) {
+  if (active.length < 5 && now - lastEmerg > 240000 && Math.random() < 0.04) {
     const g = generateEmergency();
     await prisma.patient.create({
       data: {

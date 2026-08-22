@@ -33,6 +33,12 @@ export default async function sessionsRoutes(fastify) {
           humanRoles: JSON.stringify(Array.isArray(humanRoles) ? humanRoles : []),
           goalTarget: goalTarget ? Number(goalTarget) : 8,
           scenario: scenario || 'normal',
+          objective: JSON.stringify({
+            id: 'init',
+            type: 'count',
+            target: 5 + Math.floor(Math.random() * 6),
+            startCount: 0
+          }),
           stats: { create: {} }
         },
         include: { stats: true }
@@ -143,6 +149,18 @@ export default async function sessionsRoutes(fastify) {
       await prisma.stats.update({
         where: { sessionId: id },
         data: { totalTreated: 0, avgWaitTime: 0, satisfaction: 0 }
+      });
+      // Novo objetivo (recomeça do zero)
+      await prisma.session.update({
+        where: { id },
+        data: {
+          objective: JSON.stringify({
+            id: `r${Date.now()}`,
+            type: 'count',
+            target: 5 + Math.floor(Math.random() * 6),
+            startCount: 0
+          })
+        }
       });
 
       return { message: 'Session reset', history: oldSession };

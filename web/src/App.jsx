@@ -8,7 +8,6 @@ import Enfermeira from './pages/Enfermeira.jsx';
 import Tad from './pages/Tad.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import GoalBar from './components/GoalBar.jsx';
-import scenarios from './data/scenarios.json';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
 import { API_URL } from './utils/api.js';
 
@@ -113,19 +112,9 @@ export default function App() {
     <HospitalProvider sessionId={sessionId}>
       <div className="mx-auto min-h-screen max-w-3xl p-4">
         <header className="mb-4 flex items-center justify-between">
-          <div className="flex flex-col text-sm text-gray-700">
-            <span>
-              👧 <strong>{playerId}</strong> ·{' '}
-              {role === 'dashboard' ? '📊 Dashboard' : ROLES.find((r) => r.id === role)?.label}
-            </span>
-            {(() => {
-              const sc = scenarios.find((s) => s.id === config.scenario);
-              return sc ? (
-                <span className="text-xs text-gray-400">
-                  {sc.emoji} {sc.name}
-                </span>
-              ) : null;
-            })()}
+          <div className="text-sm text-gray-700">
+            👧 <strong>{playerId}</strong> ·{' '}
+            {role === 'dashboard' ? '📊 Dashboard' : ROLES.find((r) => r.id === role)?.label}
           </div>
           <button
             onClick={() => setRole(null)}
@@ -135,7 +124,7 @@ export default function App() {
           </button>
         </header>
 
-        <GoalBar target={config.goalTarget} />
+        <GoalBar />
 
         {role === 'secretaria' && <Secretaria />}
         {role === 'medica' && <Medica playerId={playerId} />}

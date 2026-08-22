@@ -20,9 +20,11 @@ model Session {
   humanRoles String @default("[]") // JSON array dos papéis humanos; os restantes são CPU
 
   // Recompensas e objetivo
-  stickers   String @default("[]") // JSON array de ids de autocolantes ganhos (caderneta)
-  goalTarget Int    @default(8) // meta de doentes a curar por dia
-  scenario   String @default("normal") // tema do dia: normal | gripes | parque | festa
+  stickers   String    @default("[]") // JSON array de ids de autocolantes ganhos (caderneta)
+  goalTarget Int       @default(8) // (legado) meta fixa — já não usado
+  objective  String? // JSON do objetivo atual: { id, type, target, disease?, startCount }
+  scenario   String    @default("normal") // tema atual: normal | gripes | parque | festa
+  scenarioUntil DateTime? // quando o tema muda
 
   patients Patient[]
   stats    Stats?

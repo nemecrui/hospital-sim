@@ -54,7 +54,7 @@ export default async function patientsRoutes(fastify) {
           name,
           age: Number(age),
           symptoms: JSON.stringify(symptoms),
-          story: generateStory(symptoms[0]),
+          story: generateStory(symptoms[0], Number(age)),
           status: 'triage'
         }
       });
