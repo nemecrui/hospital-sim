@@ -5,6 +5,7 @@ import PatientCard from '../components/PatientCard.jsx';
 import QueixaChips from '../components/QueixaChips.jsx';
 import HealthBar from '../components/HealthBar.jsx';
 import { WRISTBANDS } from '../components/Wristband.jsx';
+import { triageTip } from '../utils/hints.js';
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -162,6 +163,11 @@ function Triagem({ patient, playerId, onBack, triage }) {
             </button>
           ))}
         </div>
+        {triageTip(vitals.temp, color) && (
+          <p className="mt-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-800">
+            {triageTip(vitals.temp, color)}
+          </p>
+        )}
       </div>
 
       <div className="flex gap-3">

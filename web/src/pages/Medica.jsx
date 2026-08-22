@@ -10,6 +10,7 @@ import meds from '../data/meds.json';
 import examsData from '../data/exams.json';
 import icons from '../data/icons.json';
 import { speak } from '../utils/tts.js';
+import { diagnosisHint } from '../utils/hints.js';
 
 export default function Medica({ playerId }) {
   const { patients, pollPatients, prescribe, requestExams, discharge } = useContext(HospitalContext);
@@ -104,6 +105,11 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
           <span>🌡️ {patient.temp ? `${patient.temp} °C` : '—'}</span>
           <span>❤️ {patient.hr ? `${patient.hr} bpm` : '—'}</span>
         </div>
+        {diagnosisHint(patient.symptoms?.[0]) && (
+          <p className="mt-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-800">
+            💡 {diagnosisHint(patient.symptoms[0])}
+          </p>
+        )}
       </div>
 
       {temResultados && (

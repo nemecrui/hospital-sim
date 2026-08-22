@@ -8,7 +8,10 @@ import Enfermeira from './pages/Enfermeira.jsx';
 import Tad from './pages/Tad.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import GoalBar from './components/GoalBar.jsx';
+import HospitalHeader from './components/HospitalHeader.jsx';
+import DidYouKnow from './components/DidYouKnow.jsx';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
+import { isMusicOn, toggleMusic } from './utils/music.js';
 import { API_URL } from './utils/api.js';
 
 const ROLES = [
@@ -111,7 +114,9 @@ export default function App() {
   return (
     <HospitalProvider sessionId={sessionId}>
       <div className="mx-auto min-h-screen max-w-3xl p-4">
-        <header className="mb-4 flex items-center justify-between">
+        <HospitalHeader />
+
+        <header className="mb-3 flex items-center justify-between">
           <div className="text-sm text-gray-700">
             👧 <strong>{playerId}</strong> ·{' '}
             {role === 'dashboard' ? '📊 Dashboard' : ROLES.find((r) => r.id === role)?.label}
@@ -125,6 +130,7 @@ export default function App() {
         </header>
 
         <GoalBar />
+        <DidYouKnow />
 
         {role === 'secretaria' && <Secretaria />}
         {role === 'medica' && <Medica playerId={playerId} />}
@@ -148,6 +154,7 @@ function safeParse(json) {
 function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole, onLeave }) {
   const [copied, setCopied] = useState(false);
   const [sound, setSound] = useState(isSoundEnabled());
+  const [music, setMusic] = useState(isMusicOn());
 
   const humanRoles = config.humanRoles;
   const cpuRoles = ROLES.filter((r) => !humanRoles.includes(r.id));
@@ -167,6 +174,10 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
     const next = !sound;
     setSound(next);
     setSoundEnabled(next);
+  };
+
+  const toggleMus = () => {
+    setMusic(toggleMusic());
   };
 
   return (
@@ -219,13 +230,18 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
           </p>
         )}
 
-        <div className="mt-6 flex items-center justify-between text-sm text-gray-600">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
           <button onClick={onLeave} className="hover:underline">
             ← Sair da sessão
           </button>
-          <button onClick={toggleSound} className="hover:underline">
-            {sound ? '🔊 Som ligado' : '🔇 Som desligado'}
-          </button>
+          <div className="flex gap-3">
+            <button onClick={toggleMus} className="hover:underline">
+              {music ? '🎵 Música ligada' : '🎵 Música desligada'}
+            </button>
+            <button onClick={toggleSound} className="hover:underline">
+              {sound ? '🔊 Som ligado' : '🔇 Som desligado'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

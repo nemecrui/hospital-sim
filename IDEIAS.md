@@ -11,7 +11,12 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Objetivo comum do dia** — meta partilhada com barra no topo de todos os ecrãs.
 - ✅ **Ambulância / urgências** — casos 🚑 que saltam a fila, com som e destaque.
 - ✅ **Sala de espera com humor** — carinhas que mudam com o tempo de espera.
-- ✅ **Cenários temáticos** — tema do dia (Gripes, Parque, Festa, Surpresa).
+- ✅ **Cenários temáticos** — temas que rodam sozinhos, alternando com dias normais.
+- ✅ **Objetivos automáticos** — meta aleatória (contar doentes ou curar uma doença), encadeada.
+- ✅ **Histórias por idade** — historinhas adaptadas à idade do doente.
+- ✅ **Feedback educativo suave** — dicas (pulseira vs febre, queixa → diagnóstico) e "Sabias que…?".
+- ✅ **Tema de hospital** — banner com relógio e fundo de cruzinhas.
+- ✅ **Sons e musiquinha** — música de fundo ligável/desligável.
 
 ## 🚧 Em curso agora
 - _(nada de momento — escolher a próxima da lista)_
@@ -25,7 +30,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ## 🧒 Dificuldade por idade
 - ⬜ **Modo "mais novo" vs "mais crescido"** — imagens+voz para a Sara; escrever/ler/decidir para a Inês.
-- ⬜ **Feedback educativo suave** — dicas quando a pulseira/dose destoa muito.
+- ✅ **Feedback educativo suave** — dicas quando a pulseira/dose destoa muito.
 - ⬜ **Mini-metas de leitura/escrita** — soletrar o nome, contar as doses.
 
 ## 🩺 Profundidade clínica (divertida)
@@ -37,8 +42,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 ## ✨ Presentação e "sumo"
 - 🚧 **Confetti e celebrações** (parte do item em curso).
 - 🚧 **Carinhas animadas** — piscar, sorrir, barra de saúde com cara (parte do item em curso).
-- ⬜ **Sons e musiquinha** — campainha de chegada, fanfarra na alta.
-- ⬜ **Tema de hospital** — fundo com salas desenhadas, relógio a andar.
+- ✅ **Sons e musiquinha** — música de fundo suave (ligável), campainha e fanfarra.
+- ✅ **Tema de hospital** — banner com nome + relógio a andar e fundo de cruzinhas.
 
 ## 👭 Multiplayer e cooperação
 - ⬜ **Chat de emojis/pré-frases** — "Doente a caminho! 🏃" entre ecrãs.
