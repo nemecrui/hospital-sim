@@ -22,6 +22,7 @@ model Session {
   // Recompensas e objetivo
   stickers   String @default("[]") // JSON array de ids de autocolantes ganhos (caderneta)
   goalTarget Int    @default(8) // meta de doentes a curar por dia
+  scenario   String @default("normal") // tema do dia: normal | gripes | parque | festa
 
   patients Patient[]
   stats    Stats?
@@ -46,6 +47,9 @@ model Patient {
 
   // Quem está a atender (multiplayer)
   assignedTo String?
+
+  // Chegou de ambulância (salta a fila)
+  emergency Boolean @default(false)
 
   // Triagem
   triageColor String? // verde | amarela | laranja | vermelha

@@ -16,7 +16,10 @@ export function HospitalProvider({ children, sessionId }) {
       if (res.ok) {
         const data = await res.json();
         setPatients((prev) => {
-          if (prev.length && data.length > prev.length) playSound('notification');
+          const prevEmerg = new Set(prev.filter((p) => p.emergency).map((p) => p.id));
+          const novaUrgencia = data.some((p) => p.emergency && !prevEmerg.has(p.id));
+          if (prev.length && novaUrgencia) playSound('alert');
+          else if (prev.length && data.length > prev.length) playSound('notification');
           return data;
         });
         setError(null);

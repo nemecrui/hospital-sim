@@ -52,6 +52,12 @@ export function playSound(kind) {
     case 'error':
       tone(200, 0.25, 'sawtooth');
       break;
+    case 'alert': // sirene de ambulância 🚑
+      tone(880, 0.18, 'square');
+      tone(660, 0.18, 'square', 0.2);
+      tone(880, 0.18, 'square', 0.4);
+      tone(660, 0.22, 'square', 0.6);
+      break;
     default:
       tone(440, 0.1);
   }

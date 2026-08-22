@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { API_URL } from '../utils/api.js';
+import scenarios from '../data/scenarios.json';
+
+const REAL_SCENARIOS = ['normal', 'gripes', 'parque', 'festa'];
 
 const ROLES = [
   { id: 'secretaria', label: '👩‍💼 Secretária' },
@@ -12,6 +15,7 @@ export default function Setup({ sessionId, onDone }) {
   const [players, setPlayers] = useState(1);
   const [roles, setRoles] = useState([]);
   const [goal, setGoal] = useState(8);
+  const [scenario, setScenario] = useState('surpresa');
   const [busy, setBusy] = useState(false);
 
   const setCount = (n) => {
@@ -32,13 +36,18 @@ export default function Setup({ sessionId, onDone }) {
   const confirm = async () => {
     if (roles.length !== players) return;
     setBusy(true);
+    // "Surpresa" escolhe um tema à sorte
+    const effScenario =
+      scenario === 'surpresa'
+        ? REAL_SCENARIOS[Math.floor(Math.random() * REAL_SCENARIOS.length)]
+        : scenario;
     try {
       await fetch(`${API_URL}/sessions/${sessionId}/config`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, humanRoles: roles, goalTarget: goal })
+        body: JSON.stringify({ players, humanRoles: roles, goalTarget: goal, scenario: effScenario })
       });
-      onDone({ players, humanRoles: roles, goalTarget: goal });
+      onDone({ players, humanRoles: roles, goalTarget: goal, scenario: effScenario });
     } finally {
       setBusy(false);
     }
@@ -91,6 +100,21 @@ export default function Setup({ sessionId, onDone }) {
               </button>
             );
           })}
+        </div>
+
+        <label className="mb-2 block text-sm font-semibold">🎠 Tema do dia</label>
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          {scenarios.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setScenario(s.id)}
+              className={`btn flex items-center gap-2 py-2 text-sm ${
+                scenario === s.id ? 'bg-gradient-to-r from-hospital-cyan to-blue-400 text-white' : 'bg-white text-gray-700'
+              }`}
+            >
+              <span className="text-xl">{s.emoji}</span> {s.name}
+            </button>
+          ))}
         </div>
 
         <label className="mb-2 block text-sm font-semibold">🎯 Meta do dia (doentes a curar)</label>

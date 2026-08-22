@@ -10,11 +10,34 @@ const STATUS_LABELS = {
   discharged: { text: 'Alta', emoji: '✅', color: 'bg-green-100 text-green-800' }
 };
 
+// Humor do doente conforme o tempo de espera (sala de espera com vida)
+function moodOf(patient) {
+  if (patient.status === 'discharged' || !patient.createdAt) return null;
+  const mins = (Date.now() - new Date(patient.createdAt).getTime()) / 60000;
+  if (mins < 1) return { face: '🙂', text: 'tranquilo' };
+  if (mins < 2.5) return { face: '😐', text: 'a ficar aborrecido' };
+  if (mins < 4) return { face: '😟', text: 'impaciente' };
+  const asleep = patient.id.charCodeAt(patient.id.length - 1) % 2 === 0;
+  return asleep ? { face: '😴', text: 'adormeceu' } : { face: '😠', text: 'farto de esperar' };
+}
+
 export default function PatientCard({ patient, onClick, actionLabel }) {
   const status = STATUS_LABELS[patient.status] || STATUS_LABELS.triage;
+  const mood = moodOf(patient);
+  const urgent = patient.emergency;
 
   return (
-    <div className="card animate-bounce-in p-4">
+    <div
+      className={`card animate-bounce-in p-4 ${
+        urgent ? 'border-hospital-danger ring-2 ring-hospital-danger/40' : ''
+      }`}
+    >
+      {urgent && (
+        <div className="mb-2 inline-flex animate-wiggle items-center gap-1 rounded-full bg-hospital-danger px-2 py-0.5 text-xs font-bold text-white">
+          🚑 URGÊNCIA
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
@@ -38,6 +61,12 @@ export default function PatientCard({ patient, onClick, actionLabel }) {
               🩺 <strong>{patient.diagnosis}</strong>
             </div>
           )}
+
+          {mood && (
+            <div className="mt-1 text-xs text-gray-400">
+              {mood.face} {mood.text}
+            </div>
+          )}
         </div>
 
         <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${status.color}`}>
@@ -48,7 +77,11 @@ export default function PatientCard({ patient, onClick, actionLabel }) {
       {onClick && actionLabel && (
         <button
           onClick={() => onClick(patient)}
-          className="btn mt-3 w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-2 text-white hover:shadow-lg"
+          className={`btn mt-3 w-full py-2 text-white hover:shadow-lg ${
+            urgent
+              ? 'bg-gradient-to-r from-hospital-danger to-red-500'
+              : 'bg-gradient-to-r from-hospital-pink to-pink-500'
+          }`}
         >
           {actionLabel}
         </button>

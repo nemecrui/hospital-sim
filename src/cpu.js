@@ -1,6 +1,7 @@
 // Motor CPU: faz avançar automaticamente os doentes dos papéis sem jogadora humana.
 import {
   generatePatient,
+  generateEmergency,
   suggestTriageColor,
   HEALTH_BY_COLOR,
   randomExamResult,
@@ -44,13 +45,32 @@ function safeParse(json, fallback) {
 }
 
 async function tickSession(prisma, session) {
-  const human = safeParse(session.humanRoles, []);
-  const cpuRoles = ALL_ROLES.filter((r) => !human.includes(r));
-  if (cpuRoles.length === 0) return;
-
   const now = Date.now();
   const patients = await prisma.patient.findMany({ where: { sessionId: session.id } });
   const active = patients.filter((p) => p.status !== 'discharged');
+
+  // 🚑 Ambulância — urgência ocasional que salta a fila (acontece mesmo com todos os papéis humanos)
+  const lastEmerg = patients
+    .filter((p) => p.emergency)
+    .reduce((m, p) => Math.max(m, new Date(p.createdAt).getTime()), 0);
+  if (active.length < 5 && now - lastEmerg > 45000 && Math.random() < 0.06) {
+    const g = generateEmergency();
+    await prisma.patient.create({
+      data: {
+        sessionId: session.id,
+        name: g.name,
+        age: g.age,
+        symptoms: JSON.stringify(g.symptoms),
+        story: g.story,
+        emergency: true,
+        status: 'triage'
+      }
+    });
+  }
+
+  const human = safeParse(session.humanRoles, []);
+  const cpuRoles = ALL_ROLES.filter((r) => !human.includes(r));
+  if (cpuRoles.length === 0) return;
 
   // 👩‍💼 Secretária CPU — cria doentes (nome+idade) se houver menos de 3 ativos
   if (cpuRoles.includes('secretaria')) {
@@ -59,7 +79,7 @@ async function tickSession(prisma, session) {
       0
     );
     if (active.length < MAX_ACTIVE && now - lastCreated > SPAWN_MS) {
-      const g = generatePatient();
+      const g = generatePatient(session.scenario);
       await prisma.patient.create({
         data: {
           sessionId: session.id,

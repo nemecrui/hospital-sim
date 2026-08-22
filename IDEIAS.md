@@ -5,10 +5,16 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ---
 
+## ✅ Já feito
+- ✅ **Caderneta de autocolantes** — cada doente curado dá um autocolante para colecionar.
+- ✅ **Sumo visual/sonoro** — confetti na alta e ao atingir a meta, animações pop/wiggle.
+- ✅ **Objetivo comum do dia** — meta partilhada com barra no topo de todos os ecrãs.
+- ✅ **Ambulância / urgências** — casos 🚑 que saltam a fila, com som e destaque.
+- ✅ **Sala de espera com humor** — carinhas que mudam com o tempo de espera.
+- ✅ **Cenários temáticos** — tema do dia (Gripes, Parque, Festa, Surpresa).
+
 ## 🚧 Em curso agora
-- 🚧 **Caderneta de autocolantes** — cada doente curado dá um autocolante para colecionar.
-- 🚧 **Sumo visual/sonoro** — confetti na alta e carinhas animadas.
-- 🚧 **Objetivo comum do dia** — meta partilhada (ex.: "curar 8 doentes juntas") com barra.
+- _(nada de momento — escolher a próxima da lista)_
 
 ---
 
@@ -23,8 +29,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ⬜ **Mini-metas de leitura/escrita** — soletrar o nome, contar as doses.
 
 ## 🩺 Profundidade clínica (divertida)
-- ⬜ **Ambulância / urgências** — caso "a pisca-pisca" 🚑 que salta a fila (pulseira vermelha).
-- ⬜ **Sala de espera com humor** — doentes impacientes, caretas, um a adormecer.
+- ✅ **Ambulância / urgências** — caso 🚑 que salta a fila (pulseira vermelha).
+- ✅ **Sala de espera com humor** — doentes impacientes, caretas, um a adormecer.
 - ⬜ **Receita com instruções** — "dar com comida", "só à noite".
 - ⬜ **Alta com conselhos** — escolher um conselho final ("beber água", "descansar").
 
@@ -40,7 +46,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ⬜ **Passar o doente com estilo** — animação de cartão a deslizar entre papéis.
 
 ## 🎠 Conteúdo e rejogabilidade
-- ⬜ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".
+- ✅ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".
 - ⬜ **Doentes especiais** — dinossauro 🦖, robô ⚙️, extraterrestre 👽 com queixas absurdas.
 - ⬜ **Animais de estimação** — modo veterinário de vez em quando.
 

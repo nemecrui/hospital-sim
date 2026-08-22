@@ -1,0 +1,7 @@
+[
+  { "id": "surpresa", "name": "Surpresa!", "emoji": "🎲" },
+  { "id": "normal", "name": "Dia normal", "emoji": "🏥" },
+  { "id": "gripes", "name": "Dia de Gripes", "emoji": "🤧" },
+  { "id": "parque", "name": "Dia do Parque", "emoji": "🛝" },
+  { "id": "festa", "name": "Festa de anos", "emoji": "🎂" }
+]

@@ -66,8 +66,33 @@ export const CONDITIONS = [
   { name: 'Bebeu sumo pelo nariz', weight: 1 }
 ];
 
-// Cada doente tem apenas UMA queixa (para simplificar).
-export function generateQueixas() {
+// Cenários temáticos: enviesam as queixas do dia
+export const SCENARIOS = {
+  normal: { name: 'Dia normal', emoji: '🏥', prefer: null },
+  gripes: {
+    name: 'Dia de Gripes',
+    emoji: '🤧',
+    prefer: ['Febre', 'Tosse', 'Constipação', 'Dor de garganta', 'Ranho verde', 'Espirros aos molhos', 'Dor de cabeça']
+  },
+  parque: {
+    name: 'Dia do Parque',
+    emoji: '🛝',
+    prefer: ['Joelho esfolado', 'Caiu e magoou-se', 'Tornozelo torcido', 'Ferimento', 'Picada de inseto']
+  },
+  festa: {
+    name: 'Festa de anos',
+    emoji: '🎂',
+    prefer: ['Dor de barriga', 'Comeu muitos doces', 'Enjoo', 'Barriga a roncar', 'Bebeu sumo pelo nariz', 'Riso sem parar']
+  }
+};
+
+// Cada doente tem apenas UMA queixa (para simplificar). O cenário enviesa a escolha.
+export function generateQueixas(scenario) {
+  const sc = SCENARIOS[scenario];
+  if (sc && sc.prefer && Math.random() < 0.7) {
+    const pool = sc.prefer.filter((n) => CONDITIONS.some((c) => c.name === n));
+    if (pool.length) return [pool[Math.floor(Math.random() * pool.length)]];
+  }
   return [CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)].name];
 }
 
@@ -216,12 +241,31 @@ export function generateSymptom() {
   return symptomsPool[Math.floor(Math.random() * symptomsPool.length)];
 }
 
-export function generatePatient() {
-  const symptoms = generateQueixas();
+export function generatePatient(scenario) {
+  const symptoms = generateQueixas(scenario);
   return {
     name: generatePatientName(),
     age: Math.floor(Math.random() * 97) + 3, // 3–99 anos
     symptoms,
     story: generateStory(symptoms[0])
+  };
+}
+
+// Doente de ambulância 🚑 (urgência que salta a fila)
+const EMERGENCY_SYMPTOMS = ['Caiu e magoou-se', 'Tornozelo torcido', 'Ferimento'];
+const EMERGENCY_STORIES = [
+  'Chegou de ambulância 🚑 depois de uma queda feia no parque!',
+  'Veio a toda a pressa de ambulância 🚑 — caiu da bicicleta!',
+  'A ambulância 🚑 trouxe-o depois de um grande trambolhão!',
+  'Escorregou na piscina e veio de ambulância 🚑!',
+  'Caiu das escadas e a ambulância 🚑 correu para o hospital!'
+];
+export function generateEmergency() {
+  const symptom = EMERGENCY_SYMPTOMS[Math.floor(Math.random() * EMERGENCY_SYMPTOMS.length)];
+  return {
+    name: generatePatientName(),
+    age: Math.floor(Math.random() * 97) + 3,
+    symptoms: [symptom],
+    story: one(EMERGENCY_STORIES)
   };
 }

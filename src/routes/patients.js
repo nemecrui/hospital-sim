@@ -46,7 +46,8 @@ export default async function patientsRoutes(fastify) {
       if ((await countActive(prisma, sessionId)) >= MAX_ACTIVE) {
         return reply.code(409).send({ error: 'Too many active patients' });
       }
-      const symptoms = generateQueixas();
+      const session = await prisma.session.findUnique({ where: { id: sessionId } });
+      const symptoms = generateQueixas(session?.scenario);
       const patient = await prisma.patient.create({
         data: {
           sessionId,
@@ -72,7 +73,8 @@ export default async function patientsRoutes(fastify) {
       if ((await countActive(prisma, sessionId)) >= MAX_ACTIVE) {
         return reply.code(409).send({ error: 'Too many active patients' });
       }
-      const g = generatePatient();
+      const s = await prisma.session.findUnique({ where: { id: sessionId } });
+      const g = generatePatient(s?.scenario);
       const patient = await prisma.patient.create({
         data: {
           sessionId,
@@ -97,7 +99,7 @@ export default async function patientsRoutes(fastify) {
     try {
       const patients = await prisma.patient.findMany({
         where: { sessionId },
-        orderBy: [{ createdAt: 'asc' }]
+        orderBy: [{ emergency: 'desc' }, { createdAt: 'asc' }]
       });
       return patients.map(serialize);
     } catch (err) {
