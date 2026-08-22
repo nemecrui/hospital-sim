@@ -153,6 +153,34 @@ export function examEmoji(name) {
   return EXAMS.find((e) => e.name === name)?.emoji || '🔬';
 }
 
+// Autocolantes para a caderneta (prémio por cada doente curado)
+export const STICKERS = [
+  { id: 'unicornio', emoji: '🦄', name: 'Unicórnio' },
+  { id: 'cao', emoji: '🐶', name: 'Cão' },
+  { id: 'gato', emoji: '🐱', name: 'Gato' },
+  { id: 'leao', emoji: '🦁', name: 'Leão' },
+  { id: 'panda', emoji: '🐼', name: 'Panda' },
+  { id: 'raposa', emoji: '🦊', name: 'Raposa' },
+  { id: 'sapo', emoji: '🐸', name: 'Sapo' },
+  { id: 'tartaruga', emoji: '🐢', name: 'Tartaruga' },
+  { id: 'borboleta', emoji: '🦋', name: 'Borboleta' },
+  { id: 'abelha', emoji: '🐝', name: 'Abelha' },
+  { id: 'arcoiris', emoji: '🌈', name: 'Arco-íris' },
+  { id: 'estrela', emoji: '⭐', name: 'Estrela' },
+  { id: 'foguetao', emoji: '🚀', name: 'Foguetão' },
+  { id: 'gelado', emoji: '🍦', name: 'Gelado' },
+  { id: 'balao', emoji: '🎈', name: 'Balão' },
+  { id: 'dino', emoji: '🦖', name: 'Dino' },
+  { id: 'polvo', emoji: '🐙', name: 'Polvo' },
+  { id: 'pinguim', emoji: '🐧', name: 'Pinguim' },
+  { id: 'coruja', emoji: '🦉', name: 'Coruja' },
+  { id: 'golfinho', emoji: '🐬', name: 'Golfinho' }
+];
+
+export function randomSticker() {
+  return STICKERS[Math.floor(Math.random() * STICKERS.length)];
+}
+
 export function randomExamResult(name) {
   const ex = EXAMS.find((e) => e.name === name);
   if (!ex) return 'Normal';

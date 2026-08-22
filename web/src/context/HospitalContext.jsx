@@ -7,6 +7,7 @@ export const HospitalContext = createContext(null);
 export function HospitalProvider({ children, sessionId }) {
   const [patients, setPatients] = useState([]);
   const [stats, setStats] = useState(null);
+  const [session, setSession] = useState(null);
   const [error, setError] = useState(null);
 
   const pollPatients = useCallback(async () => {
@@ -29,6 +30,24 @@ export function HospitalProvider({ children, sessionId }) {
     try {
       const res = await fetch(`${API_URL}/stats/${sessionId}`);
       if (res.ok) setStats(await res.json());
+    } catch {
+      /* silencioso */
+    }
+  }, [sessionId]);
+
+  const pollSession = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/sessions/${sessionId}`);
+      if (res.ok) {
+        const s = await res.json();
+        let stickers = [];
+        try {
+          stickers = JSON.parse(s.stickers || '[]');
+        } catch {
+          stickers = [];
+        }
+        setSession({ ...s, stickersList: stickers });
+      }
     } catch {
       /* silencioso */
     }
@@ -184,7 +203,7 @@ export function HospitalProvider({ children, sessionId }) {
     [pollPatients]
   );
 
-  // Médica — dar alta
+  // Médica — dar alta (devolve o autocolante ganho)
   const discharge = useCallback(
     async (patientId, playerId, rating) => {
       const res = await fetch(`${API_URL}/patients/${patientId}/discharge`, {
@@ -193,14 +212,16 @@ export function HospitalProvider({ children, sessionId }) {
         body: JSON.stringify({ playerId, rating })
       });
       if (res.ok) {
+        const data = await res.json().catch(() => ({}));
         playSound('complete');
         await pollPatients();
         await pollStats();
-        return true;
+        await pollSession();
+        return { ok: true, sticker: data.awardedSticker || null };
       }
-      return false;
+      return { ok: false };
     },
-    [pollPatients, pollStats]
+    [pollPatients, pollStats, pollSession]
   );
 
   const resetSession = useCallback(async () => {
@@ -219,9 +240,11 @@ export function HospitalProvider({ children, sessionId }) {
         sessionId,
         patients,
         stats,
+        session,
         error,
         pollPatients,
         pollStats,
+        pollSession,
         registerPatient,
         triage,
         prescribe,

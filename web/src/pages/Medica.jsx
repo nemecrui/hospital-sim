@@ -4,6 +4,7 @@ import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
 import QueixaChips from '../components/QueixaChips.jsx';
 import Wristband from '../components/Wristband.jsx';
+import Confetti from '../components/Confetti.jsx';
 import diagnoses from '../data/diagnoses.json';
 import meds from '../data/meds.json';
 import examsData from '../data/exams.json';
@@ -205,13 +206,40 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
 function Alta({ patient, playerId, discharge, onBack }) {
   const [rating, setRating] = useState(5);
   const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(null); // { sticker }
 
   const darAlta = async () => {
     setBusy(true);
-    const ok = await discharge(patient.id, playerId, rating);
+    const res = await discharge(patient.id, playerId, rating);
     setBusy(false);
-    if (ok) onBack();
+    if (res.ok) setDone({ sticker: res.sticker });
   };
+
+  // Ecrã de festa depois da alta
+  if (done) {
+    return (
+      <div className="space-y-4">
+        <Confetti show />
+        <div className="card animate-pop p-6 text-center">
+          <div className="text-6xl">🎉</div>
+          <p className="mt-2 text-lg font-bold">{patient.name} foi para casa curado!</p>
+          {done.sticker && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-500">Ganhaste um autocolante:</p>
+              <div className="mt-1 text-6xl">{done.sticker.emoji}</div>
+              <p className="font-semibold">{done.sticker.name}</p>
+            </div>
+          )}
+          <button
+            onClick={onBack}
+            className="btn mt-6 w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-3 text-white hover:shadow-lg"
+          >
+            Continuar ▶
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

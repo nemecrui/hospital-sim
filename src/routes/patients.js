@@ -1,4 +1,4 @@
-import { generatePatient, generateQueixas, generateStory, HEALTH_BY_COLOR, examEmoji } from '../utils/generators.js';
+import { generatePatient, generateQueixas, generateStory, HEALTH_BY_COLOR, examEmoji, randomSticker } from '../utils/generators.js';
 
 const MAX_ACTIVE = 3; // só entram novos doentes se houver menos de 3 por tratar
 const DOSE_WINDOW_S = 240; // as tomas distribuem-se por 240s (3 tomas=80s, 2 tomas=120s)
@@ -312,7 +312,17 @@ export default async function patientsRoutes(fastify) {
           rating: rating != null ? Math.min(5, Math.max(1, Number(rating))) : 5
         }
       });
-      return serialize(patient);
+
+      // Prémio: um autocolante para a caderneta da sessão
+      const sticker = randomSticker();
+      const session = await prisma.session.findUnique({ where: { id: patient.sessionId } });
+      const owned = safeJson(session?.stickers, []);
+      owned.push(sticker.id);
+      await prisma.session
+        .update({ where: { id: patient.sessionId }, data: { stickers: JSON.stringify(owned) } })
+        .catch(() => {});
+
+      return { ...serialize(patient), awardedSticker: sticker };
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ error: 'Failed to discharge patient' });

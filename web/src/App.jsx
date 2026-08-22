@@ -7,6 +7,7 @@ import Medica from './pages/Medica.jsx';
 import Enfermeira from './pages/Enfermeira.jsx';
 import Tad from './pages/Tad.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import GoalBar from './components/GoalBar.jsx';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
 import { API_URL } from './utils/api.js';
 
@@ -42,7 +43,8 @@ export default function App() {
           setConfig({
             code: s.code || null,
             players: s.players ?? 1,
-            humanRoles: safeParse(s.humanRoles)
+            humanRoles: safeParse(s.humanRoles),
+            goalTarget: s.goalTarget ?? 8
           });
         }
       } catch {
@@ -120,6 +122,8 @@ export default function App() {
             ← Trocar papel
           </button>
         </header>
+
+        <GoalBar target={config.goalTarget} />
 
         {role === 'secretaria' && <Secretaria />}
         {role === 'medica' && <Medica playerId={playerId} />}

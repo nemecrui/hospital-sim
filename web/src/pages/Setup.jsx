@@ -11,6 +11,7 @@ const ROLES = [
 export default function Setup({ sessionId, onDone }) {
   const [players, setPlayers] = useState(1);
   const [roles, setRoles] = useState([]);
+  const [goal, setGoal] = useState(8);
   const [busy, setBusy] = useState(false);
 
   const setCount = (n) => {
@@ -35,9 +36,9 @@ export default function Setup({ sessionId, onDone }) {
       await fetch(`${API_URL}/sessions/${sessionId}/config`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, humanRoles: roles })
+        body: JSON.stringify({ players, humanRoles: roles, goalTarget: goal })
       });
-      onDone({ players, humanRoles: roles });
+      onDone({ players, humanRoles: roles, goalTarget: goal });
     } finally {
       setBusy(false);
     }
@@ -90,6 +91,21 @@ export default function Setup({ sessionId, onDone }) {
               </button>
             );
           })}
+        </div>
+
+        <label className="mb-2 block text-sm font-semibold">🎯 Meta do dia (doentes a curar)</label>
+        <div className="mb-4 flex gap-3">
+          {[5, 8, 12].map((n) => (
+            <button
+              key={n}
+              onClick={() => setGoal(n)}
+              className={`btn flex-1 py-3 ${
+                goal === n ? 'bg-gradient-to-r from-hospital-cyan to-blue-400 text-white' : 'bg-white text-gray-700'
+              }`}
+            >
+              {n}
+            </button>
+          ))}
         </div>
 
         {cpuRoles.length > 0 && roles.length === players && (
