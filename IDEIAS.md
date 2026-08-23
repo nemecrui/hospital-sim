@@ -50,6 +50,16 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - 🚧 **Objetivo comum do dia** (item em curso).
 - ⬜ **Passar o doente com estilo** — animação de cartão a deslizar entre papéis.
 
+## 🎮 Estações interativas (fazer com as mãos)
+- ✅ **Raio-X com scanner** — arrastar o scanner pelo braço para ver os ossos e decidir.
+- ⬜ **Termómetro na triagem** — arrastar até à testa e esperar o bip.
+- ⬜ **ECG** — carregar ao ritmo do coração.
+- ⬜ **Estetoscópio** — arrastar ao peito para ouvir.
+- ⬜ **Ecografia** — passar a sonda pela barriga.
+- ⬜ **Curativo passo-a-passo** — limpar, pomada, penso.
+- ⬜ **Gesso** — enrolar a ligadura à volta.
+- ⬜ **Ver garganta/ouvido** — lanterna/otoscópio.
+
 ## 🎠 Conteúdo e rejogabilidade
 - ✅ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".
 - ⬜ **Doentes especiais** — dinossauro 🦖, robô ⚙️, extraterrestre 👽 com queixas absurdas.

@@ -3,7 +3,15 @@ import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
 import QueixaChips from '../components/QueixaChips.jsx';
+import XrayScanner from '../components/XrayScanner.jsx';
 import examsData from '../data/exams.json';
+
+// "Verdade" estável do raio-X a partir do id do doente (não muda entre polls)
+function isBroken(patient) {
+  const s = patient.id || '';
+  const n = s.charCodeAt(0) + s.charCodeAt(s.length - 1);
+  return n % 2 === 0;
+}
 
 function resultsFor(name) {
   return examsData.find((e) => e.name === name)?.results || ['Normal', 'Alterado'];
@@ -90,7 +98,11 @@ function ExamRoom({ patient, playerId, examResult, examsDone, onBack }) {
               )}
             </div>
 
-            {open === ex.name && !ex.result && (
+            {open === ex.name && !ex.result && ex.name === 'Raio-X' && (
+              <XrayScanner broken={isBroken(patient)} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
+            {open === ex.name && !ex.result && ex.name !== 'Raio-X' && (
               <div className="mt-3">
                 <p className="mb-2 text-xs text-gray-500">Qual foi o resultado?</p>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
