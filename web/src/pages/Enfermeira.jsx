@@ -10,6 +10,15 @@ import { speakTip } from '../utils/tts.js';
 import Thermometer from '../components/Thermometer.jsx';
 import Stethoscope from '../components/Stethoscope.jsx';
 import CareGesture from '../components/CareGesture.jsx';
+import MedGesture from '../components/MedGesture.jsx';
+
+// Que gesto usar para cada item (null = simples toque)
+function gestureKind(it) {
+  if (it.type === 'curativo') return it.name === 'Gesso' ? 'wrap' : 'rub';
+  if (it.name === 'Antibiótico' || it.name === 'Soro') return 'injection';
+  if (it.name === 'Xarope') return 'spoon';
+  return null;
+}
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -251,7 +260,7 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
                 </span>
               </span>
               <button
-                onClick={() => (it.type === 'curativo' ? setCare(it) : aplicar(it))}
+                onClick={() => (gestureKind(it) ? setCare(it) : aplicar(it))}
                 disabled={done || waiting}
                 className="btn bg-hospital-pink px-3 py-1 text-sm text-white disabled:opacity-40"
               >
@@ -268,14 +277,25 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
           <h4 className="mb-1 font-bold">
             {care.emoji} {care.name}
           </h4>
-          <CareGesture
-            kind={care.name === 'Gesso' ? 'wrap' : 'rub'}
-            onDone={async () => {
-              await aplicar(care);
-              setCare(null);
-            }}
-            onCancel={() => setCare(null)}
-          />
+          {['rub', 'wrap'].includes(gestureKind(care)) ? (
+            <CareGesture
+              kind={gestureKind(care)}
+              onDone={async () => {
+                await aplicar(care);
+                setCare(null);
+              }}
+              onCancel={() => setCare(null)}
+            />
+          ) : (
+            <MedGesture
+              kind={gestureKind(care)}
+              onDone={async () => {
+                await aplicar(care);
+                setCare(null);
+              }}
+              onCancel={() => setCare(null)}
+            />
+          )}
         </div>
       )}
 

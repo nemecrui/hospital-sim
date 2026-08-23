@@ -6,6 +6,9 @@ import QueixaChips from '../components/QueixaChips.jsx';
 import XrayScanner from '../components/XrayScanner.jsx';
 import ECGMonitor from '../components/ECGMonitor.jsx';
 import EchoScanner from '../components/EchoScanner.jsx';
+import MachineScan from '../components/MachineScan.jsx';
+import FillTube from '../components/FillTube.jsx';
+import HearingTest from '../components/HearingTest.jsx';
 import examsData from '../data/exams.json';
 
 // "Verdade" estável a partir do id do doente (não muda entre polls)
@@ -117,9 +120,38 @@ function ExamRoom({ patient, playerId, examResult, examsDone, onBack }) {
               <EchoScanner patientId={patient.id} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
+            {open === ex.name && !ex.result && ex.name === 'TAC' && (
+              <MachineScan machineEmoji="🍩" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
+            {open === ex.name && !ex.result && ex.name === 'Ressonância (RM)' && (
+              <MachineScan machineEmoji="🧲" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
+            {open === ex.name && !ex.result && ex.name === 'Análise de sangue' && (
+              <FillTube variant="blood" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
+            {open === ex.name && !ex.result && ex.name === 'Análise de urina' && (
+              <FillTube variant="urine" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
+            {open === ex.name && !ex.result && ex.name === 'Audiograma' && (
+              <HearingTest results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
             {open === ex.name &&
               !ex.result &&
-              !['Raio-X', 'ECG', 'Ecografia'].includes(ex.name) && (
+              ![
+                'Raio-X',
+                'ECG',
+                'Ecografia',
+                'TAC',
+                'Ressonância (RM)',
+                'Análise de sangue',
+                'Análise de urina',
+                'Audiograma'
+              ].includes(ex.name) && (
               <div className="mt-3">
                 <p className="mb-2 text-xs text-gray-500">Qual foi o resultado?</p>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

@@ -59,6 +59,10 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Curativo passo-a-passo** — esfregar para limpar e pôr o penso.
 - ✅ **Gesso** — esfregar à volta para pôr o gesso.
 - ✅ **Ver garganta/ouvido** — observar antes de diagnosticar.
+- ✅ **TAC e Ressonância** — entrar na máquina e fazer o exame.
+- ✅ **Análise de sangue/urina** — encher o tubo/copo.
+- ✅ **Audiograma** — tocar os sons e decidir.
+- ✅ **Injeção e xarope** — carregar no êmbolo / encher a colher.
 
 ## 🎠 Conteúdo e rejogabilidade
 - ✅ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".

@@ -26,6 +26,25 @@ function tone(freq, duration = 0.15, type = 'sine', delay = 0) {
   osc.stop(c.currentTime + delay + duration);
 }
 
+// Beep avulso (ex.: audiograma) — não depende do "som ligado" para funcionar,
+// mas respeita-o na mesma.
+export function beep(freq = 880, duration = 0.25, vol = 0.2) {
+  const c = getCtx();
+  if (!c) return;
+  if (c.state === 'suspended') c.resume();
+  const osc = c.createOscillator();
+  const g = c.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, c.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol, c.currentTime + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + duration);
+  osc.connect(g);
+  g.connect(c.destination);
+  osc.start();
+  osc.stop(c.currentTime + duration);
+}
+
 export function setSoundEnabled(value) {
   enabled = value;
 }
