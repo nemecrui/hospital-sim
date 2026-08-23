@@ -1,8 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Gesto de cuidar: esfregar (curativo) ou enrolar (gesso).
-// Acumula o movimento do dedo/rato até encher; depois chama onDone().
-export default function CareGesture({ kind = 'rub', onDone, onCancel }) {
+// Configuração do gesto de esfregar por tipo de cuidado.
+const CFG = {
+  Gesso: { wrap: true, msg: 'Esfrega à volta do braço para pôr o gesso!', base: '💪', end: '🦴', overlay: 'bg-white/85' },
+  Penso: { msg: 'Esfrega para limpar e pôr o penso!', base: '🩹', end: '🩹', overlay: 'bg-white/70' },
+  'Creme para comichão': { msg: 'Espalha o creme para a comichão passar!', base: '🧴', end: '✨', overlay: 'bg-pink-200/60' },
+  Gelo: { msg: 'Esfrega o gelo para desinchar!', base: '🧊', end: '❄️', overlay: 'bg-sky-200/70' },
+  'Banho quente': { msg: 'Esfrega para dar o banho quentinho!', base: '🛁', end: '🫧', overlay: 'bg-blue-200/60' },
+  'Beijinho de melhoras': { msg: 'Esfrega com carinho — um beijinho de melhoras!', base: '😘', end: '💗', overlay: 'bg-pink-200/60' }
+};
+const DEFAULT = { msg: 'Esfrega o ecrã para aplicar!', base: '🧴', end: '✨', overlay: 'bg-white/70' };
+
+// Esfregar o ecrã: acumula o movimento do dedo/rato até encher; depois onDone().
+export default function CareGesture({ name, emoji, onDone, onCancel }) {
+  const cfg = CFG[name] || { ...DEFAULT, base: emoji || DEFAULT.base };
   const [p, setP] = useState(0);
   const last = useRef(null);
   const done = useRef(false);
@@ -33,25 +44,20 @@ export default function CareGesture({ kind = 'rub', onDone, onCancel }) {
     window.addEventListener('pointerup', up);
   };
 
-  const isWrap = kind === 'wrap';
-  const titulo = isWrap ? 'Esfrega à volta do braço para pôr o gesso!' : 'Esfrega para limpar e pôr o penso!';
-  const emojiBase = isWrap ? '💪' : '🩹';
-  const emojiFim = isWrap ? '🦿' : '🩹';
-
   return (
-    <div className="mt-3">
-      <p className="mb-2 text-xs text-gray-500">👉 {titulo}</p>
+    <div className="mt-1">
+      <p className="mb-2 text-xs text-gray-500">👉 {cfg.msg}</p>
       <div
         onPointerDown={onDown}
         className="relative mx-auto flex h-40 w-full max-w-[320px] touch-none select-none items-center justify-center overflow-hidden rounded-2xl border-2 border-gray-200 bg-sky-50"
       >
-        <span className="text-7xl">{p >= 100 ? emojiFim : emojiBase}</span>
-        {/* camada branca do gesso / penso a "encher" */}
+        <span className="text-7xl">{p >= 100 ? cfg.end : cfg.base}</span>
+        {/* camada a "encher" enquanto esfrega */}
         <div
-          className="pointer-events-none absolute inset-0 bg-white/80"
+          className={`pointer-events-none absolute inset-0 ${cfg.overlay}`}
           style={{ clipPath: `inset(${100 - p}% 0 0 0)` }}
         />
-        <span className="pointer-events-none absolute bottom-2 text-3xl">{isWrap ? '🧻' : '🧽'}</span>
+        <span className="pointer-events-none absolute bottom-2 text-3xl">🧽</span>
       </div>
 
       <div className="mx-auto mt-2 h-3 w-40 overflow-hidden rounded-full bg-gray-200">

@@ -279,7 +279,8 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
           </h4>
           {['rub', 'wrap'].includes(gestureKind(care)) ? (
             <CareGesture
-              kind={gestureKind(care)}
+              name={care.name}
+              emoji={care.emoji}
               onDone={async () => {
                 await aplicar(care);
                 setCare(null);
