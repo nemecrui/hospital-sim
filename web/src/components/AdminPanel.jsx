@@ -11,6 +11,8 @@ const ROLE_LABEL = {
 export default function AdminPanel({ code, onClose }) {
   const [plays, setPlays] = useState(null);
   const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -23,6 +25,23 @@ export default function AdminPanel({ code, onClose }) {
       }
     })();
   }, [code]);
+
+  const deleteAll = async () => {
+    if (!confirm('Apagar TODAS as sessões de toda a gente? Isto limpa tudo e não se pode desfazer.')) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch(`${API_URL}/sessions`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      localStorage.removeItem('sessionId');
+      const body = await res.json().catch(() => ({}));
+      setMsg(`✅ Apaguei ${body.deleted ?? 0} sessão(ões).`);
+    } catch {
+      setMsg('❌ Não consegui apagar as sessões.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -39,12 +58,13 @@ export default function AdminPanel({ code, onClose }) {
 
         {plays && (
           <>
-            <p className="mb-2 text-xs text-gray-500">{plays.length} jogada(s) registada(s)</p>
+            <p className="mb-2 text-xs text-gray-500">
+              {plays.length} jogada(s) registada(s) · sem nomes, por privacidade
+            </p>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="text-xs uppercase text-gray-400">
-                    <th className="p-1">Nome</th>
                     <th className="p-1">Profissão</th>
                     <th className="p-1">Sala</th>
                     <th className="p-1">Data/hora</th>
@@ -53,21 +73,32 @@ export default function AdminPanel({ code, onClose }) {
                 <tbody>
                   {plays.map((p) => (
                     <tr key={p.id} className="border-t border-gray-100">
-                      <td className="p-1 font-semibold">{p.name}</td>
-                      <td className="p-1">{ROLE_LABEL[p.role] || p.role}</td>
+                      <td className="p-1 font-semibold">{ROLE_LABEL[p.role] || p.role}</td>
                       <td className="p-1">{p.code || '—'}</td>
                       <td className="p-1 text-gray-500">{new Date(p.createdAt).toLocaleString('pt-PT')}</td>
                     </tr>
                   ))}
                   {plays.length === 0 && (
                     <tr>
-                      <td colSpan="4" className="p-2 text-center text-gray-400">
+                      <td colSpan="3" className="p-2 text-center text-gray-400">
                         Ainda ninguém jogou.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
+            </div>
+
+            <div className="mt-6 border-t border-gray-100 pt-4">
+              <h2 className="mb-2 text-sm font-bold text-gray-600">🧹 Manutenção</h2>
+              <button
+                onClick={deleteAll}
+                disabled={busy}
+                className="btn bg-hospital-danger px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {busy ? 'A apagar…' : 'Apagar todas as sessões'}
+              </button>
+              {msg && <p className="mt-2 text-sm text-gray-600">{msg}</p>}
             </div>
           </>
         )}

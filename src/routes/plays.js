@@ -1,19 +1,22 @@
-const ADMIN_CODE = '1986';
+// Código de admin: definido na variável de ambiente ADMIN_CODE (no Railway).
+// Se não estiver definida, usa '1986' como recurso — DEFINE ADMIN_CODE para o proteger.
+const ADMIN_CODE = process.env.ADMIN_CODE || '1986';
 
 export default async function playsRoutes(fastify) {
   const { prisma } = fastify;
 
-  // POST /api/plays - regista uma jogada (quem entrou, que papel, em que sala)
+  // POST /api/plays - regista atividade (que papel, em que sala, quando).
+  // Privacidade: NÃO guardamos o nome da criança no registo.
   fastify.post('/plays', async (request, reply) => {
-    const { sessionId, name, role } = request.body || {};
-    if (!name || !role) return reply.code(400).send({ error: 'name and role required' });
+    const { sessionId, role } = request.body || {};
+    if (!role) return reply.code(400).send({ error: 'role required' });
     try {
       let code = null;
       if (sessionId) {
         const s = await prisma.session.findUnique({ where: { id: sessionId } });
         code = s?.code || null;
       }
-      await prisma.playEvent.create({ data: { code, name: String(name).slice(0, 40), role } });
+      await prisma.playEvent.create({ data: { code, name: '', role } });
       return { ok: true };
     } catch (err) {
       fastify.log.error(err);
@@ -21,7 +24,7 @@ export default async function playsRoutes(fastify) {
     }
   });
 
-  // GET /api/admin/plays?code=1986 - lista as jogadas (acesso secreto)
+  // GET /api/admin/plays?code=XXXX - lista a atividade (acesso protegido)
   fastify.get('/admin/plays', async (request, reply) => {
     if ((request.query.code || '') !== ADMIN_CODE) {
       return reply.code(403).send({ error: 'Código errado' });

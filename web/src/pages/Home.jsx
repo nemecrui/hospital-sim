@@ -10,6 +10,7 @@ export default function Home({ onSessionReady }) {
   const [showCode, setShowCode] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [showAdmin, setShowAdmin] = useState(false);
+  const [validatedCode, setValidatedCode] = useState('');
   const [mode, setMode] = useState('hospital');
 
   const secretTap = () => {
@@ -18,19 +19,26 @@ export default function Home({ onSessionReady }) {
     if (n >= 5) setShowCode(true);
   };
 
-  const tryAdmin = () => {
-    if (adminCode.trim() === '1986') {
+  // Valida o código no servidor (nunca fica escrito no código do site).
+  const tryAdmin = async () => {
+    const c = adminCode.trim();
+    if (!c) return;
+    try {
+      const res = await fetch(`${API_URL}/admin/plays?code=${encodeURIComponent(c)}`);
+      if (!res.ok) throw new Error();
+      setValidatedCode(c);
       setShowAdmin(true);
       setShowCode(false);
       setAdminCode('');
       setTaps(0);
-    } else {
+      setError(null);
+    } catch {
       setError('Código de admin errado.');
     }
   };
 
   if (showAdmin) {
-    return <AdminPanel code="1986" onClose={() => setShowAdmin(false)} />;
+    return <AdminPanel code={validatedCode} onClose={() => setShowAdmin(false)} />;
   }
 
   const createSession = async () => {
@@ -47,23 +55,6 @@ export default function Home({ onSessionReady }) {
       onSessionReady(session.id);
     } catch {
       setError('Não consegui criar a sessão. O servidor está a correr?');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const deleteAll = async () => {
-    if (!confirm('Apagar TODAS as sessões? Isto limpa tudo e não se pode desfazer.')) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_URL}/sessions`, { method: 'DELETE' });
-      if (!res.ok) throw new Error();
-      localStorage.removeItem('sessionId');
-      const body = await res.json().catch(() => ({}));
-      setError(`✅ Apaguei ${body.deleted ?? 0} sessão(ões).`);
-    } catch {
-      setError('Não consegui apagar as sessões.');
     } finally {
       setBusy(false);
     }
@@ -166,16 +157,6 @@ export default function Home({ onSessionReady }) {
             </div>
           </div>
         )}
-
-        <div className="mt-6 border-t border-gray-100 pt-3 text-center">
-          <button
-            onClick={deleteAll}
-            disabled={busy}
-            className="text-xs text-gray-400 hover:text-hospital-danger hover:underline disabled:opacity-50"
-          >
-            🧹 Apagar todas as sessões
-          </button>
-        </div>
       </div>
     </div>
   );
