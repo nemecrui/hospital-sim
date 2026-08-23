@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { API_URL } from '../utils/api.js';
+import { getContent } from '../content.js';
 
-const ROLES = [
-  { id: 'secretaria', label: '👩‍💼 Secretária' },
-  { id: 'medica', label: '👨‍⚕️ Médica' },
-  { id: 'enfermeira', label: '👩‍⚕️ Enfermeira' },
-  { id: 'tad', label: '🔬 Técnico (TAS)' }
-];
+const ROLE_IDS = ['secretaria', 'medica', 'enfermeira', 'tad'];
 
-export default function Setup({ sessionId, onDone, onBack }) {
+export default function Setup({ sessionId, mode, onDone, onBack }) {
+  const content = getContent(mode);
   const [players, setPlayers] = useState(1);
   const [roles, setRoles] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -26,7 +23,7 @@ export default function Setup({ sessionId, onDone, onBack }) {
     });
   };
 
-  const cpuRoles = ROLES.filter((r) => !roles.includes(r.id)).map((r) => r.label);
+  const cpuRoles = ROLE_IDS.filter((id) => !roles.includes(id)).map((id) => content.roles[id]);
 
   const confirm = async () => {
     if (roles.length !== players) return;
@@ -46,7 +43,7 @@ export default function Setup({ sessionId, onDone, onBack }) {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="card w-full max-w-md p-8">
-        <h1 className="mb-1 text-center text-3xl font-bold">🏥 Quem vai jogar?</h1>
+        <h1 className="mb-1 text-center text-3xl font-bold">{content.title.split(' ')[0]} Quem vai jogar?</h1>
         <p className="mb-6 text-center text-sm text-gray-500">
           Os papéis que ninguém escolher são feitos pelo computador 🤖
         </p>
@@ -73,12 +70,12 @@ export default function Setup({ sessionId, onDone, onBack }) {
           {roles.length}/{players})
         </label>
         <div className="mb-4 space-y-2">
-          {ROLES.map((r) => {
-            const selected = roles.includes(r.id);
+          {ROLE_IDS.map((id) => {
+            const selected = roles.includes(id);
             return (
               <button
-                key={r.id}
-                onClick={() => toggleRole(r.id)}
+                key={id}
+                onClick={() => toggleRole(id)}
                 className={`btn w-full py-3 text-left text-lg ${
                   selected
                     ? 'bg-gradient-to-r from-hospital-cyan to-blue-400 text-white'
@@ -86,7 +83,7 @@ export default function Setup({ sessionId, onDone, onBack }) {
                 }`}
               >
                 {selected ? '✓ ' : ''}
-                {r.label}
+                {content.roles[id]}
               </button>
             );
           })}

@@ -5,15 +5,14 @@ import PatientCard from '../components/PatientCard.jsx';
 import QueixaChips from '../components/QueixaChips.jsx';
 import Wristband from '../components/Wristband.jsx';
 import Confetti from '../components/Confetti.jsx';
-import diagnoses from '../data/diagnoses.json';
-import meds from '../data/meds.json';
 import examsData from '../data/exams.json';
 import icons from '../data/icons.json';
 import { speak } from '../utils/tts.js';
 import { diagnosisHint } from '../utils/hints.js';
 import { speakTip } from '../utils/tts.js';
+import { getContent } from '../content.js';
 
-export default function Medica({ playerId }) {
+export default function Medica({ playerId, mode }) {
   const { patients, pollPatients, prescribe, requestExams, discharge } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
 
@@ -25,6 +24,7 @@ export default function Medica({ playerId }) {
     return (
       <Consulta
         patient={patient}
+        mode={mode}
         onBack={() => setActive(null)}
         prescribe={prescribe}
         requestExams={requestExams}
@@ -63,7 +63,10 @@ export default function Medica({ playerId }) {
   );
 }
 
-function Consulta({ patient, onBack, prescribe, requestExams }) {
+function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
+  const content = getContent(mode);
+  const diagnoses = content.diagnoses;
+  const meds = content.meds;
   const [diagnosis, setDiagnosis] = useState(patient.diagnosis || '');
   const [chosenMeds, setChosenMeds] = useState([]);
   const [chosenExams, setChosenExams] = useState([]);

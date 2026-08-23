@@ -16,6 +16,7 @@ model Session {
   code String? @unique
 
   // Configuração de jogo
+  mode       String @default("hospital") // "hospital" | "vet"
   players    Int    @default(1) // nº de jogadoras humanas (1 a 4)
   humanRoles String @default("[]") // JSON array dos papéis humanos; os restantes são CPU
 

@@ -1,65 +1,15 @@
-// Motor CPU: faz avançar automaticamente os doentes dos papéis sem jogadora humana.
+// Motor CPU: faz avançar automaticamente os papéis sem jogadora humana.
 import {
   generatePatient,
   generateEmergency,
   suggestTriageColor,
   HEALTH_BY_COLOR,
   randomExamResult,
-  EXAMS,
-  DISEASE_GOALS
+  EXAMS
 } from './utils/generators.js';
-
-// Roda o cenário: tema (2–4 min) alterna com dia normal (1–2,5 min)
-function nextScenario(current) {
-  if (!current || current === 'normal') {
-    const themed = ['gripes', 'parque', 'festa'];
-    return { scenario: themed[Math.floor(Math.random() * themed.length)], durMs: (120 + Math.floor(Math.random() * 120)) * 1000 };
-  }
-  return { scenario: 'normal', durMs: (60 + Math.floor(Math.random() * 90)) * 1000 };
-}
-
-// Cria um objetivo aleatório: curar N doentes OU curar N de uma doença
-function rollObjective(patients) {
-  const discharged = patients.filter((p) => p.status === 'discharged');
-  const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  if (Math.random() < 0.5) {
-    return { id, type: 'count', target: 5 + Math.floor(Math.random() * 8), startCount: discharged.length };
-  }
-  const disease = DISEASE_GOALS[Math.floor(Math.random() * DISEASE_GOALS.length)];
-  const startCount = discharged.filter((p) => p.diagnosis === disease).length;
-  return { id, type: 'disease', disease, target: 2 + Math.floor(Math.random() * 3), startCount };
-}
-
-function objectiveProgress(obj, patients) {
-  const discharged = patients.filter((p) => p.status === 'discharged');
-  const qualifying = obj.type === 'disease'
-    ? discharged.filter((p) => p.diagnosis === obj.disease).length
-    : discharged.length;
-  return qualifying - (obj.startCount || 0);
-}
+import { pack } from './utils/content.js';
 
 const ALL_ROLES = ['secretaria', 'medica', 'enfermeira', 'tad'];
-
-const DIAGNOSES = [
-  'Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite',
-  'Alergia', 'Ferida', 'Entorse', 'Enxaqueca', 'Febre', 'Osso partido',
-  'Excesso de guloseimas', 'Preguicite aguda', 'Barriga de trovão',
-  'Nariz de palhaço', 'Cócegas crónicas', 'Cabeça no ar'
-];
-const MEDS = [
-  { name: 'Paracetamol', emoji: '💊', type: 'med', total: 3 },
-  { name: 'Ibuprofeno', emoji: '💊', type: 'med', total: 2 },
-  { name: 'Xarope', emoji: '🥄', type: 'med', total: 3 },
-  { name: 'Anti-alérgico', emoji: '💊', type: 'med', total: 2 },
-  { name: 'Penso', emoji: '🩹', type: 'curativo', total: 1 },
-  { name: 'Gesso', emoji: '🦴', type: 'curativo', total: 1 },
-  { name: 'Repouso', emoji: '😴', type: 'med', total: 1 },
-  { name: 'Chá quentinho', emoji: '🍵', type: 'med', total: 2 },
-  { name: 'Sopa da avó', emoji: '🥣', type: 'med', total: 1 },
-  { name: 'Mimo extra', emoji: '🧸', type: 'med', total: 2 },
-  { name: 'Gargalhada', emoji: '😂', type: 'med', total: 3 }
-];
-
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const THINK_MS = 6000;
 const SPAWN_MS = 9000;
@@ -74,14 +24,42 @@ function safeParse(json, fallback) {
   }
 }
 
+function nextScenario(mode, current) {
+  const ids = pack(mode).scenarioIds;
+  if (!current || current === 'normal') {
+    return { scenario: pick(ids), durMs: (120 + Math.floor(Math.random() * 120)) * 1000 };
+  }
+  return { scenario: 'normal', durMs: (60 + Math.floor(Math.random() * 90)) * 1000 };
+}
+
+function rollObjective(mode, patients) {
+  const discharged = patients.filter((p) => p.status === 'discharged');
+  const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  if (Math.random() < 0.5) {
+    return { id, type: 'count', target: 5 + Math.floor(Math.random() * 8), startCount: discharged.length };
+  }
+  const disease = pick(pack(mode).diseaseGoals);
+  const startCount = discharged.filter((p) => p.diagnosis === disease).length;
+  return { id, type: 'disease', disease, target: 2 + Math.floor(Math.random() * 3), startCount };
+}
+
+function objectiveProgress(obj, patients) {
+  const discharged = patients.filter((p) => p.status === 'discharged');
+  const qualifying = obj.type === 'disease'
+    ? discharged.filter((p) => p.diagnosis === obj.disease).length
+    : discharged.length;
+  return qualifying - (obj.startCount || 0);
+}
+
 async function tickSession(prisma, session) {
+  const mode = session.mode || 'hospital';
   const now = Date.now();
   const patients = await prisma.patient.findMany({ where: { sessionId: session.id } });
   const active = patients.filter((p) => p.status !== 'discharged');
 
-  // 🎠 Rotação de cenário (por tempo determinado; alterna tema com dia normal)
+  // 🎠 Rotação de cenário
   if (!session.scenarioUntil || now > new Date(session.scenarioUntil).getTime()) {
-    const nx = nextScenario(session.scenario);
+    const nx = nextScenario(mode, session.scenario);
     await prisma.session.update({
       where: { id: session.id },
       data: { scenario: nx.scenario, scenarioUntil: new Date(now + nx.durMs) }
@@ -89,35 +67,23 @@ async function tickSession(prisma, session) {
     session.scenario = nx.scenario;
   }
 
-  // 🎯 Objetivo: cria se não existir; quando cumprido, gera um novo
+  // 🎯 Objetivo
   const obj = safeParse(session.objective, null);
-  if (!obj) {
+  if (!obj || objectiveProgress(obj, patients) >= obj.target) {
     await prisma.session.update({
       where: { id: session.id },
-      data: { objective: JSON.stringify(rollObjective(patients)) }
-    });
-  } else if (objectiveProgress(obj, patients) >= obj.target) {
-    await prisma.session.update({
-      where: { id: session.id },
-      data: { objective: JSON.stringify(rollObjective(patients)) }
+      data: { objective: JSON.stringify(rollObjective(mode, patients)) }
     });
   }
 
-  // 🚑 Ambulância — urgência rara que salta a fila (acontece mesmo com todos os papéis humanos)
-  const lastEmerg = patients
-    .filter((p) => p.emergency)
-    .reduce((m, p) => Math.max(m, new Date(p.createdAt).getTime()), 0);
+  // 🚑 Urgência rara
+  const lastEmerg = patients.filter((p) => p.emergency).reduce((m, p) => Math.max(m, new Date(p.createdAt).getTime()), 0);
   if (active.length < 5 && now - lastEmerg > 240000 && Math.random() < 0.04) {
-    const g = generateEmergency();
+    const g = generateEmergency(mode);
     await prisma.patient.create({
       data: {
-        sessionId: session.id,
-        name: g.name,
-        age: g.age,
-        symptoms: JSON.stringify(g.symptoms),
-        story: g.story,
-        emergency: true,
-        status: 'triage'
+        sessionId: session.id, name: g.name, age: g.age,
+        symptoms: JSON.stringify(g.symptoms), story: g.story, emergency: true, status: 'triage'
       }
     });
   }
@@ -126,72 +92,51 @@ async function tickSession(prisma, session) {
   const cpuRoles = ALL_ROLES.filter((r) => !human.includes(r));
   if (cpuRoles.length === 0) return;
 
-  // 👩‍💼 Secretária CPU — cria doentes (nome+idade) se houver menos de 3 ativos
+  // 👩‍💼 Secretária CPU
   if (cpuRoles.includes('secretaria')) {
-    const lastCreated = patients.reduce(
-      (max, p) => Math.max(max, new Date(p.createdAt).getTime()),
-      0
-    );
+    const lastCreated = patients.reduce((max, p) => Math.max(max, new Date(p.createdAt).getTime()), 0);
     if (active.length < MAX_ACTIVE && now - lastCreated > SPAWN_MS) {
-      const g = generatePatient(session.scenario);
+      const g = generatePatient(mode, session.scenario);
       await prisma.patient.create({
         data: {
-          sessionId: session.id,
-          name: g.name,
-          age: g.age,
-          symptoms: JSON.stringify(g.symptoms),
-          story: g.story,
-          status: 'triage'
+          sessionId: session.id, name: g.name, age: g.age,
+          symptoms: JSON.stringify(g.symptoms), story: g.story, status: 'triage'
         }
       });
     }
   }
 
-  // 👩‍⚕️ Enfermeira CPU — triagem e tratamento
+  // 👩‍⚕️ Enfermeira CPU
   if (cpuRoles.includes('enfermeira')) {
-    // Triagem: triage -> diagnosis
     for (const p of patients.filter((p) => p.status === 'triage')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
-        const queixas = safeParse(p.symptoms, []);
-        const color = suggestTriageColor(queixas);
+        const color = suggestTriageColor(mode, safeParse(p.symptoms, []));
         await prisma.patient.update({
           where: { id: p.id },
           data: {
-            status: 'diagnosis',
-            assignedTo: 'CPU',
-            temp: Number((36 + Math.random() * 3).toFixed(1)),
-            hr: 60 + Math.floor(Math.random() * 40),
-            triageColor: color,
-            health: HEALTH_BY_COLOR[color] ?? 60
+            status: 'diagnosis', assignedTo: 'CPU',
+            temp: Number((36 + Math.random() * 3).toFixed(1)), hr: 60 + Math.floor(Math.random() * 40),
+            triageColor: color, health: HEALTH_BY_COLOR[color] ?? 60
           }
         });
       }
     }
-    // Tratamento: treatment -> discharge (aplica tudo e cura)
     for (const p of patients.filter((p) => p.status === 'treatment')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
         const items = safeParse(p.medicine, []).map((it) => ({ ...it, given: it.total }));
         await prisma.patient.update({
           where: { id: p.id },
-          data: {
-            status: 'discharge',
-            assignedTo: 'CPU',
-            medicine: JSON.stringify(items),
-            health: 100
-          }
+          data: { status: 'discharge', assignedTo: 'CPU', medicine: JSON.stringify(items), health: 100 }
         });
       }
     }
   }
 
-  // 🔬 TAD CPU — faz os exames pedidos e devolve ao médico
+  // 🔬 TAD CPU
   if (cpuRoles.includes('tad')) {
     for (const p of patients.filter((p) => p.status === 'exams')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
-        const list = safeParse(p.exams, []).map((e) => ({
-          ...e,
-          result: e.result || randomExamResult(e.name)
-        }));
+        const list = safeParse(p.exams, []).map((e) => ({ ...e, result: e.result || randomExamResult(e.name) }));
         await prisma.patient.update({
           where: { id: p.id },
           data: { status: 'diagnosis', assignedTo: 'CPU', exams: JSON.stringify(list) }
@@ -200,32 +145,30 @@ async function tickSession(prisma, session) {
     }
   }
 
-  // 👨‍⚕️ Médica CPU — diagnóstico e alta
+  // 👨‍⚕️ Médica CPU
   if (cpuRoles.includes('medica')) {
-    // Diagnóstico: pede exames (~40%, se ainda não tiver) OU vai direto ao tratamento
+    const P = pack(mode);
     for (const p of patients.filter((p) => p.status === 'diagnosis')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
         const jaFezExames = safeParse(p.exams, []).length > 0;
         if (!jaFezExames && Math.random() < 0.4) {
-          // Pedir 1 (às vezes 2) exames ao TAS
           const shuffled = [...EXAMS].sort(() => Math.random() - 0.5);
           const n = Math.random() < 0.3 ? 2 : 1;
           const list = shuffled.slice(0, n).map((e) => ({ name: e.name, emoji: e.emoji, result: null }));
           await prisma.patient.update({
             where: { id: p.id },
-            data: { status: 'exams', diagnosis: pick(DIAGNOSES), exams: JSON.stringify(list) }
+            data: { status: 'exams', diagnosis: pick(P.cpuDiagnoses), exams: JSON.stringify(list) }
           });
         } else {
-          const chosen = pick(MEDS);
+          const chosen = pick(P.cpuMeds);
           const items = [{ ...chosen, given: 0, lastGivenAt: 0 }];
           await prisma.patient.update({
             where: { id: p.id },
-            data: { status: 'treatment', diagnosis: pick(DIAGNOSES), medicine: JSON.stringify(items) }
+            data: { status: 'treatment', diagnosis: pick(P.cpuDiagnoses), medicine: JSON.stringify(items) }
           });
         }
       }
     }
-    // Alta: discharge -> discharged
     for (const p of patients.filter((p) => p.status === 'discharge')) {
       if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
         await prisma.patient.update({
@@ -242,7 +185,7 @@ export function startCpu(prisma, log, intervalMs = 3000) {
     try {
       const sessions = await prisma.session.findMany();
       for (const s of sessions) {
-        if (safeParse(s.humanRoles, []).length === 0) continue;
+        if (safeParse(s.humanRoles, []).length === 0) continue; // ainda não configurada
         await tickSession(prisma, s);
       }
     } catch (err) {

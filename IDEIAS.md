@@ -17,6 +17,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Feedback educativo suave** — dicas (pulseira vs febre, queixa → diagnóstico) e "Sabias que…?".
 - ✅ **Tema de hospital** — banner com relógio e fundo de cruzinhas.
 - ✅ **Sons e musiquinha** — música de fundo ligável/desligável.
+- ✅ **Modo Hospital / Veterinário** — dois jogos na mesma base, escolhidos no ecrã inicial.
 
 ## 🚧 Em curso agora
 - _(nada de momento — escolher a próxima da lista)_
@@ -67,7 +68,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 ## 🎠 Conteúdo e rejogabilidade
 - ✅ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".
 - ⬜ **Doentes especiais** — dinossauro 🦖, robô ⚙️, extraterrestre 👽 com queixas absurdas.
-- ⬜ **Animais de estimação** — modo veterinário de vez em quando.
+- ✅ **Modo Veterinário** — botão no início para escolher Hospital 🏥 ou Veterinário 🐾: nomes de animais, doenças de bichos e procedimentos (banho, tosquia, cortar unhas ✂️, vacinas, limpar orelhas…).
 
 ## 🏅 Extras giros
 - ⬜ **Diploma do dia** — com o nome delas e as estatísticas, para guardar/imprimir.

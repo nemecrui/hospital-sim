@@ -11,11 +11,13 @@ import Thermometer from '../components/Thermometer.jsx';
 import Stethoscope from '../components/Stethoscope.jsx';
 import CareGesture from '../components/CareGesture.jsx';
 import MedGesture from '../components/MedGesture.jsx';
+import NailClip from '../components/NailClip.jsx';
 
 // Que gesto usar para cada item (null = simples toque)
 function gestureKind(it) {
+  if (it.type === 'nails') return 'snip';
   if (it.type === 'curativo') return it.name === 'Gesso' ? 'wrap' : 'rub';
-  if (it.name === 'Antibiótico' || it.name === 'Soro') return 'injection';
+  if (it.name === 'Antibiótico' || it.name === 'Soro' || it.name === 'Vacina') return 'injection';
   if (it.name === 'Xarope') return 'spoon';
   return null;
 }
@@ -277,26 +279,18 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
           <h4 className="mb-1 font-bold">
             {care.emoji} {care.name}
           </h4>
-          {['rub', 'wrap'].includes(gestureKind(care)) ? (
-            <CareGesture
-              name={care.name}
-              emoji={care.emoji}
-              onDone={async () => {
-                await aplicar(care);
-                setCare(null);
-              }}
-              onCancel={() => setCare(null)}
-            />
-          ) : (
-            <MedGesture
-              kind={gestureKind(care)}
-              onDone={async () => {
-                await aplicar(care);
-                setCare(null);
-              }}
-              onCancel={() => setCare(null)}
-            />
-          )}
+          {(() => {
+            const kind = gestureKind(care);
+            const finish = async () => {
+              await aplicar(care);
+              setCare(null);
+            };
+            const cancel = () => setCare(null);
+            if (kind === 'snip') return <NailClip onDone={finish} onCancel={cancel} />;
+            if (['rub', 'wrap'].includes(kind))
+              return <CareGesture name={care.name} emoji={care.emoji} onDone={finish} onCancel={cancel} />;
+            return <MedGesture kind={kind} onDone={finish} onCancel={cancel} />;
+          })()}
         </div>
       )}
 

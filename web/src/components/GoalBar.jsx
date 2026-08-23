@@ -2,25 +2,26 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import Confetti from './Confetti.jsx';
-import scenarios from '../data/scenarios.json';
 import icons from '../data/icons.json';
+import { getContent } from '../content.js';
 
-function objText(obj) {
+function objText(obj, noun) {
   if (!obj) return 'A preparar objetivo...';
   if (obj.type === 'disease') return `Curar ${obj.target} × ${obj.disease}`;
-  return `Curar ${obj.target} doentes`;
+  return `Curar ${obj.target} ${noun}`;
 }
 
 // Barra de estado do dia: objetivo atual (ao vivo) + tema, partilhada por todas.
-export default function GoalBar() {
+export default function GoalBar({ mode }) {
   const { patients, session, pollSession } = useContext(HospitalContext);
   const [celebrate, setCelebrate] = useState(false);
   const lastId = useRef(null);
 
   usePoll(pollSession, 4000);
 
+  const content = getContent(mode);
   const obj = session?.objectiveObj;
-  const scen = scenarios.find((s) => s.id === session?.scenario);
+  const scen = content.scenarios[session?.scenario];
 
   // Festa quando o objetivo muda (foi cumprido e surgiu um novo)
   useEffect(() => {
@@ -52,7 +53,7 @@ export default function GoalBar() {
       <div className="mb-3 rounded-2xl bg-white/70 p-2 shadow-sm">
         <div className="mb-1 flex items-center justify-between text-xs font-semibold">
           <span>
-            🎯 {objText(obj)} {obj?.type === 'disease' ? icons[obj.disease] || '' : ''}
+            🎯 {objText(obj, content.patientPlural)} {obj?.type === 'disease' ? icons[obj.disease] || '' : ''}
           </span>
           <span>{celebrate ? '🎉 Cumprido!' : `${progress}/${target}`}</span>
         </div>

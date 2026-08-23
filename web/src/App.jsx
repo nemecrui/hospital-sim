@@ -14,13 +14,15 @@ import StickerPopup from './components/StickerPopup.jsx';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
 import { isMusicOn, toggleMusic } from './utils/music.js';
 import { API_URL } from './utils/api.js';
+import { getContent } from './content.js';
 
-const ROLES = [
-  { id: 'secretaria', label: '👩‍💼 Secretária', from: 'from-pink-400', to: 'to-pink-500' },
-  { id: 'medica', label: '👨‍⚕️ Médica', from: 'from-blue-400', to: 'to-blue-500' },
-  { id: 'enfermeira', label: '👩‍⚕️ Enfermeira', from: 'from-green-400', to: 'to-green-500' },
-  { id: 'tad', label: '🔬 Técnico (TAS)', from: 'from-indigo-400', to: 'to-indigo-500' }
-];
+const ROLE_STYLE = {
+  secretaria: { from: 'from-pink-400', to: 'to-pink-500' },
+  medica: { from: 'from-blue-400', to: 'to-blue-500' },
+  enfermeira: { from: 'from-green-400', to: 'to-green-500' },
+  tad: { from: 'from-indigo-400', to: 'to-indigo-500' }
+};
+const ROLE_IDS = ['secretaria', 'medica', 'enfermeira', 'tad'];
 
 export default function App() {
   const [sessionId, setSessionId] = useState(null);
@@ -49,7 +51,8 @@ export default function App() {
             players: s.players ?? 1,
             humanRoles: safeParse(s.humanRoles),
             goalTarget: s.goalTarget ?? 8,
-            scenario: s.scenario || 'normal'
+            scenario: s.scenario || 'normal',
+            mode: s.mode || 'hospital'
           });
         }
       } catch {
@@ -89,6 +92,7 @@ export default function App() {
     return (
       <Setup
         sessionId={sessionId}
+        mode={config.mode}
         onDone={(c) => setConfig((prev) => ({ ...prev, ...c }))}
         onBack={leaveSession}
       />
@@ -122,17 +126,18 @@ export default function App() {
   }
 
   const playerId = childName || 'Criança';
+  const content = getContent(config.mode);
 
   return (
     <HospitalProvider sessionId={sessionId}>
       <StickerPopup />
       <div className="mx-auto min-h-screen max-w-3xl p-4">
-        <HospitalHeader />
+        <HospitalHeader title={content.title} />
 
         <header className="mb-3 flex items-center justify-between">
           <div className="text-sm text-gray-700">
             👧 <strong>{playerId}</strong> ·{' '}
-            {role === 'dashboard' ? '📊 Dashboard' : ROLES.find((r) => r.id === role)?.label}
+            {role === 'dashboard' ? '📊 Dashboard' : content.roles[role]}
           </div>
           <button
             onClick={() => setRole(null)}
@@ -142,12 +147,12 @@ export default function App() {
           </button>
         </header>
 
-        <GoalBar />
+        <GoalBar mode={config.mode} />
         <DidYouKnow />
 
-        {role === 'secretaria' && <Secretaria />}
-        {role === 'medica' && <Medica playerId={playerId} />}
-        {role === 'enfermeira' && <Enfermeira playerId={playerId} />}
+        {role === 'secretaria' && <Secretaria mode={config.mode} />}
+        {role === 'medica' && <Medica playerId={playerId} mode={config.mode} />}
+        {role === 'enfermeira' && <Enfermeira playerId={playerId} mode={config.mode} />}
         {role === 'tad' && <Tad playerId={playerId} />}
         {role === 'dashboard' && <Dashboard />}
       </div>
@@ -169,8 +174,10 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
   const [sound, setSound] = useState(isSoundEnabled());
   const [music, setMusic] = useState(isMusicOn());
 
+  const content = getContent(config.mode);
   const humanRoles = config.humanRoles;
-  const cpuRoles = ROLES.filter((r) => !humanRoles.includes(r.id));
+  const humanRoleIds = ROLE_IDS.filter((id) => humanRoles.includes(id));
+  const cpuRoleIds = ROLE_IDS.filter((id) => !humanRoles.includes(id));
   const shareCode = config.code || sessionId;
 
   const copyCode = async () => {
@@ -196,7 +203,7 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="card w-full max-w-md p-8">
-        <h1 className="mb-6 text-center text-4xl font-bold">🏥 Hospital</h1>
+        <h1 className="mb-6 text-center text-4xl font-bold">{content.title}</h1>
 
         <div className="mb-4 rounded-xl bg-blue-50 p-3 text-center">
           <div className="text-xs text-blue-500">
@@ -219,13 +226,13 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
         />
 
         <div className="space-y-3">
-          {ROLES.filter((r) => humanRoles.includes(r.id)).map((r) => (
+          {humanRoleIds.map((id) => (
             <button
-              key={r.id}
-              onClick={() => onSelectRole(r.id)}
-              className={`btn w-full bg-gradient-to-r ${r.from} ${r.to} py-4 text-lg font-bold text-white transition hover:scale-105 hover:shadow-lg`}
+              key={id}
+              onClick={() => onSelectRole(id)}
+              className={`btn w-full bg-gradient-to-r ${ROLE_STYLE[id].from} ${ROLE_STYLE[id].to} py-4 text-lg font-bold text-white transition hover:scale-105 hover:shadow-lg`}
             >
-              {r.label}
+              {content.roles[id]}
             </button>
           ))}
 
@@ -237,9 +244,9 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
           </button>
         </div>
 
-        {cpuRoles.length > 0 && (
+        {cpuRoleIds.length > 0 && (
           <p className="mt-4 rounded-xl bg-yellow-50 p-2 text-center text-xs text-yellow-800">
-            🤖 O computador trata de: {cpuRoles.map((r) => r.label).join(', ')}
+            🤖 O computador trata de: {cpuRoleIds.map((id) => content.roles[id]).join(', ')}
           </p>
         )}
 

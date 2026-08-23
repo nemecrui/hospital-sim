@@ -23,12 +23,13 @@ export default async function sessionsRoutes(fastify) {
 
   // POST /api/sessions - Criar nova sessão (config opcional)
   fastify.post('/sessions', async (request, reply) => {
-    const { players, humanRoles, goalTarget, scenario } = request.body || {};
+    const { players, humanRoles, goalTarget, scenario, mode } = request.body || {};
     try {
       const code = await makeUniqueCode(prisma);
       const session = await prisma.session.create({
         data: {
           code,
+          mode: mode === 'vet' ? 'vet' : 'hospital',
           players: players ? Number(players) : 1,
           humanRoles: JSON.stringify(Array.isArray(humanRoles) ? humanRoles : []),
           goalTarget: goalTarget ? Number(goalTarget) : 8,

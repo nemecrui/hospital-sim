@@ -7,7 +7,12 @@ const CFG = {
   'Creme para comichão': { msg: 'Espalha o creme para a comichão passar!', base: '🧴', end: '✨', overlay: 'bg-pink-200/60' },
   Gelo: { msg: 'Esfrega o gelo para desinchar!', base: '🧊', end: '❄️', overlay: 'bg-sky-200/70' },
   'Banho quente': { msg: 'Esfrega para dar o banho quentinho!', base: '🛁', end: '🫧', overlay: 'bg-blue-200/60' },
-  'Beijinho de melhoras': { msg: 'Esfrega com carinho — um beijinho de melhoras!', base: '😘', end: '💗', overlay: 'bg-pink-200/60' }
+  'Beijinho de melhoras': { msg: 'Esfrega com carinho — um beijinho de melhoras!', base: '😘', end: '💗', overlay: 'bg-pink-200/60' },
+  // Modo veterinário
+  Banho: { msg: 'Esfrega para dar banho ao bichinho!', base: '🛁', end: '🫧', overlay: 'bg-blue-200/60' },
+  Tosquia: { msg: 'Esfrega para tosquiar o pelo!', base: '🐩', end: '✂️', overlay: 'bg-amber-100/70' },
+  'Limpar orelhas': { msg: 'Esfrega para limpar as orelhinhas!', base: '👂', end: '✨', overlay: 'bg-yellow-100/70' },
+  'Champô anti-pulgas': { msg: 'Esfrega o champô para as pulgas fugirem!', base: '🧴', end: '🫧', overlay: 'bg-green-200/60' }
 };
 const DEFAULT = { msg: 'Esfrega o ecrã para aplicar!', base: '🧴', end: '✨', overlay: 'bg-white/70' };
 

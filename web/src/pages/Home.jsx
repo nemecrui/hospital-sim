@@ -10,6 +10,7 @@ export default function Home({ onSessionReady }) {
   const [showCode, setShowCode] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [showAdmin, setShowAdmin] = useState(false);
+  const [mode, setMode] = useState('hospital');
 
   const secretTap = () => {
     const n = taps + 1;
@@ -36,7 +37,11 @@ export default function Home({ onSessionReady }) {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(`${API_URL}/sessions`, { method: 'POST' });
+      const res = await fetch(`${API_URL}/sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode })
+      });
       if (!res.ok) throw new Error();
       const session = await res.json();
       onSessionReady(session.id);
@@ -91,12 +96,31 @@ export default function Home({ onSessionReady }) {
         >
           🏥 Hospital
         </h1>
-        <p className="mb-6 text-center text-gray-500">Simulador para brincar aos hospitais</p>
+        <p className="mb-4 text-center text-gray-500">Escolhe o teu jogo</p>
+
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setMode('hospital')}
+            className={`btn py-4 text-lg ${
+              mode === 'hospital' ? 'bg-gradient-to-r from-hospital-pink to-pink-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          >
+            🏥 Hospital
+          </button>
+          <button
+            onClick={() => setMode('vet')}
+            className={`btn py-4 text-lg ${
+              mode === 'vet' ? 'bg-gradient-to-r from-green-400 to-green-500 text-white' : 'bg-white text-gray-700'
+            }`}
+          >
+            🐾 Veterinário
+          </button>
+        </div>
 
         <button
           onClick={createSession}
           disabled={busy}
-          className="btn mb-6 w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-4 text-lg text-white hover:shadow-lg disabled:opacity-50"
+          className="btn mb-6 w-full bg-gradient-to-r from-hospital-cyan to-blue-400 py-4 text-lg text-white hover:shadow-lg disabled:opacity-50"
         >
           ✨ Começar um novo dia
         </button>

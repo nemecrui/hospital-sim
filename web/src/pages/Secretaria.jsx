@@ -2,13 +2,14 @@ import { useContext, useMemo, useState } from 'react';
 import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
-import { generateArrival } from '../utils/generators.js';
+import { getContent } from '../content.js';
 
 const MAX_ACTIVE = 3;
 
-export default function Secretaria() {
+export default function Secretaria({ mode }) {
+  const content = getContent(mode);
   const { patients, pollPatients, registerPatient } = useContext(HospitalContext);
-  const [arrival, setArrival] = useState(() => generateArrival());
+  const [arrival, setArrival] = useState(() => content.makeArrival());
   const [form, setForm] = useState({ name: '', age: '' });
   const [feedback, setFeedback] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -19,19 +20,26 @@ export default function Secretaria() {
   const salaCheia = active.length >= MAX_ACTIVE;
 
   const nextArrival = () => {
-    setArrival(generateArrival());
+    setArrival(content.makeArrival());
     setForm({ name: '', age: '' });
     setFeedback(null);
   };
 
+  // No modo vet o nome vem com emoji da espécie (ex: "🐶 Bobi").
+  // Comparamos só a parte de texto e guardamos o nome completo (com emoji).
+  const arrivalPlain = arrival.name.replace(/[^\p{L}\p{N} ]/gu, '').trim();
+  const isVet = content.mode === 'vet';
+
   const handleRegister = async () => {
     if (!form.name || !form.age || busy) return;
     setBusy(true);
-    const okName = form.name.trim().toLowerCase() === arrival.name.toLowerCase();
+    const okName = form.name.trim().toLowerCase() === arrivalPlain.toLowerCase();
     const okAge = parseInt(form.age, 10) === arrival.age;
     const score = [okName, okAge].filter(Boolean).length;
 
-    const res = await registerPatient(form.name.trim(), parseInt(form.age, 10));
+    // Guarda o nome completo (com emoji do bicho) para manter a identidade.
+    const nameToStore = isVet ? arrival.name : form.name.trim();
+    const res = await registerPatient(nameToStore, parseInt(form.age, 10));
     setBusy(false);
     if (res.ok) {
       setFeedback({ score, okName, okAge });
