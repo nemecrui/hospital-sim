@@ -54,11 +54,11 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Raio-X com scanner** — arrastar o scanner pelo braço para ver os ossos e decidir.
 - ✅ **Termómetro na triagem** — encostar à testa e segurar até ao bip.
 - ✅ **ECG** — traçado que anda à velocidade do coração; decidir.
-- ⬜ **Estetoscópio** — arrastar ao peito para ouvir.
-- ⬜ **Ecografia** — passar a sonda pela barriga.
-- ⬜ **Curativo passo-a-passo** — limpar, pomada, penso.
-- ⬜ **Gesso** — enrolar a ligadura à volta.
-- ⬜ **Ver garganta/ouvido** — lanterna/otoscópio.
+- ✅ **Estetoscópio** — encostar ao peito e segurar para ouvir a pulsação.
+- ✅ **Ecografia** — passar a sonda pela barriga para revelar o achado.
+- ✅ **Curativo passo-a-passo** — esfregar para limpar e pôr o penso.
+- ✅ **Gesso** — esfregar à volta para pôr o gesso.
+- ✅ **Ver garganta/ouvido** — observar antes de diagnosticar.
 
 ## 🎠 Conteúdo e rejogabilidade
 - ✅ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".

@@ -68,6 +68,13 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
   const [chosenMeds, setChosenMeds] = useState([]);
   const [chosenExams, setChosenExams] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [obs, setObs] = useState(null);
+
+  const sintoma = patient.symptoms?.[0] || '';
+  const verGarganta = () =>
+    setObs(/garganta/i.test(sintoma) ? '😖 A garganta está vermelha!' : '😀 A garganta está boa.');
+  const verOuvido = () =>
+    setObs(/ouvido/i.test(sintoma) ? '👂 O ouvido está inflamado!' : '👍 O ouvido está bom.');
 
   const temResultados = (patient.exams || []).some((e) => e.result);
 
@@ -118,6 +125,19 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
             </button>
           </div>
         )}
+      </div>
+
+      <div className="card p-4">
+        <h4 className="mb-2 text-sm font-bold">🔎 Observar o doente</h4>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={verGarganta} className="btn bg-white px-3 py-2 text-sm hover:bg-pink-50">
+            🔦 Ver a garganta
+          </button>
+          <button onClick={verOuvido} className="btn bg-white px-3 py-2 text-sm hover:bg-pink-50">
+            👂 Ver o ouvido
+          </button>
+        </div>
+        {obs && <p className="mt-2 rounded-xl bg-blue-50 p-2 text-sm text-blue-800">{obs}</p>}
       </div>
 
       {temResultados && (

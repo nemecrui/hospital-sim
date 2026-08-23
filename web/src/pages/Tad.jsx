@@ -5,6 +5,7 @@ import PatientCard from '../components/PatientCard.jsx';
 import QueixaChips from '../components/QueixaChips.jsx';
 import XrayScanner from '../components/XrayScanner.jsx';
 import ECGMonitor from '../components/ECGMonitor.jsx';
+import EchoScanner from '../components/EchoScanner.jsx';
 import examsData from '../data/exams.json';
 
 // "Verdade" estável a partir do id do doente (não muda entre polls)
@@ -112,7 +113,13 @@ function ExamRoom({ patient, playerId, examResult, examsDone, onBack }) {
               <ECGMonitor truth={ecgTruth(patient)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
-            {open === ex.name && !ex.result && ex.name !== 'Raio-X' && ex.name !== 'ECG' && (
+            {open === ex.name && !ex.result && ex.name === 'Ecografia' && (
+              <EchoScanner patientId={patient.id} onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
+            {open === ex.name &&
+              !ex.result &&
+              !['Raio-X', 'ECG', 'Ecografia'].includes(ex.name) && (
               <div className="mt-3">
                 <p className="mb-2 text-xs text-gray-500">Qual foi o resultado?</p>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

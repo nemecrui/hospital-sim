@@ -8,6 +8,8 @@ import { WRISTBANDS } from '../components/Wristband.jsx';
 import { triageTip } from '../utils/hints.js';
 import { speakTip } from '../utils/tts.js';
 import Thermometer from '../components/Thermometer.jsx';
+import Stethoscope from '../components/Stethoscope.jsx';
+import CareGesture from '../components/CareGesture.jsx';
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -114,8 +116,9 @@ function Triagem({ patient, playerId, onBack, triage }) {
       <div className="card p-4">
         <span className="text-sm font-semibold">🌡️ Sinais vitais</span>
 
-        <div className="my-3">
+        <div className="my-3 grid gap-4 sm:grid-cols-2">
           <Thermometer onMeasure={(t) => setVitals((v) => ({ ...v, temp: t }))} />
+          <Stethoscope onMeasure={(h) => setVitals((v) => ({ ...v, hr: String(h) }))} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -200,6 +203,7 @@ function Triagem({ patient, playerId, onBack, triage }) {
 
 function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
   const [msg, setMsg] = useState(null);
+  const [care, setCare] = useState(null); // curativo/gesso a aplicar com gesto
   const items = patient.medicine || [];
   const health = patient.health ?? 0;
   const curado = health >= 100;
@@ -247,7 +251,7 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
                 </span>
               </span>
               <button
-                onClick={() => aplicar(it)}
+                onClick={() => (it.type === 'curativo' ? setCare(it) : aplicar(it))}
                 disabled={done || waiting}
                 className="btn bg-hospital-pink px-3 py-1 text-sm text-white disabled:opacity-40"
               >
@@ -258,6 +262,22 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
         })}
         {msg && <p className="text-center text-xs text-hospital-danger">{msg}</p>}
       </div>
+
+      {care && (
+        <div className="card p-4">
+          <h4 className="mb-1 font-bold">
+            {care.emoji} {care.name}
+          </h4>
+          <CareGesture
+            kind={care.name === 'Gesso' ? 'wrap' : 'rub'}
+            onDone={async () => {
+              await aplicar(care);
+              setCare(null);
+            }}
+            onCancel={() => setCare(null)}
+          />
+        </div>
+      )}
 
       <div className="flex gap-3">
         <button
