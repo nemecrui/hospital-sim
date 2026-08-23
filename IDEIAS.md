@@ -52,8 +52,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ## 🎮 Estações interativas (fazer com as mãos)
 - ✅ **Raio-X com scanner** — arrastar o scanner pelo braço para ver os ossos e decidir.
-- ⬜ **Termómetro na triagem** — arrastar até à testa e esperar o bip.
-- ⬜ **ECG** — carregar ao ritmo do coração.
+- ✅ **Termómetro na triagem** — encostar à testa e segurar até ao bip.
+- ✅ **ECG** — traçado que anda à velocidade do coração; decidir.
 - ⬜ **Estetoscópio** — arrastar ao peito para ouvir.
 - ⬜ **Ecografia** — passar a sonda pela barriga.
 - ⬜ **Curativo passo-a-passo** — limpar, pomada, penso.

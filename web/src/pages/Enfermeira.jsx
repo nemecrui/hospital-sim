@@ -7,6 +7,7 @@ import HealthBar from '../components/HealthBar.jsx';
 import { WRISTBANDS } from '../components/Wristband.jsx';
 import { triageTip } from '../utils/hints.js';
 import { speakTip } from '../utils/tts.js';
+import Thermometer from '../components/Thermometer.jsx';
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -111,12 +112,12 @@ function Triagem({ patient, playerId, onBack, triage }) {
       </div>
 
       <div className="card p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-semibold">🌡️ Sinais vitais</span>
-          <button onClick={medir} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-700 hover:bg-blue-200">
-            🎲 Medir automático
-          </button>
+        <span className="text-sm font-semibold">🌡️ Sinais vitais</span>
+
+        <div className="my-3">
+          <Thermometer onMeasure={(t) => setVitals((v) => ({ ...v, temp: t }))} />
         </div>
+
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
             <span className="text-xs text-gray-500">🌡️ Temperatura (°C)</span>
@@ -140,9 +141,12 @@ function Triagem({ patient, playerId, onBack, triage }) {
             />
           </label>
         </div>
-        <p className="mt-2 text-xs text-gray-400">
-          Escreve à mão ou carrega em "Medir automático". (Normal: ~37 °C e 60–100 bpm.)
-        </p>
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-xs text-gray-400">Normal: ~37 °C e 60–100 bpm.</span>
+          <button onClick={medir} className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-200">
+            🎲 Medir tudo
+          </button>
+        </div>
       </div>
 
       <div className="card p-4">
