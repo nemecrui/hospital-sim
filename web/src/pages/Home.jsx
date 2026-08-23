@@ -1,10 +1,36 @@
 import { useState } from 'react';
 import { API_URL } from '../utils/api.js';
+import AdminPanel from '../components/AdminPanel.jsx';
 
 export default function Home({ onSessionReady }) {
   const [joinCode, setJoinCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [taps, setTaps] = useState(0);
+  const [showCode, setShowCode] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  const secretTap = () => {
+    const n = taps + 1;
+    setTaps(n);
+    if (n >= 5) setShowCode(true);
+  };
+
+  const tryAdmin = () => {
+    if (adminCode.trim() === '1986') {
+      setShowAdmin(true);
+      setShowCode(false);
+      setAdminCode('');
+      setTaps(0);
+    } else {
+      setError('Código de admin errado.');
+    }
+  };
+
+  if (showAdmin) {
+    return <AdminPanel code="1986" onClose={() => setShowAdmin(false)} />;
+  }
 
   const createSession = async () => {
     setBusy(true);
@@ -58,7 +84,13 @@ export default function Home({ onSessionReady }) {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="card w-full max-w-md p-8">
-        <h1 className="mb-2 text-center text-4xl font-bold">🏥 Hospital</h1>
+        <h1
+          className="mb-2 cursor-pointer select-none text-center text-4xl font-bold"
+          onClick={secretTap}
+          title=""
+        >
+          🏥 Hospital
+        </h1>
         <p className="mb-6 text-center text-gray-500">Simulador para brincar aos hospitais</p>
 
         <button
@@ -90,6 +122,26 @@ export default function Home({ onSessionReady }) {
         </button>
 
         {error && <p className="mt-4 text-center text-sm text-hospital-danger">{error}</p>}
+
+        {showCode && (
+          <div className="mt-4 rounded-xl bg-gray-100 p-3">
+            <label className="mb-1 block text-xs font-semibold text-gray-600">Código secreto</label>
+            <div className="flex gap-2">
+              <input
+                className="input flex-1"
+                type="password"
+                inputMode="numeric"
+                placeholder="••••"
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && tryAdmin()}
+              />
+              <button onClick={tryAdmin} className="btn bg-gray-700 px-4 text-white">
+                Entrar
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 border-t border-gray-100 pt-3 text-center">
           <button

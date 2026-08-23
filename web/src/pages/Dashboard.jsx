@@ -64,6 +64,8 @@ export default function Dashboard() {
         </div>
       )}
 
+      <Caderneta earned={session?.stickersList || []} />
+
       <div>
         <h4 className="mb-2 font-bold">📋 Histórico (altas)</h4>
         <div className="space-y-3">
@@ -75,8 +77,6 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
-
-      <Caderneta earned={session?.stickersList || []} />
 
       <button
         onClick={handleReset}

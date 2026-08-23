@@ -55,7 +55,13 @@ export function HospitalProvider({ children, sessionId }) {
         } catch {
           objectiveObj = null;
         }
-        setSession({ ...s, stickersList: stickers, objectiveObj });
+        let lastStickerObj = null;
+        try {
+          lastStickerObj = s.lastSticker ? JSON.parse(s.lastSticker) : null;
+        } catch {
+          lastStickerObj = null;
+        }
+        setSession({ ...s, stickersList: stickers, objectiveObj, lastStickerObj });
       }
     } catch {
       /* silencioso */

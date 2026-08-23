@@ -315,16 +315,26 @@ export default async function patientsRoutes(fastify) {
         }
       });
 
-      // Prémio: um autocolante para a caderneta da sessão
-      const sticker = randomSticker();
-      const session = await prisma.session.findUnique({ where: { id: patient.sessionId } });
-      const owned = safeJson(session?.stickers, []);
-      owned.push(sticker.id);
-      await prisma.session
-        .update({ where: { id: patient.sessionId }, data: { stickers: JSON.stringify(owned) } })
-        .catch(() => {});
+      // Prémio: nem todos os doentes dão cromo (~45% de hipótese)
+      let awardedSticker = null;
+      if (Math.random() < 0.45) {
+        const sticker = randomSticker();
+        const session = await prisma.session.findUnique({ where: { id: patient.sessionId } });
+        const owned = safeJson(session?.stickers, []);
+        owned.push(sticker.id);
+        await prisma.session
+          .update({
+            where: { id: patient.sessionId },
+            data: {
+              stickers: JSON.stringify(owned),
+              lastSticker: JSON.stringify({ ...sticker, by: playerId || 'Alguém', ts: Date.now() })
+            }
+          })
+          .catch(() => {});
+        awardedSticker = sticker;
+      }
 
-      return { ...serialize(patient), awardedSticker: sticker };
+      return { ...serialize(patient), awardedSticker };
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ error: 'Failed to discharge patient' });

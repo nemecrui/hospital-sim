@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import GoalBar from './components/GoalBar.jsx';
 import HospitalHeader from './components/HospitalHeader.jsx';
 import DidYouKnow from './components/DidYouKnow.jsx';
+import StickerPopup from './components/StickerPopup.jsx';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
 import { isMusicOn, toggleMusic } from './utils/music.js';
 import { API_URL } from './utils/api.js';
@@ -89,9 +90,19 @@ export default function App() {
       <Setup
         sessionId={sessionId}
         onDone={(c) => setConfig((prev) => ({ ...prev, ...c }))}
+        onBack={leaveSession}
       />
     );
   }
+
+  const logPlay = (r) => {
+    if (!['secretaria', 'medica', 'enfermeira', 'tad'].includes(r)) return;
+    fetch(`${API_URL}/plays`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, name: childName || 'Criança', role: r })
+    }).catch(() => {});
+  };
 
   if (!role) {
     return (
@@ -102,6 +113,7 @@ export default function App() {
         setChildName={setChildName}
         onSelectRole={(r) => {
           localStorage.setItem('childName', childName || 'Criança');
+          logPlay(r);
           setRole(r);
         }}
         onLeave={leaveSession}
@@ -113,6 +125,7 @@ export default function App() {
 
   return (
     <HospitalProvider sessionId={sessionId}>
+      <StickerPopup />
       <div className="mx-auto min-h-screen max-w-3xl p-4">
         <HospitalHeader />
 

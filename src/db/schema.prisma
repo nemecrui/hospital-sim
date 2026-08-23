@@ -25,6 +25,7 @@ model Session {
   objective  String? // JSON do objetivo atual: { id, type, target, disease?, startCount }
   scenario   String    @default("normal") // tema atual: normal | gripes | parque | festa
   scenarioUntil DateTime? // quando o tema muda
+  lastSticker String? // JSON do último cromo ganho: { id, emoji, name, by, ts } (popup partilhado)
 
   patients Patient[]
   stats    Stats?
@@ -73,6 +74,17 @@ model Patient {
   @@index([sessionId])
   @@index([status])
   @@index([urgency])
+}
+
+// Registo de jogadas (para o dashboard secreto de admin)
+model PlayEvent {
+  id        String   @id @default(cuid())
+  code      String? // sala (código-fruta)
+  name      String
+  role      String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model Stats {

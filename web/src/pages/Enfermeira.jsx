@@ -6,6 +6,7 @@ import QueixaChips from '../components/QueixaChips.jsx';
 import HealthBar from '../components/HealthBar.jsx';
 import { WRISTBANDS } from '../components/Wristband.jsx';
 import { triageTip } from '../utils/hints.js';
+import { speakTip } from '../utils/tts.js';
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -164,9 +165,16 @@ function Triagem({ patient, playerId, onBack, triage }) {
           ))}
         </div>
         {triageTip(vitals.temp, color) && (
-          <p className="mt-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-800">
-            {triageTip(vitals.temp, color)}
-          </p>
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-800">
+            <span>{triageTip(vitals.temp, color)}</span>
+            <button
+              onClick={() => speakTip(triageTip(vitals.temp, color))}
+              className="shrink-0 rounded-full bg-amber-200 px-2 py-0.5 font-semibold text-amber-900"
+              title="Ouvir a dica"
+            >
+              🔊
+            </button>
+          </div>
         )}
       </div>
 

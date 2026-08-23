@@ -11,6 +11,7 @@ import examsData from '../data/exams.json';
 import icons from '../data/icons.json';
 import { speak } from '../utils/tts.js';
 import { diagnosisHint } from '../utils/hints.js';
+import { speakTip } from '../utils/tts.js';
 
 export default function Medica({ playerId }) {
   const { patients, pollPatients, prescribe, requestExams, discharge } = useContext(HospitalContext);
@@ -106,9 +107,16 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
           <span>❤️ {patient.hr ? `${patient.hr} bpm` : '—'}</span>
         </div>
         {diagnosisHint(patient.symptoms?.[0]) && (
-          <p className="mt-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-800">
-            💡 {diagnosisHint(patient.symptoms[0])}
-          </p>
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-800">
+            <span>💡 {diagnosisHint(patient.symptoms[0])}</span>
+            <button
+              onClick={() => speakTip(diagnosisHint(patient.symptoms[0]))}
+              className="shrink-0 rounded-full bg-amber-200 px-2 py-0.5 font-semibold text-amber-900"
+              title="Ouvir a dica"
+            >
+              🔊
+            </button>
+          </div>
         )}
       </div>
 
@@ -212,16 +220,16 @@ function Consulta({ patient, onBack, prescribe, requestExams }) {
 function Alta({ patient, playerId, discharge, onBack }) {
   const [rating, setRating] = useState(5);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(null); // { sticker }
+  const [done, setDone] = useState(false);
 
   const darAlta = async () => {
     setBusy(true);
     const res = await discharge(patient.id, playerId, rating);
     setBusy(false);
-    if (res.ok) setDone({ sticker: res.sticker });
+    if (res.ok) setDone(true);
   };
 
-  // Ecrã de festa depois da alta
+  // Ecrã de festa depois da alta (o cromo, se houver, aparece no popup a todos)
   if (done) {
     return (
       <div className="space-y-4">
@@ -229,13 +237,6 @@ function Alta({ patient, playerId, discharge, onBack }) {
         <div className="card animate-pop p-6 text-center">
           <div className="text-6xl">🎉</div>
           <p className="mt-2 text-lg font-bold">{patient.name} foi para casa curado!</p>
-          {done.sticker && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-500">Ganhaste um autocolante:</p>
-              <div className="mt-1 text-6xl">{done.sticker.emoji}</div>
-              <p className="font-semibold">{done.sticker.name}</p>
-            </div>
-          )}
           <button
             onClick={onBack}
             className="btn mt-6 w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-3 text-white hover:shadow-lg"

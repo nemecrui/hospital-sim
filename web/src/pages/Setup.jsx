@@ -8,7 +8,7 @@ const ROLES = [
   { id: 'tad', label: '🔬 Técnico (TAS)' }
 ];
 
-export default function Setup({ sessionId, onDone }) {
+export default function Setup({ sessionId, onDone, onBack }) {
   const [players, setPlayers] = useState(1);
   const [roles, setRoles] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -109,6 +109,15 @@ export default function Setup({ sessionId, onDone }) {
         >
           {busy ? 'A preparar...' : '✓ Começar!'}
         </button>
+
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="mt-3 w-full py-2 text-sm text-gray-500 hover:underline"
+          >
+            ← Voltar ao menu
+          </button>
+        )}
       </div>
     </div>
   );
