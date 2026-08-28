@@ -1,5 +1,5 @@
 import icons from '../data/icons.json';
-import { speak } from '../utils/tts.js';
+import { speak, speakAs } from '../utils/tts.js';
 import Character from './Character.jsx';
 import SpeechBubble from './SpeechBubble.jsx';
 
@@ -8,9 +8,13 @@ export default function QueixaChips({ queixas = [], name, story, label = 'Queixa
   const list = queixas.length ? queixas : ['—'];
 
   const readAloud = () => {
+    // Voz por idade/espécie quando temos o doente; senão, voz simples.
+    if (patient) {
+      speakAs(patient, mode);
+      return;
+    }
     const parte = queixas.length ? queixas.join(', ') : 'nada de especial';
-    const frase = `Olá, sou ${name || 'o doente'}. Tenho ${parte}. ${story || ''}`;
-    speak(frase);
+    speak(`Olá, sou ${name || 'o doente'}. Tenho ${parte}. ${story || ''}`);
   };
 
   return (
