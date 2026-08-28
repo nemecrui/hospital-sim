@@ -10,6 +10,7 @@ import MachineScan from '../components/MachineScan.jsx';
 import FillTube from '../components/FillTube.jsx';
 import HearingTest from '../components/HearingTest.jsx';
 import examsData from '../data/exams.json';
+import { reactAs } from '../utils/tts.js';
 
 // "Verdade" estável a partir do id do doente (não muda entre polls)
 function isBroken(patient) {
@@ -27,7 +28,7 @@ function resultsFor(name) {
   return examsData.find((e) => e.name === name)?.results || ['Normal', 'Alterado'];
 }
 
-export default function Tad({ playerId }) {
+export default function Tad({ playerId, mode }) {
   const { patients, pollPatients, examResult, examsDone } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
 
@@ -39,6 +40,7 @@ export default function Tad({ playerId }) {
     return (
       <ExamRoom
         patient={patient}
+        mode={mode}
         playerId={playerId}
         examResult={examResult}
         examsDone={examsDone}
@@ -57,20 +59,21 @@ export default function Tad({ playerId }) {
           <p className="text-sm text-gray-400">Sem exames pedidos. Espera que a médica peça algum.</p>
         )}
         {fila.map((p) => (
-          <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Fazer exames ▶" />
+          <PatientCard key={p.id} patient={p} mode={mode} onClick={() => setActive(p.id)} actionLabel="Fazer exames ▶" />
         ))}
       </div>
     </div>
   );
 }
 
-function ExamRoom({ patient, playerId, examResult, examsDone, onBack }) {
+function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
   const [open, setOpen] = useState(null); // exame a definir resultado
   const exams = patient.exams || [];
   const todosFeitos = exams.length > 0 && exams.every((e) => e.result);
 
   const escolher = async (examName, result) => {
     await examResult(patient.id, examName, result);
+    reactAs(patient, mode, 'exam'); // o doente reage ao exame
     setOpen(null);
   };
 
@@ -84,7 +87,7 @@ function ExamRoom({ patient, playerId, examResult, examsDone, onBack }) {
       <h3 className="text-lg font-bold">🔬 Exames — {patient.name} ({patient.age} anos)</h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="Queixa" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="Queixa" patient={patient} mode={mode} />
       </div>
 
       <div className="space-y-3">

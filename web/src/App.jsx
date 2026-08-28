@@ -155,7 +155,7 @@ export default function App() {
         {role === 'secretaria' && <Secretaria mode={config.mode} />}
         {role === 'medica' && <Medica playerId={playerId} mode={config.mode} />}
         {role === 'enfermeira' && <Enfermeira playerId={playerId} mode={config.mode} />}
-        {role === 'tad' && <Tad playerId={playerId} />}
+        {role === 'tad' && <Tad playerId={playerId} mode={config.mode} />}
         {role === 'dashboard' && <Dashboard />}
       </div>
     </HospitalProvider>

@@ -6,7 +6,7 @@ import QueixaChips from '../components/QueixaChips.jsx';
 import HealthBar from '../components/HealthBar.jsx';
 import { WRISTBANDS } from '../components/Wristband.jsx';
 import { triageTip } from '../utils/hints.js';
-import { speakTip } from '../utils/tts.js';
+import { speakTip, reactAs } from '../utils/tts.js';
 import Thermometer from '../components/Thermometer.jsx';
 import Stethoscope from '../components/Stethoscope.jsx';
 import CareGesture from '../components/CareGesture.jsx';
@@ -231,8 +231,10 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
     if (curado && !wasCured.current) {
       wasCured.current = true;
       setCelebrate((n) => n + 1);
+      reactAs(patient, mode, 'thanks'); // agradecimento
     }
     if (!curado) wasCured.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curado]);
 
   const aplicar = async (item) => {
@@ -241,7 +243,12 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
       setMsg(`⏳ Espera ${res.wait}s antes da próxima dose de ${item.name}.`);
     } else {
       setMsg(null);
-      if (res.ok) setReact((n) => n + 1); // saltinho + coração
+      if (res.ok) {
+        setReact((n) => n + 1); // saltinho + coração
+        const gk = gestureKind(item);
+        const kind = { injection: 'injection', spoon: 'syrup', rub: 'rub', wrap: 'rub', snip: 'nails' }[gk] || 'medicine';
+        reactAs(patient, mode, kind); // som/fala conforme o feitio
+      }
     }
   };
 

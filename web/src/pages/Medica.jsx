@@ -7,7 +7,7 @@ import Wristband from '../components/Wristband.jsx';
 import Confetti from '../components/Confetti.jsx';
 import examsData from '../data/exams.json';
 import icons from '../data/icons.json';
-import { speak } from '../utils/tts.js';
+import { speak, reactAs } from '../utils/tts.js';
 import { diagnosisHint } from '../utils/hints.js';
 import { speakTip } from '../utils/tts.js';
 import { getContent } from '../content.js';
@@ -90,7 +90,10 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
     const exams = examsData.filter((e) => chosenExams.includes(e.name)).map((e) => ({ name: e.name, emoji: e.emoji }));
     const ok = await requestExams(patient.id, exams, diagnosis || undefined);
     setBusy(false);
-    if (ok) onBack();
+    if (ok) {
+      reactAs(patient, mode, 'exam'); // o doente reage a ir fazer exames
+      onBack();
+    }
   };
 
   const prescrever = async () => {
@@ -166,7 +169,7 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
               key={d}
               onClick={() => {
                 setDiagnosis(d);
-                speak(d);
+                reactAs(patient, mode, 'diagnosis');
               }}
               className={`btn flex items-center gap-2 py-3 text-left ${
                 diagnosis === d ? 'bg-gradient-to-r from-hospital-cyan to-blue-400 text-white' : 'bg-white'
