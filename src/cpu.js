@@ -193,5 +193,38 @@ export function startCpu(prisma, log, intervalMs = 3000) {
     }
   }, intervalMs);
   timer.unref?.();
+
+  const stopCleanup = startCleanup(prisma, log);
+  return () => {
+    clearInterval(timer);
+    stopCleanup();
+  };
+}
+
+// Limpeza automática: apaga sessões abandonadas para a base de dados não crescer
+// sem fim (e o motor não varrer lixo). Uma sessão é "abandonada" quando nem ela
+// nem nenhum dos seus doentes foi mexido há mais do que SESSION_TTL_HORAS.
+// Os doentes e as estatísticas são apagados em cascata (definido no schema).
+export function startCleanup(prisma, log, everyMs = 60 * 60 * 1000) {
+  const ttlHours = Number(process.env.SESSION_TTL_HORAS) || 48;
+
+  const sweep = async () => {
+    try {
+      const cutoff = new Date(Date.now() - ttlHours * 60 * 60 * 1000);
+      const { count } = await prisma.session.deleteMany({
+        where: {
+          updatedAt: { lt: cutoff },
+          patients: { none: { updatedAt: { gte: cutoff } } }
+        }
+      });
+      if (count > 0) log?.info?.(`🧹 Limpeza: ${count} sessão(ões) inativa(s) apagada(s) (> ${ttlHours}h).`);
+    } catch (err) {
+      log?.error?.(err);
+    }
+  };
+
+  sweep(); // uma ronda ao arrancar
+  const timer = setInterval(sweep, everyMs);
+  timer.unref?.();
   return () => clearInterval(timer);
 }
