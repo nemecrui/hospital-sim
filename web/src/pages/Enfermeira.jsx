@@ -12,7 +12,7 @@ import Stethoscope from '../components/Stethoscope.jsx';
 import CareGesture from '../components/CareGesture.jsx';
 import MedGesture from '../components/MedGesture.jsx';
 import NailClip from '../components/NailClip.jsx';
-import Character from '../components/Character.jsx';
+import PatientBody from '../components/PatientBody.jsx';
 import SpeechBubble from '../components/SpeechBubble.jsx';
 import Reaction from '../components/Reaction.jsx';
 
@@ -266,7 +266,7 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
 
       <div className="card flex items-center gap-3 p-4">
         <div className="relative">
-          <Character patient={patient} mode={mode} size={64} bump={react + celebrate} />
+          <PatientBody patient={patient} mode={mode} size={116} bump={react + celebrate} />
           <Reaction trigger={react} emojis={['❤️', '✨']} count={4} />
           <Reaction trigger={celebrate} emojis={['⭐', '🎉', '💫']} count={9} />
         </div>

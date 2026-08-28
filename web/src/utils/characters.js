@@ -57,6 +57,27 @@ export function moodFor(patient) {
   return { badge: '🙂', anim: 'breathe', label: 'tranquilo' };
 }
 
+// --- Corpo: que "problema" mostrar no boneco, a partir do diagnóstico/queixa ---
+export function bodyStateFor(patient) {
+  const h = patient.health ?? 0;
+  if (patient.status === 'discharge' || patient.status === 'discharged' || h >= 100) return 'healthy';
+  const d = (patient.diagnosis || '').toLowerCase();
+  const s = (Array.isArray(patient.symptoms) ? patient.symptoms.join(' ') : '').toLowerCase();
+  const t = `${d} ${s}`;
+  const has = (...keys) => keys.some((k) => t.includes(k));
+
+  if (has('osso partido', 'partid', 'torcid', 'entorse', 'caiu', 'tornozelo', 'pata')) return 'broken';
+  if (has('ouvido', 'otite', 'orelha')) return 'ear';
+  if (has('dente')) return 'tooth';
+  if (has('cabeça', 'enxaqueca')) return 'headache';
+  if (has('febre', 'gripe', 'amigdalite', 'garganta')) return 'fever';
+  if (has('barriga', 'gastro', 'enjoo', 'vomit', 'guloseima', 'doces', 'roncar')) return 'belly';
+  if (has('alergia', 'picada', 'pulga', 'carraç', 'borbulh', 'comichão', 'coceira', 'legumes')) return 'allergy';
+  if (has('constipação', 'ranho', 'espirr', 'nariz', 'tosse')) return 'cold';
+  if (has('ferida', 'ferimento', 'esfolado', 'magoou', 'magoada', 'penso')) return 'wound';
+  return 'generic';
+}
+
 // --- Falas: o que a personagem diz, conforme feitio × estado × modo ---
 export function speechFor(patient, mode) {
   const t = traitFor(patient).id;
