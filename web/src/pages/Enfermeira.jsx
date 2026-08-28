@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
 import PatientCard from '../components/PatientCard.jsx';
@@ -14,6 +14,7 @@ import MedGesture from '../components/MedGesture.jsx';
 import NailClip from '../components/NailClip.jsx';
 import Character from '../components/Character.jsx';
 import SpeechBubble from '../components/SpeechBubble.jsx';
+import Reaction from '../components/Reaction.jsx';
 
 // Que gesto usar para cada item (null = simples toque)
 function gestureKind(it) {
@@ -218,14 +219,30 @@ function Triagem({ patient, mode, playerId, onBack, triage }) {
 function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBack }) {
   const [msg, setMsg] = useState(null);
   const [care, setCare] = useState(null); // curativo/gesso a aplicar com gesto
+  const [react, setReact] = useState(0); // coração ao tratar
+  const [celebrate, setCelebrate] = useState(0); // festa ao curar
+  const wasCured = useRef(false);
   const items = patient.medicine || [];
   const health = patient.health ?? 0;
   const curado = health >= 100;
 
+  // Festa uma única vez, quando o doente chega aos 100%
+  useEffect(() => {
+    if (curado && !wasCured.current) {
+      wasCured.current = true;
+      setCelebrate((n) => n + 1);
+    }
+    if (!curado) wasCured.current = false;
+  }, [curado]);
+
   const aplicar = async (item) => {
     const res = await giveDose(patient.id, item.name);
-    if (!res.ok && res.wait) setMsg(`⏳ Espera ${res.wait}s antes da próxima dose de ${item.name}.`);
-    else setMsg(null);
+    if (!res.ok && res.wait) {
+      setMsg(`⏳ Espera ${res.wait}s antes da próxima dose de ${item.name}.`);
+    } else {
+      setMsg(null);
+      if (res.ok) setReact((n) => n + 1); // saltinho + coração
+    }
   };
 
   const enviarAlta = async () => {
@@ -241,7 +258,11 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
       </p>
 
       <div className="card flex items-center gap-3 p-4">
-        <Character patient={patient} mode={mode} size={64} />
+        <div className="relative">
+          <Character patient={patient} mode={mode} size={64} bump={react + celebrate} />
+          <Reaction trigger={react} emojis={['❤️', '✨']} count={4} />
+          <Reaction trigger={celebrate} emojis={['⭐', '🎉', '💫']} count={9} />
+        </div>
         <div className="flex-1">
           <SpeechBubble patient={patient} mode={mode} className="mb-2" />
           <HealthBar value={health} />

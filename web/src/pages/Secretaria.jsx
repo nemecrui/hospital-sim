@@ -63,7 +63,7 @@ export default function Secretaria({ mode }) {
         ) : (
           <>
             {/* Cartão de identificação do doente que chega */}
-            <div className="card overflow-hidden">
+            <div key={`${arrival.name}-${arrival.age}`} className="card anim-walkin overflow-hidden">
               <div className="bg-gradient-to-r from-blue-500 to-blue-400 px-4 py-2 text-sm font-bold text-white">
                 🪪 CARTÃO DE IDENTIFICAÇÃO
               </div>

@@ -32,7 +32,7 @@ export default function PatientCard({ patient, mode, onClick, actionLabel }) {
 
   return (
     <div
-      className={`card animate-bounce-in p-4 ${
+      className={`card anim-walkin p-4 ${
         urgent ? 'border-hospital-danger ring-2 ring-hospital-danger/40' : ''
       }`}
     >
