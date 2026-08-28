@@ -71,10 +71,17 @@ export default function Mascot({ mode }) {
       >
         🧸
       </button>
-      <div className="anim-bubble pointer-events-auto relative mb-1 max-w-[220px] rounded-2xl rounded-bl-sm bg-white px-3 py-1.5 pr-6 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-black/5">
+      <div
+        onClick={() => speakTip(msg)}
+        title="Toca para ouvir"
+        className="anim-bubble pointer-events-auto relative mb-1 max-w-[220px] cursor-pointer rounded-2xl rounded-bl-sm bg-white px-3 py-1.5 pr-6 text-sm font-semibold text-gray-700 shadow-md ring-1 ring-black/5"
+      >
         {msg}
         <button
-          onClick={() => setHidden(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setHidden(true);
+          }}
           className="absolute right-1 top-0.5 text-xs text-gray-300 hover:text-gray-500"
           title="Esconder"
           aria-label="Esconder o mascote"

@@ -78,14 +78,22 @@ function nameAndVoice(patient, mode) {
   return { name: raw, sound: '', voice: ageVoice(patient.age) };
 }
 
-// Faz a personagem falar a sua queixa — sempre na 1ª pessoa, sem ler emojis.
+// Faz a personagem apresentar-se, dizer a queixa E contar a história — sem ler emojis.
 export function speakAs(patient, mode) {
   if (!patient) return;
   const { name, sound, voice } = nameAndVoice(patient, mode);
   const queixas = Array.isArray(patient.symptoms) ? patient.symptoms : [];
   const parte = queixas.length ? queixas.join(', ') : 'nada de especial';
+  const story = patient.story || '';
   const abre = sound ? `${sound}! ` : '';
-  say(`${abre}Olá, sou ${name}. Tenho ${parte}.`, voice);
+  say(`${abre}Olá, sou ${name}. Tenho ${parte}. ${story}`, voice);
+}
+
+// Lê um texto qualquer com a voz da personagem (ex.: o que está no balão de fala).
+export function sayAs(patient, mode, text) {
+  if (!patient || !text) return;
+  const { voice } = nameAndVoice(patient, mode);
+  say(text, voice);
 }
 
 // --- Reações por personalidade durante as ações (exame, diagnóstico, tratamento) ---
