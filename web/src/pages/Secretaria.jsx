@@ -143,7 +143,7 @@ export default function Secretaria({ mode }) {
               <p className="text-sm text-gray-400">Ainda não há doentes.</p>
             )}
             {active.map((p) => (
-              <PatientCard key={p.id} patient={p} />
+              <PatientCard key={p.id} patient={p} mode={mode} />
             ))}
           </div>
         </div>

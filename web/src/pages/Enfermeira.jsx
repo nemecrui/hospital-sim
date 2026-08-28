@@ -12,6 +12,8 @@ import Stethoscope from '../components/Stethoscope.jsx';
 import CareGesture from '../components/CareGesture.jsx';
 import MedGesture from '../components/MedGesture.jsx';
 import NailClip from '../components/NailClip.jsx';
+import Character from '../components/Character.jsx';
+import SpeechBubble from '../components/SpeechBubble.jsx';
 
 // Que gesto usar para cada item (null = simples toque)
 function gestureKind(it) {
@@ -27,7 +29,7 @@ const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 const cooldownMsFor = (total) => Math.round(DOSE_WINDOW_S / Math.max(1, total)) * 1000;
 const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : `${s}s`);
 
-export default function Enfermeira({ playerId }) {
+export default function Enfermeira({ playerId, mode }) {
   const { patients, pollPatients, triage, giveDose, toDischarge } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
   const [now, setNow] = useState(Date.now());
@@ -43,12 +45,13 @@ export default function Enfermeira({ playerId }) {
   const patient = active ? patients.find((p) => p.id === active) : null;
 
   if (patient && patient.status === 'triage') {
-    return <Triagem patient={patient} playerId={playerId} onBack={() => setActive(null)} triage={triage} />;
+    return <Triagem patient={patient} mode={mode} playerId={playerId} onBack={() => setActive(null)} triage={triage} />;
   }
   if (patient && patient.status === 'treatment') {
     return (
       <Tratamento
         patient={patient}
+        mode={mode}
         now={now}
         giveDose={giveDose}
         toDischarge={toDischarge}
@@ -70,7 +73,7 @@ export default function Enfermeira({ playerId }) {
             <p className="text-sm text-gray-400">Sem doentes para triar.</p>
           )}
           {paraTriagem.map((p) => (
-            <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Fazer triagem ▶" />
+            <PatientCard key={p.id} patient={p} mode={mode} onClick={() => setActive(p.id)} actionLabel="Fazer triagem ▶" />
           ))}
         </div>
       </section>
@@ -82,7 +85,7 @@ export default function Enfermeira({ playerId }) {
             <p className="text-sm text-gray-400">Sem doentes para tratar.</p>
           )}
           {paraTratar.map((p) => (
-            <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Tratar ▶" />
+            <PatientCard key={p.id} patient={p} mode={mode} onClick={() => setActive(p.id)} actionLabel="Tratar ▶" />
           ))}
         </div>
       </section>
@@ -90,7 +93,7 @@ export default function Enfermeira({ playerId }) {
   );
 }
 
-function Triagem({ patient, playerId, onBack, triage }) {
+function Triagem({ patient, mode, playerId, onBack, triage }) {
   const [vitals, setVitals] = useState({ temp: '', hr: '' });
   const [color, setColor] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -121,7 +124,7 @@ function Triagem({ patient, playerId, onBack, triage }) {
       </h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="O doente diz que sente" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="O doente diz que sente" patient={patient} mode={mode} />
       </div>
 
       <div className="card p-4">
@@ -212,7 +215,7 @@ function Triagem({ patient, playerId, onBack, triage }) {
   );
 }
 
-function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
+function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBack }) {
   const [msg, setMsg] = useState(null);
   const [care, setCare] = useState(null); // curativo/gesso a aplicar com gesto
   const items = patient.medicine || [];
@@ -237,8 +240,12 @@ function Tratamento({ patient, now, giveDose, toDischarge, playerId, onBack }) {
         Diagnóstico: <strong>{patient.diagnosis || '—'}</strong>
       </p>
 
-      <div className="card p-4">
-        <HealthBar value={health} />
+      <div className="card flex items-center gap-3 p-4">
+        <Character patient={patient} mode={mode} size={64} />
+        <div className="flex-1">
+          <SpeechBubble patient={patient} mode={mode} className="mb-2" />
+          <HealthBar value={health} />
+        </div>
       </div>
 
       <div className="card space-y-2 p-4">

@@ -65,3 +65,41 @@
 .animate-pop {
   animation: pop-in 0.5s ease-out;
 }
+
+/* --- Vida das personagens: humor animado --- */
+@keyframes ch-tremble {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  20% { transform: translateX(-1.5px) rotate(-4deg); }
+  60% { transform: translateX(1.5px) rotate(4deg); }
+}
+.anim-tremble { animation: ch-tremble 0.35s ease-in-out infinite; }
+
+@keyframes ch-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.anim-bob { animation: ch-bob 0.9s ease-in-out infinite; }
+
+@keyframes ch-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.anim-float { animation: ch-float 2.6s ease-in-out infinite; }
+
+/* respirar de leve — base de "estar vivo" */
+@keyframes ch-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.anim-breathe { animation: ch-breathe 3.2s ease-in-out infinite; }
+
+/* balão de fala a aparecer */
+@keyframes bubble-in {
+  0% { transform: scale(0.7) translateY(4px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.anim-bubble { animation: bubble-in 0.28s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-tremble, .anim-bob, .anim-float, .anim-breathe, .animate-wiggle { animation: none; }
+}

@@ -1,4 +1,7 @@
 import Wristband from './Wristband.jsx';
+import Character from './Character.jsx';
+import SpeechBubble from './SpeechBubble.jsx';
+import { traitFor } from '../utils/characters.js';
 import icons from '../data/icons.json';
 
 const STATUS_LABELS = {
@@ -21,9 +24,10 @@ function moodOf(patient) {
   return asleep ? { face: '😴', text: 'adormeceu' } : { face: '😠', text: 'farto de esperar' };
 }
 
-export default function PatientCard({ patient, onClick, actionLabel }) {
+export default function PatientCard({ patient, mode, onClick, actionLabel }) {
   const status = STATUS_LABELS[patient.status] || STATUS_LABELS.triage;
   const mood = moodOf(patient);
+  const trait = traitFor(patient);
   const urgent = patient.emergency;
 
   return (
@@ -38,29 +42,46 @@ export default function PatientCard({ patient, onClick, actionLabel }) {
         </div>
       )}
 
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold">{patient.name}</span>
-            <span className="text-sm text-gray-500">({patient.age} anos)</span>
-            {patient.triageColor && <Wristband color={patient.triageColor} />}
+      <div className="flex items-start gap-3">
+        <Character patient={patient} mode={mode} size={60} />
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="text-lg font-bold">{patient.name}</span>
+                <span className="text-sm text-gray-500">({patient.age} anos)</span>
+                {patient.triageColor && <Wristband color={patient.triageColor} />}
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                  {trait.emoji} {trait.label}
+                </span>
+              </div>
+
+              {patient.symptoms?.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {patient.symptoms.map((s, i) => (
+                    <span key={i} className="rounded-full bg-pink-50 px-2 py-0.5 text-xs text-pink-700">
+                      {icons[s] || ''} {s}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {patient.diagnosis && (
+                <div className="mt-1 text-sm text-gray-600">
+                  🩺 <strong>{patient.diagnosis}</strong>
+                </div>
+              )}
+            </div>
+
+            <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${status.color}`}>
+              {status.emoji} {status.text}
+            </span>
           </div>
 
-          {patient.symptoms?.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {patient.symptoms.map((s, i) => (
-                <span key={i} className="rounded-full bg-pink-50 px-2 py-0.5 text-xs text-pink-700">
-                  {icons[s] || ''} {s}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {patient.diagnosis && (
-            <div className="mt-1 text-sm text-gray-600">
-              🩺 <strong>{patient.diagnosis}</strong>
-            </div>
-          )}
+          <div className="mt-2">
+            <SpeechBubble patient={patient} mode={mode} />
+          </div>
 
           {mood && (
             <div className="mt-1 text-xs text-gray-400">
@@ -68,10 +89,6 @@ export default function PatientCard({ patient, onClick, actionLabel }) {
             </div>
           )}
         </div>
-
-        <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${status.color}`}>
-          {status.emoji} {status.text}
-        </span>
       </div>
 
       {onClick && actionLabel && (

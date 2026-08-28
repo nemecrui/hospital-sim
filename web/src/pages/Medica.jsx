@@ -45,7 +45,7 @@ export default function Medica({ playerId, mode }) {
         <div className="space-y-3">
           {paraConsulta.length === 0 && <p className="text-sm text-gray-400">Sem doentes para observar.</p>}
           {paraConsulta.map((p) => (
-            <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Observar ▶" />
+            <PatientCard key={p.id} patient={p} mode={mode} onClick={() => setActive(p.id)} actionLabel="Observar ▶" />
           ))}
         </div>
       </section>
@@ -55,7 +55,7 @@ export default function Medica({ playerId, mode }) {
         <div className="space-y-3">
           {paraAlta.length === 0 && <p className="text-sm text-gray-400">Ninguém pronto para alta.</p>}
           {paraAlta.map((p) => (
-            <PatientCard key={p.id} patient={p} onClick={() => setActive(p.id)} actionLabel="Dar alta ▶" />
+            <PatientCard key={p.id} patient={p} mode={mode} onClick={() => setActive(p.id)} actionLabel="Dar alta ▶" />
           ))}
         </div>
       </section>
@@ -111,7 +111,7 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
       </h3>
 
       <div className="card p-4">
-        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="Queixa" />
+        <QueixaChips queixas={patient.symptoms} name={patient.name} story={patient.story} label="Queixa" patient={patient} mode={mode} />
         <div className="mt-3 flex gap-4 text-sm text-gray-600">
           <span>🌡️ {patient.temp ? `${patient.temp} °C` : '—'}</span>
           <span>❤️ {patient.hr ? `${patient.hr} bpm` : '—'}</span>

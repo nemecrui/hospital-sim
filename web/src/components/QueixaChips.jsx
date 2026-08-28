@@ -1,8 +1,10 @@
 import icons from '../data/icons.json';
 import { speak } from '../utils/tts.js';
+import Character from './Character.jsx';
+import SpeechBubble from './SpeechBubble.jsx';
 
 // Mostra a queixa (com imagem), a historinha do doente e um botão para ouvir tudo.
-export default function QueixaChips({ queixas = [], name, story, label = 'Queixa' }) {
+export default function QueixaChips({ queixas = [], name, story, label = 'Queixa', patient, mode }) {
   const list = queixas.length ? queixas : ['—'];
 
   const readAloud = () => {
@@ -13,6 +15,13 @@ export default function QueixaChips({ queixas = [], name, story, label = 'Queixa
 
   return (
     <div>
+      {patient && (
+        <div className="mb-3 flex items-center gap-3">
+          <Character patient={patient} mode={mode} size={72} />
+          <SpeechBubble patient={patient} mode={mode} />
+        </div>
+      )}
+
       <div className="mb-1 flex items-center justify-between">
         <span className="text-sm font-semibold">{label}</span>
         <button
