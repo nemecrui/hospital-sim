@@ -48,6 +48,16 @@ const HOSPITAL = {
   },
   makeAge: () => Math.floor(Math.random() * 97) + 3,
 
+  // Amigos do costume — voltam de vez em quando (com queixas novas)
+  friends: [
+    { name: 'Zé Piloto', age: 8 },
+    { name: 'Mimi Bailarina', age: 6 },
+    { name: 'Tó Comilão', age: 9 },
+    { name: 'Vó Rosa', age: 71 },
+    { name: 'Nuno Trapalhão', age: 7 },
+    { name: 'Lena Saltitona', age: 5 }
+  ],
+
   emergencySymptoms: ['Caiu e magoou-se', 'Tornozelo torcido', 'Ferimento'],
   emergencyStories: [
     'Chegou de ambulância 🚑 depois de uma queda feia no parque!',
@@ -127,6 +137,16 @@ const VET = {
     return `${sp.e} ${pick(PET_NAMES)}`;
   },
   makeAge: () => Math.floor(Math.random() * 15) + 1,
+
+  // Bichinhos do costume — voltam de vez em quando (com queixas novas)
+  friends: [
+    { name: '🐶 Bobi', age: 4 },
+    { name: '🐱 Mia', age: 3 },
+    { name: '🐰 Pipoca', age: 2 },
+    { name: '🐹 Kiko', age: 1 },
+    { name: '🐦 Piu', age: 1 },
+    { name: '🐢 Zeca', age: 8 }
+  ],
 
   emergencySymptoms: ['Pata magoada', 'Comeu algo estranho', 'Ferida na pata'],
   emergencyStories: [

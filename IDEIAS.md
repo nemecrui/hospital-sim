@@ -17,6 +17,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Feedback educativo suave** — dicas (pulseira vs febre, queixa → diagnóstico) e "Sabias que…?".
 - ✅ **Tema de hospital** — banner com relógio e fundo de cruzinhas.
 - ✅ **Sons e musiquinha** — música de fundo ligável/desligável.
+- ✅ **Vida das personagens** — feitios + balões de fala, caras que reagem ao estado, entradas em cena e festa ao curar, voz por idade e sons de animais, personagens recorrentes ("amigos do costume") e um mascote 🧸 que dá as boas-vindas e festeja as curas.
 - ✅ **Modo Hospital / Veterinário** — dois jogos na mesma base, escolhidos no ecrã inicial.
 
 ## 🚧 Em curso agora
@@ -42,7 +43,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ## ✨ Presentação e "sumo"
 - 🚧 **Confetti e celebrações** (parte do item em curso).
-- 🚧 **Carinhas animadas** — piscar, sorrir, barra de saúde com cara (parte do item em curso).
+- ✅ **Carinhas animadas** — piscar, sorrir, barra de saúde com cara (parte do item em curso).
 - ✅ **Sons e musiquinha** — música de fundo suave (ligável), campainha e fanfarra.
 - ✅ **Tema de hospital** — banner com nome + relógio a andar e fundo de cruzinhas.
 

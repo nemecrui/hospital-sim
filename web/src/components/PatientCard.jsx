@@ -2,6 +2,7 @@ import Wristband from './Wristband.jsx';
 import Character from './Character.jsx';
 import SpeechBubble from './SpeechBubble.jsx';
 import { traitFor } from '../utils/characters.js';
+import { isFriend } from '../data/friends.js';
 import icons from '../data/icons.json';
 
 const STATUS_LABELS = {
@@ -52,6 +53,11 @@ export default function PatientCard({ patient, mode, onClick, actionLabel }) {
                 <span className="text-lg font-bold">{patient.name}</span>
                 <span className="text-sm text-gray-500">({patient.age} anos)</span>
                 {patient.triageColor && <Wristband color={patient.triageColor} />}
+                {isFriend(patient.name, mode) && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                    ⭐ amigo do costume
+                  </span>
+                )}
                 <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                   {trait.emoji} {trait.label}
                 </span>

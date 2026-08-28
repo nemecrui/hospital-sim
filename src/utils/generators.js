@@ -57,8 +57,12 @@ export function generateStory(mode, symptom, age) {
 export function generatePatient(mode, scenario) {
   const p = pack(mode);
   const symptoms = generateQueixas(mode, scenario);
-  const age = p.makeAge();
-  return { name: p.makeName(), age, symptoms, story: generateStory(mode, symptoms[0], age) };
+  // ~28% das vezes chega um "amigo do costume" (mesma cara, queixa nova)
+  const friends = p.friends || [];
+  const friend = friends.length && Math.random() < 0.28 ? one(friends) : null;
+  const age = friend ? friend.age : p.makeAge();
+  const name = friend ? friend.name : p.makeName();
+  return { name, age, symptoms, story: generateStory(mode, symptoms[0], age) };
 }
 
 export function generateEmergency(mode) {
