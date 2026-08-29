@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { beep } from '../utils/sound.js';
 
 // Audiograma: tocar alguns sons (agudos/graves) e depois decidir.
-export default function HearingTest({ results = [], onDecide }) {
+export default function HearingTest({ results = [], reveal, onDecide }) {
   const [played, setPlayed] = useState(false);
   const [i, setI] = useState(0);
 
@@ -32,12 +32,20 @@ export default function HearingTest({ results = [], onDecide }) {
           ▶ Tocar sons
         </button>
       ) : (
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {results.map((r) => (
-            <button key={r} onClick={() => onDecide(r)} className="btn bg-white py-2 text-sm hover:bg-pink-50">
-              {r}
-            </button>
-          ))}
+        <div className="mt-3">
+          {reveal && (
+            <div className="mb-2 rounded-xl bg-indigo-50 p-2 text-center text-sm font-semibold text-indigo-700">
+              🎧 O doente {reveal === 'Ouve pouco' ? 'teve dificuldade em ouvir os sons mais baixos' : 'ouviu todos os sons bem'}
+            </div>
+          )}
+          <p className="mb-2 text-center text-xs text-gray-500">Regista o resultado:</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {results.map((r) => (
+              <button key={r} onClick={() => onDecide(r)} className="btn bg-white py-2 text-sm hover:bg-pink-50">
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

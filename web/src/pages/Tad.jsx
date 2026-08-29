@@ -12,20 +12,35 @@ import HearingTest from '../components/HearingTest.jsx';
 import examsData from '../data/exams.json';
 import { reactAs } from '../utils/tts.js';
 
-// "Verdade" estável a partir do id do doente (não muda entre polls)
-function isBroken(patient) {
-  const s = patient.id || '';
-  const n = s.charCodeAt(0) + s.charCodeAt(s.length - 1);
-  return n % 2 === 0;
-}
-function ecgTruth(patient) {
-  const s = patient.id || '';
-  const n = (s.charCodeAt(1) || 0) + (s.charCodeAt(s.length - 2) || 0);
-  return ['normal', 'fast', 'slow'][n % 3];
-}
-
 function resultsFor(name) {
   return examsData.find((e) => e.name === name)?.results || ['Normal', 'Alterado'];
+}
+
+function probeText(patient) {
+  return `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
+}
+
+// Resultado esperado de cada exame, ligado à queixa/diagnóstico do doente.
+function expectedResult(patient, name) {
+  const t = probeText(patient);
+  switch (name) {
+    case 'Ecografia':
+      return /barriga|gastro|enjoo|guloseim|doces|roncar|comeu|vomit/.test(t) ? 'Comeu demais 🍔' : 'Barriga normal';
+    case 'TAC':
+      return 'Cabeça normal';
+    case 'Ressonância (RM)':
+      return /cansa|preguic|sono|tristonho/.test(t) ? 'Precisa de descanso 😴' : 'Tudo bem';
+    case 'Audiograma':
+      return /ouvido|otite|orelha/.test(t) ? 'Ouve pouco' : 'Ouve bem 👍';
+    default:
+      return null;
+  }
+}
+function xrayBroken(patient) {
+  return /partid|osso|torcid|entorse|caiu|tornozelo|pata/.test(probeText(patient));
+}
+function ecgTruthFor(patient) {
+  return /febre|gripe/.test(probeText(patient)) || patient.emergency ? 'fast' : 'normal';
 }
 
 // "Achado" da análise, ligado ao problema do doente (com variação benigna estável).
@@ -123,23 +138,23 @@ function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
             </div>
 
             {open === ex.name && !ex.result && ex.name === 'Raio-X' && (
-              <XrayScanner broken={isBroken(patient)} onDecide={(r) => escolher(ex.name, r)} />
+              <XrayScanner broken={xrayBroken(patient)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'ECG' && (
-              <ECGMonitor truth={ecgTruth(patient)} onDecide={(r) => escolher(ex.name, r)} />
+              <ECGMonitor truth={ecgTruthFor(patient)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Ecografia' && (
-              <EchoScanner patientId={patient.id} onDecide={(r) => escolher(ex.name, r)} />
+              <EchoScanner patientId={patient.id} finding={expectedResult(patient, 'Ecografia')} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'TAC' && (
-              <MachineScan machineEmoji="🍩" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+              <MachineScan machineEmoji="🍩" reveal={expectedResult(patient, 'TAC')} results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Ressonância (RM)' && (
-              <MachineScan machineEmoji="🧲" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+              <MachineScan machineEmoji="🧲" reveal={expectedResult(patient, 'Ressonância (RM)')} results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Análise de sangue' && (
@@ -151,7 +166,7 @@ function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Audiograma' && (
-              <HearingTest results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+              <HearingTest reveal={expectedResult(patient, 'Audiograma')} results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name &&

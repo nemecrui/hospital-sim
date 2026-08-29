@@ -9,17 +9,17 @@ const FINDINGS = [
 ];
 
 // Passar a sonda pela barriga para revelar o que lá está; depois decidir.
-export default function EchoScanner({ patientId, onDecide }) {
+export default function EchoScanner({ patientId, finding, onDecide }) {
   const ref = useRef(null);
   const [cw, setCw] = useState(300);
   const [x, setX] = useState(10);
   const [revealed, setRevealed] = useState(0);
   const W = 72;
 
-  // achado estável para este doente
-  const truth = FINDINGS[
-    ((patientId || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % FINDINGS.length
-  ];
+  // achado ligado ao problema (se indicado); senão, estável por doente
+  const truth =
+    (finding && FINDINGS.find((f) => f.result === finding)) ||
+    FINDINGS[((patientId || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % FINDINGS.length];
 
   useEffect(() => {
     if (ref.current) setCw(ref.current.clientWidth);

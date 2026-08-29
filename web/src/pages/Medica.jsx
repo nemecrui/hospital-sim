@@ -11,6 +11,9 @@ import { speak, reactAs } from '../utils/tts.js';
 import { diagnosisHint } from '../utils/hints.js';
 import { speakTip } from '../utils/tts.js';
 import { getContent } from '../content.js';
+import ThroatView from '../components/ThroatView.jsx';
+import EarView from '../components/EarView.jsx';
+import { diagnosisInfo, diagnosisMatches } from '../utils/characters.js';
 
 export default function Medica({ playerId, mode }) {
   const { patients, pollPatients, prescribe, requestExams, discharge } = useContext(HospitalContext);
@@ -71,16 +74,12 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
   const [chosenMeds, setChosenMeds] = useState([]);
   const [chosenExams, setChosenExams] = useState([]);
   const [busy, setBusy] = useState(false);
-  const [obs, setObs] = useState(null);
+  const [look, setLook] = useState(null); // 'garganta' | 'ouvido'
 
   // Observação ligada ao problema real (diagnóstico + todas as queixas), não só à 1ª.
   const probe = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
   const gargantaMá = /garganta|amigdal|anginas/.test(probe);
   const ouvidoMau = /ouvido|otite|orelha/.test(probe);
-  const verGarganta = () =>
-    setObs(gargantaMá ? '😖 A garganta está muito vermelha e inflamada!' : '😀 A garganta está boa.');
-  const verOuvido = () =>
-    setObs(ouvidoMau ? '👂 O ouvido está inflamado e vermelho!' : '👍 O ouvido está bom.');
 
   const temResultados = (patient.exams || []).some((e) => e.result);
 
@@ -139,14 +138,36 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
       <div className="card p-4">
         <h4 className="mb-2 text-sm font-bold">🔎 Observar o doente</h4>
         <div className="flex flex-wrap gap-2">
-          <button onClick={verGarganta} className="btn bg-white px-3 py-2 text-sm hover:bg-pink-50">
+          <button
+            onClick={() => setLook(look === 'garganta' ? null : 'garganta')}
+            className={`btn px-3 py-2 text-sm ${look === 'garganta' ? 'bg-hospital-cyan text-white' : 'bg-white hover:bg-pink-50'}`}
+          >
             🔦 Ver a garganta
           </button>
-          <button onClick={verOuvido} className="btn bg-white px-3 py-2 text-sm hover:bg-pink-50">
+          <button
+            onClick={() => setLook(look === 'ouvido' ? null : 'ouvido')}
+            className={`btn px-3 py-2 text-sm ${look === 'ouvido' ? 'bg-hospital-cyan text-white' : 'bg-white hover:bg-pink-50'}`}
+          >
             👂 Ver o ouvido
           </button>
         </div>
-        {obs && <p className="mt-2 rounded-xl bg-blue-50 p-2 text-sm text-blue-800">{obs}</p>}
+
+        {look === 'garganta' && (
+          <div className="mt-3 text-center">
+            <ThroatView inflamed={gargantaMá} />
+            <p className="mt-1 rounded-xl bg-blue-50 p-2 text-sm text-blue-800">
+              {gargantaMá ? '😖 A garganta está muito vermelha e inflamada!' : '😀 A garganta está boa.'}
+            </p>
+          </div>
+        )}
+        {look === 'ouvido' && (
+          <div className="mt-3 text-center">
+            <EarView inflamed={ouvidoMau} />
+            <p className="mt-1 rounded-xl bg-blue-50 p-2 text-sm text-blue-800">
+              {ouvidoMau ? '👂 O ouvido está inflamado e vermelho!' : '👍 O ouvido está bom.'}
+            </p>
+          </div>
+        )}
       </div>
 
       {temResultados && (
@@ -251,6 +272,8 @@ function Alta({ patient, playerId, discharge, onBack }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
+  const certeiro = diagnosisMatches(patient);
+
   const darAlta = async () => {
     setBusy(true);
     const res = await discharge(patient.id, playerId, rating);
@@ -266,6 +289,9 @@ function Alta({ patient, playerId, discharge, onBack }) {
         <div className="card animate-pop p-6 text-center">
           <div className="text-6xl">🎉</div>
           <p className="mt-2 text-lg font-bold">{patient.name} foi para casa curado!</p>
+          {certeiro && (
+            <p className="mt-1 text-sm font-semibold text-green-700">🌟 Diagnóstico certeiro!</p>
+          )}
           <button
             onClick={onBack}
             className="btn mt-6 w-full bg-gradient-to-r from-hospital-pink to-pink-500 py-3 text-white hover:shadow-lg"
@@ -285,6 +311,22 @@ function Alta({ patient, playerId, discharge, onBack }) {
         <div className="text-5xl">😀</div>
         <p className="mt-2 font-semibold">O doente está curado e pronto para ir para casa!</p>
         <p className="text-sm text-gray-500">Diagnóstico: {patient.diagnosis || '—'}</p>
+      </div>
+
+      {/* Feedback educativo (sem castigar) */}
+      <div className="card p-4">
+        {certeiro ? (
+          <p className="mb-2 rounded-xl bg-green-50 p-2 text-sm font-semibold text-green-800">
+            🌟 Diagnóstico certeiro! O diagnóstico combina com a queixa.
+          </p>
+        ) : (
+          patient.diagnosis && (
+            <p className="mb-2 rounded-xl bg-amber-50 p-2 text-sm text-amber-800">
+              💡 Para a próxima, confere se o diagnóstico combina com a queixa.
+            </p>
+          )
+        )}
+        <p className="rounded-xl bg-blue-50 p-2 text-sm text-blue-800">📚 {diagnosisInfo(patient.diagnosis)}</p>
       </div>
 
       <div className="card p-4">

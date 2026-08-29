@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { playSound } from '../utils/sound.js';
 
 // Máquina grande (TAC/RM): o doente entra, faz o exame e revela a imagem.
-export default function MachineScan({ machineEmoji = '🍩', results = [], onDecide }) {
+export default function MachineScan({ machineEmoji = '🍩', results = [], reveal, onDecide }) {
   const [phase, setPhase] = useState('idle'); // idle | scanning | done
   const [p, setP] = useState(0);
   const timer = useRef(null);
@@ -55,12 +55,20 @@ export default function MachineScan({ machineEmoji = '🍩', results = [], onDec
       )}
 
       {phase === 'done' && (
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {results.map((r) => (
-            <button key={r} onClick={() => onDecide(r)} className="btn bg-white py-2 text-sm hover:bg-pink-50">
-              {r}
-            </button>
-          ))}
+        <div className="mt-3">
+          {reveal && (
+            <div className="mb-2 rounded-xl bg-slate-100 p-2 text-center text-sm font-semibold text-slate-700">
+              🖨️ A máquina mostra: {reveal}
+            </div>
+          )}
+          <p className="mb-2 text-center text-xs text-gray-500">Regista o resultado:</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {results.map((r) => (
+              <button key={r} onClick={() => onDecide(r)} className="btn bg-white py-2 text-sm hover:bg-pink-50">
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

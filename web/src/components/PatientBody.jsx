@@ -132,17 +132,34 @@ function Arms({ mode, skin }) {
   );
 }
 
-function Overlay({ state, skin }) {
+function Cast({ x, y, w, h }) {
+  return (
+    <>
+      <rect x={x} y={y} width={w} height={h} rx="8" fill={CAST} stroke={CASTL} strokeWidth="2" />
+      <line x1={x + 2} y1={y + h * 0.25} x2={x + w - 2} y2={y + h * 0.25} stroke={CASTL} strokeWidth="2" />
+      <line x1={x + 2} y1={y + h * 0.5} x2={x + w - 2} y2={y + h * 0.5} stroke={CASTL} strokeWidth="2" />
+      <line x1={x + 2} y1={y + h * 0.75} x2={x + w - 2} y2={y + h * 0.75} stroke={CASTL} strokeWidth="2" />
+    </>
+  );
+}
+function Plaster({ x, y, r = 0 }) {
+  return (
+    <g transform={`rotate(${r} ${x + 7} ${y + 5})`}>
+      <rect x={x} y={y} width="14" height="10" rx="2" fill="#FFE08A" stroke="#E0B84A" strokeWidth="1" />
+      <line x1={x + 7} y1={y} x2={x + 7} y2={y + 10} stroke="#E0B84A" strokeWidth="1" />
+    </g>
+  );
+}
+
+function Overlay({ state, skin, spot = 0 }) {
   switch (state) {
-    case 'broken':
-      return (
-        <>
-          <rect x="53" y="152" width="18" height="46" rx="8" fill={CAST} stroke={CASTL} strokeWidth="2" />
-          <line x1="55" y1="164" x2="69" y2="164" stroke={CASTL} strokeWidth="2" />
-          <line x1="55" y1="174" x2="69" y2="174" stroke={CASTL} strokeWidth="2" />
-          <line x1="55" y1="184" x2="69" y2="184" stroke={CASTL} strokeWidth="2" />
-        </>
-      );
+    case 'broken': {
+      // gesso em partes diferentes do corpo (perna esq., perna dir., braço)
+      const where = spot % 3;
+      if (where === 1) return <Cast x="71" y="152" w="18" h="46" />;
+      if (where === 2) return <Cast x="96" y="104" w="16" h="42" />; // braço direito
+      return <Cast x="51" y="152" w="18" h="46" />; // perna esquerda
+    }
     case 'fever':
       return (
         <>
@@ -190,15 +207,16 @@ function Overlay({ state, skin }) {
           <path d="M100 34 l6 -6 M96 30 l4 -8" stroke="#E5484D" strokeWidth="2.5" strokeLinecap="round" />
         </>
       );
-    case 'wound':
-      return (
-        <g transform="rotate(-20 62 172)">
-          <rect x="55" y="167" width="14" height="10" rx="2" fill="#FFE08A" stroke="#E0B84A" strokeWidth="1" />
-          <line x1="62" y1="167" x2="62" y2="177" stroke="#E0B84A" strokeWidth="1" />
-        </g>
-      );
+    case 'wound': {
+      // penso em partes diferentes (joelho, braço, face, testa)
+      const where = spot % 4;
+      if (where === 1) return <Plaster x="30" y="116" r={70} />; // braço esquerdo
+      if (where === 2) return <Plaster x="80" y="64" r={15} />; // bochecha
+      if (where === 3) return <Plaster x="62" y="38" r={0} />; // testa
+      return <Plaster x="55" y="168" r={-20} />; // joelho
+    }
     case 'healthy':
-      return <path d="M56 168 h12 v9 h-12 z" fill="#FFE08A" stroke="#E0B84A" strokeWidth="1" transform="rotate(-20 62 172)" />;
+      return <Plaster x="56" y="168" r={-20} />;
     default:
       return null;
   }
@@ -271,6 +289,7 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
 
   const ap = appearanceFor(patient);
   const e = expr(bodyStateFor(patient));
+  const spot = ((patient.id || 'x').charCodeAt(1) || 3) + ((patient.id || 'x').charCodeAt(3) || 0);
   const w = Math.round(size * (140 / 220));
 
   return (
@@ -367,7 +386,7 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
           )}
 
           <Mouth kind={e.mouth} />
-          <Overlay state={bodyStateFor(patient)} skin={ap.skin} />
+          <Overlay state={bodyStateFor(patient)} skin={ap.skin} spot={spot} />
         </svg>
       </div>
 

@@ -57,6 +57,50 @@ export function moodFor(patient) {
   return { badge: '🙂', anim: 'breathe', label: 'tranquilo' };
 }
 
+// --- Categoria de uma doença/queixa (para feedback educativo) ---
+export function categoryOf(text) {
+  const t = (text || '').toLowerCase();
+  if (/garganta|amigdal|anginas/.test(t)) return 'garganta';
+  if (/ouvido|otite|orelha/.test(t)) return 'ouvido';
+  if (/osso|partid|torcid|entorse|fratura|pata/.test(t)) return 'osso';
+  if (/barriga|gastro|enjoo|vomit|guloseim|doces|roncar|estragada/.test(t)) return 'barriga';
+  if (/alergia|picada|pulga|carraç|comichão|coceira|borbulh|legumes/.test(t)) return 'alergia';
+  if (/constipa|ranho|espirr|nariz|tosse|gripe/.test(t)) return 'constipacao';
+  if (/cabeça|enxaqueca/.test(t)) return 'cabeca';
+  if (/febre/.test(t)) return 'febre';
+  if (/dente/.test(t)) return 'dente';
+  if (/ferida|ferimento|esfolado|magoou|magoada/.test(t)) return 'ferida';
+  if (/cansa|preguic|sono|tristonho/.test(t)) return 'cansaco';
+  return 'geral';
+}
+
+// O diagnóstico combina com a queixa do doente?
+export function diagnosisMatches(patient) {
+  const dCat = categoryOf(patient.diagnosis || '');
+  if (dCat === 'geral' || !patient.diagnosis) return false;
+  const sCat = categoryOf(Array.isArray(patient.symptoms) ? patient.symptoms.join(' ') : '');
+  return dCat === sCat;
+}
+
+// Explicação simples da doença (para as crianças aprenderem).
+const DIAG_INFO = {
+  garganta: 'A garganta fica vermelha e inflamada — por isso dói ao engolir.',
+  ouvido: 'A otite é uma inflamação no ouvido — dói e às vezes ouve-se pior.',
+  osso: 'Quando um osso parte, o gesso segura tudo quietinho para colar bem.',
+  barriga: 'A barriga fica atrapalhada quando comemos demais ou apanhamos um micróbio.',
+  alergia: 'Nas alergias, o corpo assusta-se com algo e faz comichão e borbulhas.',
+  constipacao: 'A constipação entope o nariz e faz espirrar — água e descanso ajudam!',
+  cabeca: 'As dores de cabeça passam com descanso, água e pouca luz.',
+  febre: 'A febre é o corpo a aquecer para combater os micróbios.',
+  dente: 'Os dentes precisam de escovagem para não ficarem estragados.',
+  ferida: 'As feridas saram melhor limpas e com um penso.',
+  cansaco: 'Às vezes o corpo só precisa de descanso e de muitos mimos.',
+  geral: 'Com cuidado e carinho, fica tudo melhor!'
+};
+export function diagnosisInfo(diagnosis) {
+  return DIAG_INFO[categoryOf(diagnosis)] || DIAG_INFO.geral;
+}
+
 // --- Aparência estável por doente (pele, cabelo, roupa) para dar variedade ---
 const SKINS = ['#FDD9B5', '#F1C27D', '#E0AC69', '#C68642', '#8D5524'];
 const HAIR_YOUNG = ['#6B4A2B', '#3B2E24', '#141414', '#D9A441', '#A0522D'];
