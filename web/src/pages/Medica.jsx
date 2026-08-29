@@ -73,11 +73,14 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
   const [busy, setBusy] = useState(false);
   const [obs, setObs] = useState(null);
 
-  const sintoma = patient.symptoms?.[0] || '';
+  // Observação ligada ao problema real (diagnóstico + todas as queixas), não só à 1ª.
+  const probe = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
+  const gargantaMá = /garganta|amigdal|anginas/.test(probe);
+  const ouvidoMau = /ouvido|otite|orelha/.test(probe);
   const verGarganta = () =>
-    setObs(/garganta/i.test(sintoma) ? '😖 A garganta está vermelha!' : '😀 A garganta está boa.');
+    setObs(gargantaMá ? '😖 A garganta está muito vermelha e inflamada!' : '😀 A garganta está boa.');
   const verOuvido = () =>
-    setObs(/ouvido/i.test(sintoma) ? '👂 O ouvido está inflamado!' : '👍 O ouvido está bom.');
+    setObs(ouvidoMau ? '👂 O ouvido está inflamado e vermelho!' : '👍 O ouvido está bom.');
 
   const temResultados = (patient.exams || []).some((e) => e.result);
 

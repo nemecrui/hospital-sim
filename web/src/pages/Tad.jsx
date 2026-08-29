@@ -28,6 +28,17 @@ function resultsFor(name) {
   return examsData.find((e) => e.name === name)?.results || ['Normal', 'Alterado'];
 }
 
+// "Achado" da análise, ligado ao problema do doente (com variação benigna estável).
+function analysisFinding(patient, variant) {
+  const t = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
+  if (/guloseim|doces|açúcar|acucar/.test(t)) return 'sugar';
+  if (/infeç|otite|amigdal|gastro|febre|gripe|garganta|ouvido|urin/.test(t)) return 'infection';
+  const s = patient.id || '';
+  const n = (s.charCodeAt(variant === 'blood' ? 0 : 1) || 0) % 4;
+  if (variant === 'blood') return n === 0 ? 'iron' : 'normal';
+  return n === 0 ? 'dehydration' : 'normal';
+}
+
 export default function Tad({ playerId, mode }) {
   const { patients, pollPatients, examResult, examsDone } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
@@ -132,11 +143,11 @@ function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Análise de sangue' && (
-              <FillTube variant="blood" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+              <FillTube variant="blood" finding={analysisFinding(patient, 'blood')} results={resultsFor(ex.name)} patient={patient} mode={mode} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Análise de urina' && (
-              <FillTube variant="urine" results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
+              <FillTube variant="urine" finding={analysisFinding(patient, 'urine')} results={resultsFor(ex.name)} patient={patient} mode={mode} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'Audiograma' && (

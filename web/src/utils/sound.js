@@ -45,6 +45,33 @@ export function beep(freq = 880, duration = 0.25, vol = 0.2) {
   osc.stop(c.currentTime + duration);
 }
 
+// Ruído filtrado (ex.: xixi a cair na sanita).
+function noiseBurst(duration = 1.4, { freq = 1300, q = 0.8, vol = 0.12 } = {}) {
+  const c = getCtx();
+  if (!c) return;
+  if (c.state === 'suspended') c.resume();
+  const buf = c.createBuffer(1, Math.floor(c.sampleRate * duration), c.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  const bp = c.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.setValueAtTime(freq, c.currentTime);
+  bp.frequency.linearRampToValueAtTime(freq * 0.65, c.currentTime + duration);
+  bp.Q.value = q;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, c.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol, c.currentTime + 0.1);
+  g.gain.setValueAtTime(vol, c.currentTime + duration - 0.25);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + duration);
+  src.connect(bp);
+  bp.connect(g);
+  g.connect(c.destination);
+  src.start();
+  src.stop(c.currentTime + duration);
+}
+
 export function setSoundEnabled(value) {
   enabled = value;
 }
@@ -76,6 +103,9 @@ export function playSound(kind) {
       tone(660, 0.18, 'square', 0.2);
       tone(880, 0.18, 'square', 0.4);
       tone(660, 0.22, 'square', 0.6);
+      break;
+    case 'pee': // xixi a cair na sanita (análise de urina)
+      noiseBurst(1.5, { freq: 1400, q: 0.9, vol: 0.12 });
       break;
     default:
       tone(440, 0.1);
