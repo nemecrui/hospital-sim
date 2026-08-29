@@ -57,6 +57,25 @@ export function moodFor(patient) {
   return { badge: '🙂', anim: 'breathe', label: 'tranquilo' };
 }
 
+// --- Aparência estável por doente (pele, cabelo, roupa) para dar variedade ---
+const SKINS = ['#FDD9B5', '#F1C27D', '#E0AC69', '#C68642', '#8D5524'];
+const HAIR_YOUNG = ['#6B4A2B', '#3B2E24', '#141414', '#D9A441', '#A0522D'];
+const HAIR_OLD = ['#C9CDD6', '#DFE2E6', '#AEB4BD'];
+const SHIRTS = ['#FF6B9D', '#00C2D9', '#8B7BE8', '#FFB13D', '#54C777', '#FF8A5B'];
+const HAIRSTYLES = ['short', 'side', 'ponytail', 'curly', 'buzz'];
+
+export function appearanceFor(patient) {
+  const id = (patient && patient.id) || (patient && patient.name) || 'x';
+  const old = (Number(patient && patient.age) || 20) >= 65;
+  return {
+    skin: SKINS[hash(id + 's') % SKINS.length],
+    hair: old ? HAIR_OLD[hash(id + 'h') % HAIR_OLD.length] : HAIR_YOUNG[hash(id + 'h') % HAIR_YOUNG.length],
+    style: old ? (hash(id) % 2 ? 'buzz' : 'short') : HAIRSTYLES[hash(id + 'y') % HAIRSTYLES.length],
+    shirt: SHIRTS[hash(id + 'c') % SHIRTS.length],
+    glasses: old && hash(id + 'g') % 2 === 0
+  };
+}
+
 // --- Corpo: que "problema" mostrar no boneco, a partir do diagnóstico/queixa ---
 export function bodyStateFor(patient) {
   const h = patient.health ?? 0;

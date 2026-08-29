@@ -124,7 +124,14 @@
 }
 .anim-floatup { animation: float-up 1s ease-out forwards; }
 
+/* pestanejar (olhos) */
+@keyframes blink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  96.5% { transform: scaleY(0.08); }
+}
+.anim-blink { transform-box: fill-box; transform-origin: center; animation: blink 4.6s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .anim-tremble, .anim-bob, .anim-float, .anim-breathe, .animate-wiggle,
-  .anim-walkin, .anim-hop, .anim-floatup { animation: none; }
+  .anim-walkin, .anim-hop, .anim-floatup, .anim-blink { animation: none; }
 }
