@@ -1,4 +1,5 @@
 import { traitFor } from './characters.js';
+import { playClip, stopClip } from './clips.js';
 
 // Remove emojis/símbolos para o sintetizador não os "ler" (ex.: 🚑 → "ambulância").
 function stripEmoji(text) {
@@ -18,11 +19,19 @@ function pickVoice(preferSecond) {
 }
 
 function say(text, { pitch = 1, rate = 0.95, second = false } = {}) {
+  const clean = stripEmoji(text);
+  if (!clean) return;
+  try {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  } catch {
+    /* ignore */
+  }
+  // 1) Se houver clip de voz para esta fala, toca o clip (voz "de verdade").
+  if (playClip(clean, pitch)) return;
+  // 2) Caso contrário, usa a voz do browser.
+  stopClip();
   try {
     if (!('speechSynthesis' in window)) return;
-    const clean = stripEmoji(text);
-    if (!clean) return;
-    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(clean);
     u.lang = 'pt-PT';
     u.rate = rate;
