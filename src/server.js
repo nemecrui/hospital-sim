@@ -9,6 +9,7 @@ import sessionsRoutes from './routes/sessions.js';
 import patientsRoutes from './routes/patients.js';
 import statsRoutes from './routes/stats.js';
 import playsRoutes from './routes/plays.js';
+import eventsRoutes from './routes/events.js';
 import { startCpu } from './cpu.js';
 
 const fastify = Fastify({ logger: true });
@@ -31,6 +32,7 @@ await fastify.register(sessionsRoutes, { prefix: '/api' });
 await fastify.register(patientsRoutes, { prefix: '/api' });
 await fastify.register(statsRoutes, { prefix: '/api' });
 await fastify.register(playsRoutes, { prefix: '/api' });
+await fastify.register(eventsRoutes, { prefix: '/api' });
 
 // Health check
 fastify.get('/health', async () => ({ ok: true }));

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { track } from '../utils/track.js';
 
 const DISMISS_KEY = 'pwaInstallDismissed';
 const DISMISS_DAYS = 5;
@@ -50,6 +51,7 @@ export default function InstallPrompt() {
     const onInstalled = () => {
       setShow(false);
       remember();
+      track('install');
     };
     // Aberto a partir do rodapé — mostra sempre (ignora "não incomodar")
     const onOpen = () => {

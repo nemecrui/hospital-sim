@@ -218,6 +218,10 @@ export function startCleanup(prisma, log, everyMs = 60 * 60 * 1000) {
         }
       });
       if (count > 0) log?.info?.(`🧹 Limpeza: ${count} sessão(ões) inativa(s) apagada(s) (> ${ttlHours}h).`);
+      // Eventos de estatística com mais de 180 dias já não interessam
+      await prisma.event
+        .deleteMany({ where: { createdAt: { lt: new Date(Date.now() - 180 * 86400000) } } })
+        .catch(() => {});
     } catch (err) {
       log?.error?.(err);
     }

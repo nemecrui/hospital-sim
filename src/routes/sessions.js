@@ -44,6 +44,8 @@ export default async function sessionsRoutes(fastify) {
         },
         include: { stats: true }
       });
+      // Estatística: novo jogo começado (anónimo)
+      prisma.event.create({ data: { type: 'session', mode: session.mode } }).catch(() => {});
       return reply.code(201).send(session);
     } catch (err) {
       fastify.log.error(err);

@@ -88,6 +88,17 @@ model PlayEvent {
   @@index([createdAt])
 }
 
+// Eventos anónimos para estatísticas (visitas, instalações, jogos, curas)
+model Event {
+  id        String   @id @default(cuid())
+  type      String // visit | install | session | cure
+  mode      String? // hospital | vet
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
+}
+
 model Stats {
   id        String  @id @default(cuid())
   sessionId String  @unique

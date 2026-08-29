@@ -315,6 +315,12 @@ export default async function patientsRoutes(fastify) {
         }
       });
 
+      // Estatística: doente curado (anónimo)
+      prisma.session
+        .findUnique({ where: { id: patient.sessionId }, select: { mode: true } })
+        .then((s) => prisma.event.create({ data: { type: 'cure', mode: s?.mode || null } }))
+        .catch(() => {});
+
       // Prémio: nem todos os doentes dão cromo (~45% de hipótese)
       let awardedSticker = null;
       if (Math.random() < 0.45) {
