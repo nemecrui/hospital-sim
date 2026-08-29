@@ -27,34 +27,39 @@ function expr(state) {
 }
 
 function Hair({ style, color }) {
+  // Todas as "toucas" cobrem o cimo da cabeça (a coroa) e descem até uma linha de cabelo.
   switch (style) {
     case 'buzz':
-      return <path d="M43 50 q27 -26 54 0 q-6 -10 -27 -10 q-21 0 -27 10z" fill={color} opacity="0.9" />;
+      // rapado: touca curta que cola à cabeça
+      return <path d="M42 54 A28 28 0 0 1 98 54 C 93 47 82 45 70 46 C 58 45 47 47 42 54 Z" fill={color} />;
     case 'side':
+      // risca ao lado, com franja
       return (
-        <>
-          <path d="M40 50 q30 -34 60 0 q-6 -16 -30 -16 q-24 0 -30 16z" fill={color} />
-          <path d="M44 34 q18 -10 40 6 q-16 -4 -40 -6z" fill={color} />
-        </>
+        <path
+          d="M38 57 A32 32 0 0 1 102 57 C 99 47 89 44 79 45 C 71 39 57 40 49 47 C 45 49 41 52 38 57 Z"
+          fill={color}
+        />
       );
     case 'ponytail':
+      // rabo-de-cavalo atrás + touca
       return (
         <>
-          <ellipse cx="102" cy="60" rx="8" ry="14" fill={color} />
-          <path d="M40 50 q30 -34 60 0 q-6 -16 -30 -16 q-24 0 -30 16z" fill={color} />
+          <ellipse cx="103" cy="66" rx="7" ry="13" fill={color} />
+          <path d="M38 57 A32 32 0 0 1 102 57 C 96 46 84 43 70 44 C 56 43 44 46 38 57 Z" fill={color} />
         </>
       );
     case 'curly':
+      // caracóis: touca + bolinhas na coroa
       return (
         <>
-          {[[46, 34], [58, 27], [70, 25], [82, 27], [94, 34]].map(([x, y], i) => (
-            <circle key={i} cx={x} cy={y} r="10" fill={color} />
+          {[[47, 33], [58, 27], [70, 25], [82, 27], [93, 33], [40, 44], [100, 44]].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="9" fill={color} />
           ))}
-          <path d="M40 50 q30 -20 60 0 q0 -14 -30 -14 q-30 0 -30 14z" fill={color} />
+          <path d="M38 57 A32 32 0 0 1 102 57 C 96 47 84 44 70 45 C 56 44 44 47 38 57 Z" fill={color} />
         </>
       );
     default: // short
-      return <path d="M40 50 q30 -36 60 0 q-8 -18 -30 -18 q-22 0 -30 18z" fill={color} />;
+      return <path d="M38 57 A32 32 0 0 1 102 57 C 96 45 84 42 70 43 C 56 42 44 45 38 57 Z" fill={color} />;
   }
 }
 
