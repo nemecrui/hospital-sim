@@ -66,32 +66,32 @@
   animation: pop-in 0.5s ease-out;
 }
 
-/* --- Vida das personagens: humor animado --- */
+/* --- Vida das personagens: humor animado (subtil) --- */
 @keyframes ch-tremble {
   0%, 100% { transform: translateX(0) rotate(0deg); }
-  20% { transform: translateX(-1.5px) rotate(-4deg); }
-  60% { transform: translateX(1.5px) rotate(4deg); }
+  25% { transform: translateX(-0.6px) rotate(-1deg); }
+  75% { transform: translateX(0.6px) rotate(1deg); }
 }
-.anim-tremble { animation: ch-tremble 0.35s ease-in-out infinite; }
+.anim-tremble { animation: ch-tremble 0.8s ease-in-out infinite; }
 
 @keyframes ch-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-3px); }
 }
-.anim-bob { animation: ch-bob 0.9s ease-in-out infinite; }
+.anim-bob { animation: ch-bob 1.5s ease-in-out infinite; }
 
 @keyframes ch-float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  50% { transform: translateY(-1.5px); }
 }
-.anim-float { animation: ch-float 2.6s ease-in-out infinite; }
+.anim-float { animation: ch-float 3.8s ease-in-out infinite; }
 
 /* respirar de leve — base de "estar vivo" */
 @keyframes ch-breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  50% { transform: scale(1.012); }
 }
-.anim-breathe { animation: ch-breathe 3.2s ease-in-out infinite; }
+.anim-breathe { animation: ch-breathe 4.4s ease-in-out infinite; }
 
 /* balão de fala a aparecer */
 @keyframes bubble-in {
