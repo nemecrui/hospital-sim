@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const DISMISS_KEY = 'pwaInstallDismissed';
 const DISMISS_DAYS = 5;
 
-function isStandalone() {
+export function isStandalone() {
   return (
     (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
     window.navigator.standalone === true
@@ -25,52 +25,60 @@ function remember() {
   }
 }
 
-// Aviso para instalar como app: botão nativo no Android/Chrome, instruções no iOS.
+// Aviso para instalar como app: botão nativo no Android/Chrome, instruções no iOS/outros.
 export default function InstallPrompt() {
-  const [mode, setMode] = useState(null); // 'android' | 'ios'
+  const [mode, setMode] = useState(null); // 'android' | 'ios' | 'other'
   const [deferred, setDeferred] = useState(null);
   const [show, setShow] = useState(false);
+  const timers = useRef([]);
 
   useEffect(() => {
-    if (isStandalone() || recentlyDismissed()) return;
-
     const ua = navigator.userAgent || '';
     const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isSafari = /safari/i.test(ua) && !/crios|fxios|edgios/i.test(ua);
-
-    // Evento nativo (pode ter sido apanhado antes de montar — ver main.jsx)
-    if (window.__deferredBip) {
-      setDeferred(window.__deferredBip);
-      setMode('android');
-      const t0 = setTimeout(() => setShow(true), 1200);
-      return () => clearTimeout(t0);
-    }
+    const computeMode = () => (window.__deferredBip ? 'android' : isIOS && isSafari ? 'ios' : 'other');
 
     const onBIP = (e) => {
       e.preventDefault();
+      window.__deferredBip = e;
       setDeferred(e);
       setMode('android');
-      setTimeout(() => setShow(true), 1200);
+      if (!isStandalone() && !recentlyDismissed()) {
+        timers.current.push(setTimeout(() => setShow(true), 1200));
+      }
     };
-    window.addEventListener('beforeinstallprompt', onBIP);
-
     const onInstalled = () => {
       setShow(false);
       remember();
     };
-    window.addEventListener('appinstalled', onInstalled);
+    // Aberto a partir do rodapé — mostra sempre (ignora "não incomodar")
+    const onOpen = () => {
+      setDeferred(window.__deferredBip || null);
+      setMode(computeMode());
+      setShow(true);
+    };
 
-    // iOS Safari não dispara o evento → mostrar instruções
-    let t;
-    if (isIOS && isSafari) {
-      setMode('ios');
-      t = setTimeout(() => setShow(true), 2500);
+    window.addEventListener('beforeinstallprompt', onBIP);
+    window.addEventListener('appinstalled', onInstalled);
+    window.addEventListener('open-install', onOpen);
+
+    // Auto-aviso (só no browser e sem incomodar)
+    if (!isStandalone() && !recentlyDismissed()) {
+      if (window.__deferredBip) {
+        setDeferred(window.__deferredBip);
+        setMode('android');
+        timers.current.push(setTimeout(() => setShow(true), 1200));
+      } else if (isIOS && isSafari) {
+        setMode('ios');
+        timers.current.push(setTimeout(() => setShow(true), 2500));
+      }
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', onBIP);
       window.removeEventListener('appinstalled', onInstalled);
-      if (t) clearTimeout(t);
+      window.removeEventListener('open-install', onOpen);
+      timers.current.forEach(clearTimeout);
     };
   }, []);
 
@@ -103,9 +111,14 @@ export default function InstallPrompt() {
             <p className="font-bold text-gray-800">📲 Instala como aplicação!</p>
             {mode === 'android' ? (
               <p className="text-sm text-gray-600">Fica com o ícone no telemóvel e jogas sem abrir o browser.</p>
-            ) : (
+            ) : mode === 'ios' ? (
               <p className="text-sm text-gray-600">
                 Toca em <strong>Partilhar</strong> <span className="whitespace-nowrap">⬆️</span> lá em baixo e depois em{' '}
+                <strong>«Adicionar ao ecrã principal»</strong>.
+              </p>
+            ) : (
+              <p className="text-sm text-gray-600">
+                No menu do teu browser (⋮), escolhe <strong>«Instalar aplicação»</strong> ou{' '}
                 <strong>«Adicionar ao ecrã principal»</strong>.
               </p>
             )}
