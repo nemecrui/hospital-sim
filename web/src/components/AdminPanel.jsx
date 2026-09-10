@@ -144,11 +144,11 @@ export default function AdminPanel({ code, onClose }) {
         {plays && (
           <>
             <h2 className="mb-2 text-sm font-bold text-gray-600">
-              📋 Jogadas <span className="font-normal text-gray-400">({plays.length})</span>
+              📋 Últimas jogadas <span className="font-normal text-gray-400">(10 de {plays.length})</span>
             </h2>
-            <div className="max-h-80 overflow-y-auto rounded-xl ring-1 ring-black/5">
+            <div className="rounded-xl ring-1 ring-black/5">
               <table className="w-full text-left text-sm">
-                <thead className="sticky top-0 bg-white">
+                <thead className="bg-white">
                   <tr className="text-xs uppercase text-gray-400">
                     <th className="p-2">Nome</th>
                     <th className="p-2">Profissão</th>
@@ -157,7 +157,7 @@ export default function AdminPanel({ code, onClose }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {plays.map((p) => (
+                  {plays.slice(0, 10).map((p) => (
                     <tr key={p.id} className="border-t border-gray-100">
                       <td className="p-2 font-semibold">{p.name || '—'}</td>
                       <td className="p-2">{ROLE_LABEL[p.role] || p.role}</td>
