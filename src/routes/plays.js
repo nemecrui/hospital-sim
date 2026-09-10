@@ -5,10 +5,9 @@ const ADMIN_CODE = process.env.ADMIN_CODE || '1986';
 export default async function playsRoutes(fastify) {
   const { prisma } = fastify;
 
-  // POST /api/plays - regista atividade (que papel, em que sala, quando).
-  // Privacidade: NÃO guardamos o nome da criança no registo.
+  // POST /api/plays - regista atividade (nome escolhido, que papel, em que sala, quando).
   fastify.post('/plays', async (request, reply) => {
-    const { sessionId, role } = request.body || {};
+    const { sessionId, name, role } = request.body || {};
     if (!role) return reply.code(400).send({ error: 'role required' });
     try {
       let code = null;
@@ -16,7 +15,7 @@ export default async function playsRoutes(fastify) {
         const s = await prisma.session.findUnique({ where: { id: sessionId } });
         code = s?.code || null;
       }
-      await prisma.playEvent.create({ data: { code, name: '', role } });
+      await prisma.playEvent.create({ data: { code, name: name ? String(name).slice(0, 40) : '', role } });
       return { ok: true };
     } catch (err) {
       fastify.log.error(err);

@@ -93,6 +93,18 @@ export default function AdminPanel({ code, onClose }) {
           </button>
         </div>
 
+        {/* Ações no topo (sempre à mão) */}
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <button
+            onClick={deleteAll}
+            disabled={busy}
+            className="btn bg-hospital-danger px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {busy ? 'A apagar…' : '🧹 Apagar todas as sessões'}
+          </button>
+          {msg && <span className="text-sm text-gray-600">{msg}</span>}
+        </div>
+
         {error && <p className="text-sm text-hospital-danger">{error}</p>}
         {!plays && !error && <p className="text-sm text-gray-400">A carregar…</p>}
 
@@ -131,47 +143,37 @@ export default function AdminPanel({ code, onClose }) {
 
         {plays && (
           <>
-            <p className="mb-2 text-xs text-gray-500">
-              {plays.length} jogada(s) registada(s) · sem nomes, por privacidade
-            </p>
-            <div className="overflow-x-auto">
+            <h2 className="mb-2 text-sm font-bold text-gray-600">
+              📋 Jogadas <span className="font-normal text-gray-400">({plays.length})</span>
+            </h2>
+            <div className="max-h-80 overflow-y-auto rounded-xl ring-1 ring-black/5">
               <table className="w-full text-left text-sm">
-                <thead>
+                <thead className="sticky top-0 bg-white">
                   <tr className="text-xs uppercase text-gray-400">
-                    <th className="p-1">Profissão</th>
-                    <th className="p-1">Sala</th>
-                    <th className="p-1">Data/hora</th>
+                    <th className="p-2">Nome</th>
+                    <th className="p-2">Profissão</th>
+                    <th className="p-2">Sala</th>
+                    <th className="p-2">Data/hora</th>
                   </tr>
                 </thead>
                 <tbody>
                   {plays.map((p) => (
                     <tr key={p.id} className="border-t border-gray-100">
-                      <td className="p-1 font-semibold">{ROLE_LABEL[p.role] || p.role}</td>
-                      <td className="p-1">{p.code || '—'}</td>
-                      <td className="p-1 text-gray-500">{new Date(p.createdAt).toLocaleString('pt-PT')}</td>
+                      <td className="p-2 font-semibold">{p.name || '—'}</td>
+                      <td className="p-2">{ROLE_LABEL[p.role] || p.role}</td>
+                      <td className="p-2">{p.code || '—'}</td>
+                      <td className="p-2 whitespace-nowrap text-gray-500">{new Date(p.createdAt).toLocaleString('pt-PT')}</td>
                     </tr>
                   ))}
                   {plays.length === 0 && (
                     <tr>
-                      <td colSpan="3" className="p-2 text-center text-gray-400">
+                      <td colSpan="4" className="p-2 text-center text-gray-400">
                         Ainda ninguém jogou.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
-            </div>
-
-            <div className="mt-6 border-t border-gray-100 pt-4">
-              <h2 className="mb-2 text-sm font-bold text-gray-600">🧹 Manutenção</h2>
-              <button
-                onClick={deleteAll}
-                disabled={busy}
-                className="btn bg-hospital-danger px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {busy ? 'A apagar…' : 'Apagar todas as sessões'}
-              </button>
-              {msg && <p className="mt-2 text-sm text-gray-600">{msg}</p>}
             </div>
           </>
         )}
