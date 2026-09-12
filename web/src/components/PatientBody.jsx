@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { avatarFor, moodFor, bodyStateFor, appearanceFor } from '../utils/characters.js';
+import { avatarFor, moodFor, bodyStateFor, appearanceFor, leadingEmoji } from '../utils/characters.js';
 import { speakAs } from '../utils/tts.js';
 
 const PANTS = '#42506B';
@@ -236,9 +236,12 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
       }
     : undefined;
 
-  // Olhos seguem o dedo/rato (subtil), exceto no modo veterinário ou reduced-motion
+  // Doente especial (🦖/🤖/👽…): carinha grande em qualquer modo.
+  const bigEmoji = mode === 'vet' || !!leadingEmoji(patient && patient.name);
+
+  // Olhos seguem o dedo/rato (subtil), exceto quando é carinha-emoji ou reduced-motion
   useEffect(() => {
-    if (mode === 'vet') return;
+    if (bigEmoji) return;
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) return;
     let raf = 0;
@@ -263,10 +266,10 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
       window.removeEventListener('pointermove', onMove);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [mode]);
+  }, [bigEmoji]);
 
-  // Modo veterinário: mantém a cara grande do animal
-  if (mode === 'vet') {
+  // Carinha grande (animal no veterinário, ou doente especial no hospital)
+  if (bigEmoji) {
     const avatar = avatarFor(patient, mode);
     return (
       <div

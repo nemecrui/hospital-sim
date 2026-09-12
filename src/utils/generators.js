@@ -53,8 +53,29 @@ export function generateStory(mode, symptom, age) {
   return `${when}, ${onde}, ${event}. ${extra}`;
 }
 
+// ----- Doentes especiais (malucos) --------------------------------------
+// Visitas absurdas e divertidas. O nome começa com o emoji da personagem
+// (tal como no modo veterinário), por isso aparece como carinha grande.
+export const SPECIALS = [
+  { name: '🦖 Rex', age: 120, symptoms: ['fumo a sair do nariz'], story: 'Estava a assustar os amiguinhos com um rugido, quando lhe começou a sair fumo pelo nariz 🔥' },
+  { name: '🤖 Robô Bip', age: 3, symptoms: ['ficou sem pilhas'], story: 'Estava a dançar à discoteca e, de repente, ficou todo lento — parece que ficou sem pilhas 🔋' },
+  { name: '👽 Zog', age: 999, symptoms: ['antena torta'], story: 'Aterrou com a nave no parque e bateu com a cabeça — agora tem a antena toda torta 🛸' },
+  { name: '🦄 Estrelinha', age: 7, symptoms: ['perdeu o brilho'], story: 'Andou à chuva no arco-íris e ficou com o chifre sem brilho nenhum ✨' },
+  { name: '🐉 Draco', age: 80, symptoms: ['soluços de fogo'], story: 'Comeu pimentos a mais e agora cada soluço deita uma labareda 🌶️' },
+  { name: '👻 Bu', age: 200, symptoms: ['ficou transparente demais'], story: 'De tanto pregar sustos, ficou tão transparente que já ninguém o vê 😳' },
+  { name: '🧟 Zé Zumbi', age: 60, symptoms: ['braço a cair'], story: 'Estava a jogar à bola e, num pontapé com muita força, quase perdeu o braço ⚽' },
+  { name: '🧜‍♀️ Marina', age: 12, symptoms: ['cauda seca'], story: 'Ficou muito tempo fora de água a apanhar sol e a cauda secou toda 🌊' },
+  { name: '⛄ Floco', age: 1, symptoms: ['a derreter'], story: 'Aproximou-se demasiado da lareira e começou a derreter pela barriga ☀️' },
+  { name: '🤡 Pipoca', age: 30, symptoms: ['nariz a apitar'], story: 'O nariz vermelho encravou e agora apita sem parar — bii-bii! 📯' }
+];
+
 // ----- Pacientes ---------------------------------------------------------
-export function generatePatient(mode, scenario) {
+export function generatePatient(mode, scenario, specials = false) {
+  // ~18% das vezes (se ligado) chega um doente especial e maluco
+  if (specials && Math.random() < 0.18) {
+    const sp = one(SPECIALS);
+    return { name: sp.name, age: sp.age, symptoms: [...sp.symptoms], story: sp.story, special: true };
+  }
   const p = pack(mode);
   const symptoms = generateQueixas(mode, scenario);
   // ~28% das vezes chega um "amigo do costume" (mesma cara, queixa nova)

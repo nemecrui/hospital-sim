@@ -8,6 +8,7 @@ export default function Setup({ sessionId, mode, onDone, onBack }) {
   const content = getContent(mode);
   const [players, setPlayers] = useState(1);
   const [roles, setRoles] = useState([]);
+  const [specials, setSpecials] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const setCount = (n) => {
@@ -32,9 +33,9 @@ export default function Setup({ sessionId, mode, onDone, onBack }) {
       await fetch(`${API_URL}/sessions/${sessionId}/config`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, humanRoles: roles })
+        body: JSON.stringify({ players, humanRoles: roles, specials })
       });
-      onDone({ players, humanRoles: roles });
+      onDone({ players, humanRoles: roles, specials });
     } finally {
       setBusy(false);
     }
@@ -88,6 +89,22 @@ export default function Setup({ sessionId, mode, onDone, onBack }) {
             );
           })}
         </div>
+
+        {/* Doentes especiais (malucos) — interruptor ligar/desligar */}
+        <button
+          onClick={() => setSpecials((v) => !v)}
+          className={`btn mb-4 flex w-full items-center justify-between py-3 text-left ${
+            specials ? 'bg-gradient-to-r from-purple-400 to-fuchsia-500 text-white' : 'bg-white text-gray-700'
+          }`}
+        >
+          <span className="font-semibold">🦖 Doentes especiais</span>
+          <span className={`rounded-full px-3 py-1 text-sm font-bold ${specials ? 'bg-white/30' : 'bg-gray-100 text-gray-500'}`}>
+            {specials ? 'Ligados ✨' : 'Desligados'}
+          </span>
+        </button>
+        <p className="mb-4 -mt-2 text-center text-xs text-gray-400">
+          De vez em quando aparece um doente maluco: dinossauro 🦖, robô 🤖, extraterrestre 👽, unicórnio 🦄…
+        </p>
 
         <p className="mb-4 rounded-xl bg-blue-50 p-2 text-center text-xs text-blue-700">
           🎯 O objetivo e 🎠 o tema do dia mudam sozinhos durante o jogo!

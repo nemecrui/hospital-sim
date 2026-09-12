@@ -14,67 +14,77 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Cenários temáticos** — temas que rodam sozinhos, alternando com dias normais.
 - ✅ **Objetivos automáticos** — meta aleatória (contar doentes ou curar uma doença), encadeada.
 - ✅ **Histórias por idade** — historinhas adaptadas à idade do doente.
-- ✅ **Feedback educativo suave** — dicas (pulseira vs febre, queixa → diagnóstico) e "Sabias que…?".
+- ✅ **Feedback educativo suave** — dicas (pulseira vs febre, queixa → diagnóstico), "Sabias que…?" e "🌟 diagnóstico certeiro" na alta.
 - ✅ **Tema de hospital** — banner com relógio e fundo de cruzinhas.
 - ✅ **Sons e musiquinha** — música de fundo ligável/desligável.
 - ✅ **Vida das personagens** — feitios + balões de fala, caras que reagem ao estado, entradas em cena e festa ao curar, voz por idade e sons de animais, personagens recorrentes ("amigos do costume") e um mascote 🧸 que dá as boas-vindas e festeja as curas.
 - ✅ **Modo Hospital / Veterinário** — dois jogos na mesma base, escolhidos no ecrã inicial.
+- ✅ **Corpo completo dos doentes** — boneco por problema (gesso, febre, borbulhas, nariz vermelho, dor de cabeça…), com variedade de pele/cabelo/roupa e o gesso/penso em partes diferentes do corpo.
+- ✅ **Exames ligados ao problema** — raio-X, ECG, ecografia, TAC/RM, audiograma e análises de sangue/urina combinam com a queixa; reações por personalidade e som de xixi/choro.
+- ✅ **Ver garganta e ouvido com imagem** — mini-exame visual (vermelho/inflamado conforme o problema).
+- ✅ **Instalar como app (PWA)** — aviso inteligente no arranque (botão nativo no Android, instruções no iOS) + link "📲 Instalar app" no rodapé.
+- ✅ **Painel de estatísticas** — visitas, jogos, curas e instalações (anónimo), com gráfico por dia, no painel de admin.
+- ✅ **Limpeza automática** — sessões inativas apagadas sozinhas ao fim de 48h.
 
 ## 🚧 Em curso agora
-- _(nada de momento — escolher a próxima da lista)_
+- 🚧 **Vozes por clip (pré-geradas)** — sistema pronto no jogo (toca clip por personagem, com recurso à voz do browser); falta **gerar os áudios** uma vez no PC (`node scripts/gen-voices.mjs`, Google TTS grátis) e fazer push.
 
 ---
 
-## 🎁 Progressão e recompensas
-- ⬜ **Níveis do hospital** — de clínica pequena a hospital grande, ao fim de X curas.
-- ⬜ **Medalhas por função** — "Mestre da Triagem", "Doutora Simpatia", etc.
-- ⬜ **Moedas + lojinha** — decorar o hospital, batas de cores, peluches na sala de espera.
+## 🆕 Brainstorm novo (set/2026)
+
+### Doentes malucos e mascote
+- ✅ **Doentes especiais** — 🦖 dinossauro, 🤖 robô, 👽 extraterrestre, 🦄 unicórnio, dragão, fantasma, sereia, boneco de neve, palhaço… com queixas absurdas (robô sem pilhas, dragão com soluços de fogo, unicórnio sem brilho). Aparecem ~18% das vezes, como carinha grande. **Com interruptor ligar/desligar** no ecrã de "Quem vai jogar?" (ligados por defeito).
+- ✅ **Dar nome ao mascote** — as miúdas tocam no ✏️ e dão um nome ao 🧸; ele passa a apresentar-se por esse nome (guardado no tablet).
+
+### Mini-jogos novos
+- ⬜ **Sala de operações** (estilo "Operation") — tirar com a pinça o objeto engolido (moeda, pipoca, chave) sem tocar nas bordas. Ver Decisões sobre quem joga.
+- ⬜ **Farmácia** — preparar a receita: contar comprimidos, medir o xarope, misturar cores (treina contagem/medida — bom para a Sara).
+- ⬜ **Mini-jogo da ambulância** — conduzir a ambulância até ao hospital a desviar de obstáculos.
+
+### Mundo mais vivo
+- ⬜ **Sala de espera visível** — ver os bonecos sentados na fila, a baloiçar as pernas e a impacientarem-se.
+- ⬜ **Ambulância a chegar em cena** — com sirene, "larga" o doente na receção (urgências mais teatrais).
+- ⬜ **Dia e noite** — o relógio do hospital muda a luz do fundo (manhã → tarde → noite).
+
+### Recompensas e personalização
+- ⬜ **Lojinha com moedas** — ganhar moedas ao curar e gastar a decorar o hospital (paredes, peluches, batas) ou a vestir a personagem.
+- ⬜ **Medalhas por função** — "Mestre da Triagem", "Doutora Simpatia", "Rei do Raio-X".
+- ⬜ **Diploma do dia** — com o nome delas e as estatísticas, para guardar/imprimir.
+
+### Festivo e sazonal
+- ✅ **Temas do hospital** — Natal 🎄, praia 🏖️, Halloween 🎃: muda as cores do banner e a decoração. **Automáticos pela data real** (Natal em dezembro, praia no verão, Halloween no fim de outubro), com opção de **forçar** um tema no painel de admin (🎨 Tema do hospital). Falta ainda trazer doentes a condizer com o tema.
+
+### Cooperação (jogarem juntas)
+- ⬜ **Mensagens rápidas entre papéis** — botões de emoji/frases ("Doente a caminho! 🏃", "Já está pronto! ✅") que aparecem no ecrã da outra.
+- ⬜ **Urgência a sério** — caso grande que precisa dos vários papéis a despachar depressa, em equipa.
+- ⬜ **Passar o doente com estilo** — animação de cartão a deslizar entre papéis.
+
+### Secretária com mais que fazer (está desocupada)
+- ⬜ **Pesar e medir à chegada** — balança + fita métrica (mini-interação), acrescenta dados ao cartão.
+- ⬜ **Chamar o próximo** em voz alta (altifalante).
+- ⬜ **Acalmar quem espera** — dar um brinquedo/rebuçado que baixa a impaciência dos que estão na fila.
+- ⬜ **Atender o telefone** — marcações e "ambulância a caminho" (anuncia a próxima urgência).
+- ⬜ **Despedida na alta** — entregar o autocolante/diploma e dizer adeus.
+
+---
+
+## 📝 Decisões tomadas
+- **Sala de operações:** jogo de **ecrã único**. Jogável **a solo** ou **as duas no mesmo tablet** (à vez, ou cada uma com uma "mão"). Em **dispositivos separados ao mesmo tempo não dá** com o modelo atual (sincronização por polling, com atraso); a sensação de equipa faz-se por **passagem** — a médica "pede cirurgia" e aparece à enfermeira, que opera.
+- **Doentes especiais:** com **interruptor ligar/desligar** (nas definições do jogo; talvez também no painel de admin).
+- **Temas do hospital:** **automáticos pela data real** (Natal em dezembro, praia no verão, Halloween no fim de outubro…), com opção de **forçar** um tema manualmente.
+- **Secretária:** alargar funções (pesar/medir, chamar o próximo, acalmar a fila, telefone, despedida) — ver secção acima.
 
 ## 🧒 Dificuldade por idade
 - ⬜ **Modo "mais novo" vs "mais crescido"** — imagens+voz para a Sara; escrever/ler/decidir para a Inês.
-- ✅ **Feedback educativo suave** — dicas quando a pulseira/dose destoa muito.
 - ⬜ **Mini-metas de leitura/escrita** — soletrar o nome, contar as doses.
 
-## 🩺 Profundidade clínica (divertida)
-- ✅ **Ambulância / urgências** — caso 🚑 que salta a fila (pulseira vermelha).
-- ✅ **Sala de espera com humor** — doentes impacientes, caretas, um a adormecer.
-- ⬜ **Receita com instruções** — "dar com comida", "só à noite".
-- ⬜ **Alta com conselhos** — escolher um conselho final ("beber água", "descansar").
+## 🎮 Estações interativas (feito)
+- ✅ Raio-X, termómetro, ECG, estetoscópio, ecografia, curativo, gesso, ver garganta/ouvido, TAC/RM, análises sangue/urina, audiograma, injeção/xarope, cortar unhas.
 
-## ✨ Presentação e "sumo"
-- 🚧 **Confetti e celebrações** (parte do item em curso).
-- ✅ **Carinhas animadas** — piscar, sorrir, barra de saúde com cara (parte do item em curso).
-- ✅ **Sons e musiquinha** — música de fundo suave (ligável), campainha e fanfarra.
-- ✅ **Tema de hospital** — banner com nome + relógio a andar e fundo de cruzinhas.
-
-## 👭 Multiplayer e cooperação
-- ⬜ **Chat de emojis/pré-frases** — "Doente a caminho! 🏃" entre ecrãs.
-- 🚧 **Objetivo comum do dia** (item em curso).
-- ⬜ **Passar o doente com estilo** — animação de cartão a deslizar entre papéis.
-
-## 🎮 Estações interativas (fazer com as mãos)
-- ✅ **Raio-X com scanner** — arrastar o scanner pelo braço para ver os ossos e decidir.
-- ✅ **Termómetro na triagem** — encostar à testa e segurar até ao bip.
-- ✅ **ECG** — traçado que anda à velocidade do coração; decidir.
-- ✅ **Estetoscópio** — encostar ao peito e segurar para ouvir a pulsação.
-- ✅ **Ecografia** — passar a sonda pela barriga para revelar o achado.
-- ✅ **Curativo passo-a-passo** — esfregar para limpar e pôr o penso.
-- ✅ **Gesso** — esfregar à volta para pôr o gesso.
-- ✅ **Ver garganta/ouvido** — observar antes de diagnosticar.
-- ✅ **TAC e Ressonância** — entrar na máquina e fazer o exame.
-- ✅ **Análise de sangue/urina** — encher o tubo/copo.
-- ✅ **Audiograma** — tocar os sons e decidir.
-- ✅ **Injeção e xarope** — carregar no êmbolo / encher a colher.
-
-## 🎠 Conteúdo e rejogabilidade
-- ✅ **Cenários temáticos** — "Dia de Gripes", "Dia do Parque", "Festa de anos".
-- ⬜ **Doentes especiais** — dinossauro 🦖, robô ⚙️, extraterrestre 👽 com queixas absurdas.
-- ✅ **Modo Veterinário** — botão no início para escolher Hospital 🏥 ou Veterinário 🐾: nomes de animais, doenças de bichos e procedimentos (banho, tosquia, cortar unhas ✂️, vacinas, limpar orelhas…).
-
-## 🏅 Extras giros
-- ⬜ **Diploma do dia** — com o nome delas e as estatísticas, para guardar/imprimir.
+## 🏅 Extras
 - ⬜ **Guardar o "melhor dia"** — recordes entre sessões.
-- ⬜ **Vozes gravadas por elas** — gravar os "olás" dos doentes.
+- ✅ **Vozes das personagens** — por idade/espécie (e, em curso, clips pré-gerados).
 
 ---
 

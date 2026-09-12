@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_URL } from '../utils/api.js';
+import { getThemeOverride, setThemeOverride } from '../utils/theme.js';
 
 const ROLE_LABEL = {
   secretaria: 'Secretária',
@@ -21,7 +22,19 @@ function Kpi({ emoji, label, value, color }) {
 // Gráfico de barras simples (últimos 14 dias): visitas + jogos
 function Bars({ daily = [] }) {
   const data = daily.slice(-14);
-  const max = Math.max(1, ...data.map((d) => Math.max(d.visit, d.session)));
+  const total = data.reduce((s, d) => s + (d.visit || 0) + (d.session || 0), 0);
+  const max = Math.max(1, ...data.map((d) => Math.max(d.visit || 0, d.session || 0)));
+
+  if (data.length === 0 || total === 0) {
+    return (
+      <div className="py-6 text-center text-sm text-gray-400">
+        Ainda sem dados nos últimos dias — aparecem aqui assim que houver visitas e jogos. 📈
+      </div>
+    );
+  }
+
+  const barH = (v) => (v > 0 ? Math.max(6, (v / max) * 100) : 0); // % (mínimo visível quando > 0)
+
   return (
     <div>
       <div className="mb-1 flex gap-3 text-xs text-gray-500">
@@ -30,10 +43,10 @@ function Bars({ daily = [] }) {
       </div>
       <div className="flex h-28 items-end gap-1">
         {data.map((d) => (
-          <div key={d.day} className="flex flex-1 flex-col items-center justify-end gap-0.5" title={`${d.day} · ${d.visit} visitas · ${d.session} jogos`}>
-            <div className="flex w-full items-end justify-center gap-0.5" style={{ height: '100%' }}>
-              <div className="w-1/2 rounded-t bg-hospital-cyan" style={{ height: `${(d.visit / max) * 100}%` }} />
-              <div className="w-1/2 rounded-t bg-hospital-pink" style={{ height: `${(d.session / max) * 100}%` }} />
+          <div key={d.day} className="flex h-full flex-1 flex-col items-center gap-0.5" title={`${d.day} · ${d.visit || 0} visitas · ${d.session || 0} jogos`}>
+            <div className="flex w-full flex-1 items-end justify-center gap-0.5">
+              <div className="w-1/2 rounded-t bg-hospital-cyan" style={{ height: `${barH(d.visit || 0)}%` }} />
+              <div className="w-1/2 rounded-t bg-hospital-pink" style={{ height: `${barH(d.session || 0)}%` }} />
             </div>
             <span className="text-[8px] text-gray-400">{d.day.slice(8)}</span>
           </div>
@@ -49,6 +62,12 @@ export default function AdminPanel({ code, onClose }) {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [theme, setTheme] = useState(getThemeOverride());
+
+  const chooseTheme = (id) => {
+    setTheme(id);
+    setThemeOverride(id);
+  };
 
   useEffect(() => {
     (async () => {
@@ -103,6 +122,25 @@ export default function AdminPanel({ code, onClose }) {
             {busy ? 'A apagar…' : '🧹 Apagar todas as sessões'}
           </button>
           {msg && <span className="text-sm text-gray-600">{msg}</span>}
+        </div>
+
+        {/* Tema do hospital (automático pela época do ano, ou forçado) */}
+        <div className="mb-4">
+          <div className="mb-1 text-xs font-bold uppercase text-gray-400">🎨 Tema do hospital</div>
+          <div className="flex flex-wrap gap-2">
+            {[['auto', '🗓️ Automático'], ['normal', '🏥 Normal'], ['natal', '🎄 Natal'], ['praia', '🏖️ Praia'], ['halloween', '🎃 Halloween']].map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => chooseTheme(id)}
+                className={`btn px-3 py-1 text-sm ${theme === id ? 'bg-hospital-cyan text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-gray-400">
+            No modo automático muda sozinho: Natal em dezembro, praia no verão, Halloween no fim de outubro.
+          </p>
         </div>
 
         {error && <p className="text-sm text-hospital-danger">{error}</p>}

@@ -19,6 +19,7 @@ model Session {
   mode       String @default("hospital") // "hospital" | "vet"
   players    Int    @default(1) // nº de jogadoras humanas (1 a 4)
   humanRoles String @default("[]") // JSON array dos papéis humanos; os restantes são CPU
+  specials   Boolean @default(true) // doentes especiais/malucos ligados?
 
   // Recompensas e objetivo
   stickers   String    @default("[]") // JSON array de ids de autocolantes ganhos (caderneta)

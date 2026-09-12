@@ -23,7 +23,7 @@ export default async function sessionsRoutes(fastify) {
 
   // POST /api/sessions - Criar nova sessão (config opcional)
   fastify.post('/sessions', async (request, reply) => {
-    const { players, humanRoles, goalTarget, scenario, mode } = request.body || {};
+    const { players, humanRoles, goalTarget, scenario, mode, specials } = request.body || {};
     try {
       const code = await makeUniqueCode(prisma);
       const session = await prisma.session.create({
@@ -32,6 +32,7 @@ export default async function sessionsRoutes(fastify) {
           mode: mode === 'vet' ? 'vet' : 'hospital',
           players: players ? Number(players) : 1,
           humanRoles: JSON.stringify(Array.isArray(humanRoles) ? humanRoles : []),
+          ...(specials != null ? { specials: !!specials } : {}),
           goalTarget: goalTarget ? Number(goalTarget) : 8,
           scenario: scenario || 'normal',
           objective: JSON.stringify({
@@ -80,7 +81,7 @@ export default async function sessionsRoutes(fastify) {
   // PATCH /api/sessions/:id/config - Definir nº de jogadoras e papéis humanos
   fastify.patch('/sessions/:id/config', async (request, reply) => {
     const { id } = request.params;
-    const { players, humanRoles, goalTarget, scenario } = request.body || {};
+    const { players, humanRoles, goalTarget, scenario, specials } = request.body || {};
     try {
       const session = await prisma.session.update({
         where: { id },
@@ -88,7 +89,8 @@ export default async function sessionsRoutes(fastify) {
           players: players ? Number(players) : 1,
           humanRoles: JSON.stringify(Array.isArray(humanRoles) ? humanRoles : []),
           ...(goalTarget ? { goalTarget: Number(goalTarget) } : {}),
-          ...(scenario ? { scenario } : {})
+          ...(scenario ? { scenario } : {}),
+          ...(specials != null ? { specials: !!specials } : {})
         }
       });
       return session;

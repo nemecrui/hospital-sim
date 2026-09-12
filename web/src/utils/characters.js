@@ -30,13 +30,19 @@ export function traitFor(patient) {
 // --- Avatar (a "cara" da personagem) ---
 const HUMAN = ['🧒', '👦', '👧', '🧑', '👶', '👵', '👴', '👩', '👨'];
 
+// Emoji inicial do nome: espécie no veterinário ("🐶 Bobi") ou doente
+// especial no hospital ("🦖 Rex"). Devolve null se o nome é normal.
+export function leadingEmoji(name) {
+  const first = String(name || '').trim().split(' ')[0];
+  if (first && !/^[\p{L}\p{N}]/u.test(first)) return first;
+  return null;
+}
+
 export function avatarFor(patient, mode) {
   const name = (patient && patient.name) || '';
-  if (mode === 'vet') {
-    // no modo veterinário o nome começa com o emoji da espécie: "🐶 Bobi"
-    const first = name.trim().split(' ')[0];
-    if (first && !/^[\p{L}\p{N}]/u.test(first)) return first;
-  }
+  // Veterinário (espécie) ou doente especial: o nome começa com emoji.
+  const emoji = leadingEmoji(name);
+  if (emoji) return emoji;
   return HUMAN[hash((patient && patient.id) || name) % HUMAN.length];
 }
 

@@ -96,7 +96,7 @@ async function tickSession(prisma, session) {
   if (cpuRoles.includes('secretaria')) {
     const lastCreated = patients.reduce((max, p) => Math.max(max, new Date(p.createdAt).getTime()), 0);
     if (active.length < MAX_ACTIVE && now - lastCreated > SPAWN_MS) {
-      const g = generatePatient(mode, session.scenario);
+      const g = generatePatient(mode, session.scenario, session.specials !== false);
       await prisma.patient.create({
         data: {
           sessionId: session.id, name: g.name, age: g.age,
