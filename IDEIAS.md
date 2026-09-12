@@ -46,6 +46,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ### Mundo mais vivo
 - ✅ **Sala de espera visível** — os bonecos sentados no banco, a baloiçar as pernas e a ficarem impacientes com o tempo (carinha muda: 🙂 → 😐 → 😟 → 😠/😴).
+- ✅ **Visitas da família** — de vez em quando aparece o Avô Xavier 👴, a Avó Rosa 👵, a Avó Ana 👵, o Avô João 👴 ou a Tia Fatinha 👩 só para dar um miminho e trazer o lanchinho. Não são doentes — não entram na fila nem nos tratamentos, só visitam e vão-se embora.
 - ⬜ **Ambulância a chegar em cena** — com sirene, "larga" o doente na receção (urgências mais teatrais).
 - ⬜ **Dia e noite** — o relógio do hospital muda a luz do fundo (manhã → tarde → noite).
 

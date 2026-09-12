@@ -12,6 +12,7 @@ import HospitalHeader from './components/HospitalHeader.jsx';
 import DidYouKnow from './components/DidYouKnow.jsx';
 import StickerPopup from './components/StickerPopup.jsx';
 import Mascot from './components/Mascot.jsx';
+import Visitor from './components/Visitor.jsx';
 import { setSoundEnabled, isSoundEnabled } from './utils/sound.js';
 import { isMusicOn, toggleMusic } from './utils/music.js';
 import { API_URL } from './utils/api.js';
@@ -133,6 +134,7 @@ export default function App() {
     <HospitalProvider sessionId={sessionId}>
       <StickerPopup />
       <Mascot mode={config.mode} />
+      <Visitor />
       <div className="mx-auto min-h-screen max-w-3xl p-4">
         <HospitalHeader title={content.title} />
 
