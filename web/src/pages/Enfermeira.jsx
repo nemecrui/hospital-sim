@@ -18,16 +18,23 @@ import PatientBody from '../components/PatientBody.jsx';
 import SpeechBubble from '../components/SpeechBubble.jsx';
 import Reaction from '../components/Reaction.jsx';
 
+function hashG(it) {
+  const s = `${it.name}${it.given || 0}`;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
 // Que gesto usar para cada item (null = simples toque)
 function gestureKind(it) {
   if (it.type === 'nails') return 'snip';
   if (it.type === 'curativo') return it.name === 'Gesso' ? 'wrap' : 'rub';
   if (it.name === 'Antibiótico' || it.name === 'Soro' || it.name === 'Vacina') return 'injection';
-  if (it.name === 'Xarope') return 'measure'; // 🥄 Farmácia: medir até à linha
+  if (it.name === 'Xarope') return hashG(it) % 2 ? 'mix' : 'measure'; // 🥄/🎨 Farmácia
   if (it.emoji === '💊') return 'count'; // 💊 Farmácia: contar os comprimidos
   return null;
 }
-const isPharmacy = (k) => k === 'count' || k === 'measure';
+const isPharmacy = (k) => k === 'count' || k === 'measure' || k === 'mix';
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -265,7 +272,7 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
       if (res.ok) {
         setReact((n) => n + 1); // saltinho + coração
         const gk = gestureKind(item);
-        const kind = { injection: 'injection', spoon: 'syrup', measure: 'syrup', count: 'medicine', rub: 'rub', wrap: 'rub', snip: 'nails' }[gk] || 'medicine';
+        const kind = { injection: 'injection', spoon: 'syrup', measure: 'syrup', mix: 'syrup', count: 'medicine', rub: 'rub', wrap: 'rub', snip: 'nails' }[gk] || 'medicine';
         reactAs(patient, mode, kind); // som/fala conforme o feitio
       }
     }

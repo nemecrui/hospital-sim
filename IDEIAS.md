@@ -25,6 +25,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Instalar como app (PWA)** — aviso inteligente no arranque (botão nativo no Android, instruções no iOS) + link "📲 Instalar app" no rodapé.
 - ✅ **Painel de estatísticas** — visitas, jogos, curas e instalações (anónimo), com gráfico por dia, no painel de admin.
 - ✅ **Limpeza automática** — sessões inativas apagadas sozinhas ao fim de 48h.
+- ✅ **Caras a condizer** — o boneco/avatar combina com a idade (bebé, criança, adulto, idoso) e o género (pelo nome).
+- ✅ **Doenças malucas novas** — picada de abelha 🐝 / mosquito 🦟, mau hálito 😮‍💨, pústulas tóxicas ☣️, unha encravada 💅, verruga de bruxa 🧙, língua comprida 👅 (com operação para cortar!), cabeça de melão 🍈, caiu o cabelo 🧑‍🦲 e corno de unicórnio 🦄 — cada uma com o seu desenho no corpo e tratamentos próprios.
 
 ## 🚧 Em curso agora
 - 🚧 **Vozes por clip (pré-geradas)** — sistema pronto no jogo (toca clip por personagem, com recurso à voz do browser); falta **gerar os áudios** uma vez no PC (`node scripts/gen-voices.mjs`, Google TTS grátis) e fazer push.
@@ -39,11 +41,11 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ### Mini-jogos novos
 - ✅ **Sala de operações** (estilo "Operation") — a **médica** arrasta o objeto engolido (moeda, pipoca, chave, anel…) até ao tabuleiro sem tocar nas paredes (dá estrelas conforme os toques); depois passa à **enfermeira**, que **cose os pontos** e **põe o penso**. O botão "🔪 Operar" aparece na consulta para casos de barriga / engoliu um objeto.
-- ✅ **Farmácia** — a **enfermeira** prepara o medicamento antes de o dar: **contar os comprimidos** 💊 certos para o copo e **medir o xarope** 🥄 até à linha. (Falta ainda a variante "misturar cores".)
+- ✅ **Farmácia** — a **enfermeira** prepara o medicamento antes de o dar: **contar os comprimidos** de cada tipo (cores e tamanhos diferentes) 💊, **medir o xarope** 🥄 até à linha, e **misturar cores** 🎨 para fazer o xarope da cor certa (azul+amarelo=verde, etc.).
 - ⬜ **Mini-jogo da ambulância** — conduzir a ambulância até ao hospital a desviar de obstáculos.
 
 ### Mundo mais vivo
-- ⬜ **Sala de espera visível** — ver os bonecos sentados na fila, a baloiçar as pernas e a impacientarem-se.
+- ✅ **Sala de espera visível** — os bonecos sentados no banco, a baloiçar as pernas e a ficarem impacientes com o tempo (carinha muda: 🙂 → 😐 → 😟 → 😠/😴).
 - ⬜ **Ambulância a chegar em cena** — com sirene, "larga" o doente na receção (urgências mais teatrais).
 - ⬜ **Dia e noite** — o relógio do hospital muda a luz do fundo (manhã → tarde → noite).
 
@@ -62,8 +64,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ### Secretária com mais que fazer (está desocupada)
 - ⬜ **Pesar e medir à chegada** — balança + fita métrica (mini-interação), acrescenta dados ao cartão.
-- ⬜ **Chamar o próximo** em voz alta (altifalante).
-- ⬜ **Acalmar quem espera** — dar um brinquedo/rebuçado que baixa a impaciência dos que estão na fila.
+- ✅ **Chamar o próximo** em voz alta — botão 📣 que anuncia, por voz, quem espera há mais tempo (e dá-lhe destaque na sala).
+- ✅ **Acalmar quem espera** — botão 🧸 que dá um miminho e reinicia a impaciência de quem está na fila.
 - ⬜ **Atender o telefone** — marcações e "ambulância a caminho" (anuncia a próxima urgência).
 - ⬜ **Despedida na alta** — entregar o autocolante/diploma e dizer adeus.
 

@@ -123,6 +123,20 @@ export function HospitalProvider({ children, sessionId }) {
     [pollPatients]
   );
 
+  // Secretária — acalmar quem espera
+  const calmPatient = useCallback(
+    async (patientId) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/calm`, { method: 'PATCH' });
+      if (res.ok) {
+        playSound('success');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
   // Médica — operar (tirou o objeto com a pinça) → vai coser
   const operate = useCallback(
     async (patientId, diagnosis, playerId) => {
@@ -301,6 +315,7 @@ export function HospitalProvider({ children, sessionId }) {
         prescribe,
         operate,
         suture,
+        calmPatient,
         requestExams,
         examResult,
         examsDone,

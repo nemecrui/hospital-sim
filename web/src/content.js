@@ -1,4 +1,6 @@
 // Conteúdo por modo (frontend). O motor e as interações são iguais.
+import { avatarFor } from './utils/characters.js';
+
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const HUMAN_AVATARS = ['🧒', '👦', '👧', '🧑', '👶', '👵', '👴', '👩', '👨'];
 const FIRST = ['João', 'Maria', 'Pedro', 'Ana', 'Carlos', 'Sofia', 'Miguel', 'Inês', 'Rui', 'Joana', 'Tiago', 'Marta', 'Diogo', 'Beatriz', 'André', 'Leonor', 'Francisco', 'Matilde'];
@@ -16,7 +18,7 @@ const HOSPITAL = {
   patientWord: 'doente',
   patientPlural: 'doentes',
   roles: { secretaria: '👩‍💼 Secretária', medica: '👨‍⚕️ Médica', enfermeira: '👩‍⚕️ Enfermeira', tad: '🔬 Técnico (TAS)' },
-  diagnoses: ['Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite', 'Alergia', 'Ferida', 'Entorse', 'Osso partido', 'Enxaqueca', 'Febre', 'Excesso de guloseimas', 'Preguicite aguda', 'Barriga de trovão', 'Nariz de palhaço', 'Cócegas crónicas', 'Dor de crescimento', 'Alergia a legumes', 'Cabeça no ar'],
+  diagnoses: ['Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite', 'Alergia', 'Ferida', 'Entorse', 'Osso partido', 'Enxaqueca', 'Febre', 'Excesso de guloseimas', 'Preguicite aguda', 'Barriga de trovão', 'Nariz de palhaço', 'Cócegas crónicas', 'Dor de crescimento', 'Alergia a legumes', 'Cabeça no ar', 'Picada de abelha', 'Picada de mosquito', 'Mau hálito', 'Pústulas tóxicas', 'Unha encravada', 'Verruga de bruxa', 'Língua comprida', 'Cabeça de melão', 'Calvície repentina', 'Corno de unicórnio'],
   meds: [
     { name: 'Paracetamol', emoji: '💊', type: 'med', doses: 3 },
     { name: 'Ibuprofeno', emoji: '💊', type: 'med', doses: 2 },
@@ -32,7 +34,15 @@ const HOSPITAL = {
     { name: 'Chá quentinho', emoji: '🍵', type: 'med', doses: 2 },
     { name: 'Banho quente', emoji: '🛁', type: 'curativo', doses: 1 },
     { name: 'Mimo extra', emoji: '🧸', type: 'med', doses: 2 },
-    { name: 'Gargalhada', emoji: '😂', type: 'med', doses: 3 }
+    { name: 'Gargalhada', emoji: '😂', type: 'med', doses: 3 },
+    // Tratamentos para as doenças novas
+    { name: 'Pomada para picadas', emoji: '🧴', type: 'curativo', doses: 2 },
+    { name: 'Creme para pústulas', emoji: '🧴', type: 'curativo', doses: 2 },
+    { name: 'Elixir para a boca', emoji: '🧪', type: 'med', doses: 2 },
+    { name: 'Loção para o cabelo', emoji: '🧴', type: 'curativo', doses: 2 },
+    { name: 'Cortar a unha', emoji: '✂️', type: 'nails', doses: 1 },
+    { name: 'Pó anti-bruxa', emoji: '✨', type: 'med', doses: 2 },
+    { name: 'Comprimidos mágicos', emoji: '💊', type: 'med', doses: 2 }
   ],
   scenarios: {
     normal: { name: 'Dia normal', emoji: '🏥' },
@@ -41,7 +51,9 @@ const HOSPITAL = {
     festa: { name: 'Festa de anos', emoji: '🎂' }
   },
   makeArrival() {
-    return { name: `${pick(FIRST)} ${pick(LAST)}`, age: Math.floor(Math.random() * 97) + 3, avatar: pick(HUMAN_AVATARS) };
+    const name = `${pick(FIRST)} ${pick(LAST)}`;
+    const age = Math.floor(Math.random() * 97) + 3;
+    return { name, age, avatar: avatarFor({ name, age }, 'hospital') };
   }
 };
 

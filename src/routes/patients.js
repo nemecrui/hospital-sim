@@ -135,6 +135,21 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
+  // PATCH /api/patients/:id/calm - Secretária acalma quem espera (dá um miminho)
+  fastify.patch('/patients/:id/calm', async (request, reply) => {
+    const { id } = request.params;
+    try {
+      const patient = await prisma.patient.update({
+        where: { id },
+        data: { calmedAt: new Date() }
+      });
+      return serialize(patient);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to calm patient' });
+    }
+  });
+
   // PATCH /api/patients/:id/operate - Médica tirou o objeto (pinça) → vai coser
   fastify.patch('/patients/:id/operate', async (request, reply) => {
     const { id } = request.params;

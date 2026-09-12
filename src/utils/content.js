@@ -18,13 +18,17 @@ const HOSPITAL = {
     { name: 'Soluços sem parar', weight: 1 }, { name: 'Cócegas a mais', weight: 1 }, { name: 'Comichão no rabo', weight: 1 },
     { name: 'Espirros aos molhos', weight: 1 }, { name: 'Dente a abanar', weight: 1 }, { name: 'Barriga a roncar', weight: 1 },
     { name: 'Joelho esfolado', weight: 1 }, { name: 'Ranho verde', weight: 1 }, { name: 'Comeu muitos doces', weight: 1 },
-    { name: 'Engoliu uma mosca', weight: 1 }, { name: 'Cabelo em pé', weight: 1 }, { name: 'Peido preso', weight: 1 }
+    { name: 'Engoliu uma mosca', weight: 1 }, { name: 'Cabelo em pé', weight: 1 }, { name: 'Peido preso', weight: 1 },
+    { name: 'Picada de abelha', weight: 2 }, { name: 'Picada de mosquito', weight: 1 }, { name: 'Mau hálito', weight: 1 },
+    { name: 'Pústulas tóxicas', weight: 2 }, { name: 'Unha encravada', weight: 1 }, { name: 'Verruga na ponta do nariz', weight: 1 },
+    { name: 'Língua comprida', weight: 2 }, { name: 'Cabeça de melão', weight: 1 }, { name: 'Caiu o cabelo', weight: 1 },
+    { name: 'Corno na testa', weight: 2 }
   ],
 
   scenarios: {
     normal: { name: 'Dia normal', emoji: '🏥', prefer: null },
     gripes: { name: 'Dia de Gripes', emoji: '🤧', prefer: ['Febre', 'Tosse', 'Constipação', 'Dor de garganta', 'Ranho verde', 'Espirros aos molhos'] },
-    parque: { name: 'Dia do Parque', emoji: '🛝', prefer: ['Joelho esfolado', 'Caiu e magoou-se', 'Tornozelo torcido', 'Ferimento', 'Picada de inseto'] },
+    parque: { name: 'Dia do Parque', emoji: '🛝', prefer: ['Joelho esfolado', 'Caiu e magoou-se', 'Tornozelo torcido', 'Ferimento', 'Picada de inseto', 'Picada de abelha', 'Picada de mosquito'] },
     festa: { name: 'Festa de anos', emoji: '🎂', prefer: ['Dor de barriga', 'Comeu muitos doces', 'Enjoo', 'Barriga a roncar'] }
   },
   scenarioIds: ['gripes', 'parque', 'festa'],
@@ -84,7 +88,17 @@ const HOSPITAL = {
       Tosse: ['começou a tossir como uma foca', 'apanhou uma tossezinha teimosa'],
       'Caiu e magoou-se': ['escorregou numa poça', 'tropeçou nos próprios atacadores'],
       'Comeu muitos doces': ['exagerou nas gomas', 'encontrou o frasco das bolachas'],
-      'Comichão no rabo': ['sentou-se num formigueiro', 'a etiqueta das cuecas faz cócegas']
+      'Comichão no rabo': ['sentou-se num formigueiro', 'a etiqueta das cuecas faz cócegas'],
+      'Picada de abelha': ['foi cheirar uma flor e — zzz! — apanhou uma ferroada', 'chegou perto de mais da colmeia'],
+      'Picada de mosquito': ['um mosquito fez-lhe um banquete durante a noite', 'ficou com uma borbulha que faz muita comichão'],
+      'Mau hálito': ['bocejou e toda a gente fugiu a tapar o nariz', 'comeu alho e cebola ao almoço'],
+      'Pústulas tóxicas': ['ganhou umas borbulhas esquisitas que até brilham', 'mexeu numa planta muito estranha'],
+      'Unha encravada': ['a unha do dedo grande resolveu crescer para dentro', 'calçou uns sapatos apertados demais'],
+      'Verruga na ponta do nariz': ['acordou com uma verruga no nariz e diz: "estou a tornar-me bruxa!"', 'apareceu-lhe uma verruga pontiaguda'],
+      'Língua comprida': ['a língua cresceu tanto que já chega ao umbigo', 'lambeu um gelado mágico e a língua esticou-se'],
+      'Cabeça de melão': ['a equipa dele perdeu com o rival e a cabeça inchou de tristeza', 'estudou tanto que a cabeça cresceu'],
+      'Caiu o cabelo': ['foi pentear-se e o cabelo… desapareceu todo!', 'usou um champô muito esquisito'],
+      'Corno na testa': ['nasceu-lhe um corninho e diz: "estou a transformar-me num unicórnio!"', 'bateu com a testa e cresceu ali um corno']
     },
     generic: ['começou a sentir-se um bocadinho estranho', 'acordou assim e veio ver o médico', 'não está nos seus dias']
   }

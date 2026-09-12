@@ -85,7 +85,9 @@ export default function OperationGame({ object = { emoji: '🪙', label: 'moeda'
   return (
     <div className="mt-1 text-center">
       <p className="mb-2 text-sm font-semibold text-gray-700">
-        👉 Arrasta a {object.label} {object.emoji} até ao tabuleiro lá em cima, sem tocar nas paredes cor-de-rosa.
+        {object.verb === 'cortar'
+          ? `👉 Puxa a ${object.label} ${object.emoji} até ao tabuleiro para a cortar, sem tocar nas paredes cor-de-rosa.`
+          : `👉 Arrasta a ${object.label} ${object.emoji} até ao tabuleiro lá em cima, sem tocar nas paredes cor-de-rosa.`}
       </p>
 
       <div
@@ -141,7 +143,7 @@ export default function OperationGame({ object = { emoji: '🪙', label: 'moeda'
 
       {won ? (
         <p className="mt-2 text-sm font-bold text-green-600">
-          Tiraste a {object.label}! {'⭐'.repeat(stars)} A passar à enfermeira para coser…
+          {object.verb === 'cortar' ? 'Cortaste' : 'Tiraste'} a {object.label}! {'⭐'.repeat(stars)} A passar à enfermeira para coser…
         </p>
       ) : (
         <p className="mt-2 text-xs text-gray-400">Toques nas paredes: {touches}</p>

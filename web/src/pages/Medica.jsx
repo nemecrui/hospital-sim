@@ -26,15 +26,17 @@ const SWALLOW = [
   { emoji: '🔘', label: 'botão' },
   { emoji: '💍', label: 'anel' }
 ];
-function swallowedFor(patient) {
+function surgeryObject(patient) {
+  const probe = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
+  if (/l[íi]ngua/.test(probe)) return { emoji: '👅', label: 'língua comprida', verb: 'cortar' };
   const id = String(patient?.id || 'x');
   let s = 0;
   for (let i = 0; i < id.length; i++) s += id.charCodeAt(i);
-  return SWALLOW[s % SWALLOW.length];
+  return { ...SWALLOW[s % SWALLOW.length], verb: 'tirar' };
 }
 function podeOperar(patient) {
   const probe = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
-  if (/barriga|engoliu|moeda|pipoca|chave|objeto|gastro|trov[aã]o|guloseima|estrag/.test(probe)) return true;
+  if (/barriga|engoliu|moeda|pipoca|chave|objeto|gastro|trov[aã]o|guloseima|estrag|l[íi]ngua/.test(probe)) return true;
   return (patient.exams || []).some((e) => /engoliu|moeda|pipoca|objeto/i.test(e.result || ''));
 }
 
@@ -102,7 +104,7 @@ function Consulta({ patient, mode, playerId, onBack, prescribe, operate, request
   const [look, setLook] = useState(null); // 'garganta' | 'ouvido'
   const [operando, setOperando] = useState(false);
 
-  const objeto = swallowedFor(patient);
+  const objeto = surgeryObject(patient);
   const cirurgia = podeOperar(patient);
 
   const operarFeito = async () => {
@@ -283,7 +285,9 @@ function Consulta({ patient, mode, playerId, onBack, prescribe, operate, request
         <div className="card border-2 border-rose-200 bg-rose-50 p-4">
           <h4 className="mb-1 text-sm font-bold text-rose-700">🔪 Sala de operações</h4>
           <p className="mb-3 text-sm text-rose-800">
-            Parece que engoliu alguma coisa! Podes operar para tirar {objeto.emoji} e depois a enfermeira cose e põe o penso.
+            {objeto.verb === 'cortar'
+              ? `Esta língua está enorme! Podes operar para cortar a língua ${objeto.emoji} e depois a enfermeira cose e põe o penso.`
+              : `Parece que engoliu alguma coisa! Podes operar para tirar ${objeto.emoji} e depois a enfermeira cose e põe o penso.`}
           </p>
           <button
             onClick={() => {

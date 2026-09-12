@@ -1,7 +1,7 @@
 import Wristband from './Wristband.jsx';
 import Character from './Character.jsx';
 import SpeechBubble from './SpeechBubble.jsx';
-import { traitFor } from '../utils/characters.js';
+import { traitFor, waitMood } from '../utils/characters.js';
 import { isFriend } from '../data/friends.js';
 import icons from '../data/icons.json';
 
@@ -14,20 +14,9 @@ const STATUS_LABELS = {
   discharged: { text: 'Alta', emoji: '✅', color: 'bg-green-100 text-green-800' }
 };
 
-// Humor do doente conforme o tempo de espera (sala de espera com vida)
-function moodOf(patient) {
-  if (patient.status === 'discharged' || !patient.createdAt) return null;
-  const mins = (Date.now() - new Date(patient.createdAt).getTime()) / 60000;
-  if (mins < 1) return { face: '🙂', text: 'tranquilo' };
-  if (mins < 2.5) return { face: '😐', text: 'a ficar aborrecido' };
-  if (mins < 4) return { face: '😟', text: 'impaciente' };
-  const asleep = patient.id.charCodeAt(patient.id.length - 1) % 2 === 0;
-  return asleep ? { face: '😴', text: 'adormeceu' } : { face: '😠', text: 'farto de esperar' };
-}
-
 export default function PatientCard({ patient, mode, onClick, actionLabel }) {
   const status = STATUS_LABELS[patient.status] || STATUS_LABELS.triage;
-  const mood = moodOf(patient);
+  const mood = waitMood(patient);
   const trait = traitFor(patient);
   const urgent = patient.emergency;
 

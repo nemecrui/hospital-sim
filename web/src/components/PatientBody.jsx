@@ -22,6 +22,11 @@ function expr(state) {
     case 'tooth': return { eyes: 'squeeze', mouth: 'frown', brows: 'worry', arms: 'cheek' };
     case 'headache': return { eyes: 'squeeze', mouth: 'frown', brows: 'worry', arms: 'head' };
     case 'wound': return { eyes: 'open', mouth: 'frown', brows: 'worry', arms: 'down' };
+    case 'tongue': return { eyes: 'happy', mouth: 'open', brows: 'up', arms: 'down' };
+    case 'horn': return { eyes: 'happy', mouth: 'big', brows: 'up', arms: 'down' };
+    case 'bald': return { eyes: 'open', mouth: 'frown', brows: 'worry', arms: 'head' };
+    case 'wart': return { eyes: 'squeeze', mouth: 'frown', brows: 'worry', arms: 'down' };
+    case 'breath': return { eyes: 'open', mouth: 'open', brows: 'flat', arms: 'down' };
     default: return { eyes: 'open', mouth: 'frown', brows: 'flat', arms: 'down' };
   }
 }
@@ -215,6 +220,35 @@ function Overlay({ state, skin, spot = 0 }) {
       if (where === 3) return <Plaster x="62" y="38" r={0} />; // testa
       return <Plaster x="55" y="168" r={-20} />; // joelho
     }
+    case 'tongue':
+      return (
+        <>
+          <path d="M65 72 C 61 108, 61 138, 70 150 C 79 138, 79 108, 75 72 Z" fill="#FF7A9A" stroke="#E5577A" strokeWidth="2" />
+          <line x1="70" y1="80" x2="70" y2="146" stroke="#E5577A" strokeWidth="1.5" opacity="0.6" />
+        </>
+      );
+    case 'horn':
+      return (
+        <>
+          <path d="M70 24 L63 48 L77 48 Z" fill="#FFD54A" stroke="#E0B020" strokeWidth="2" />
+          <line x1="66" y1="42" x2="74" y2="42" stroke="#E0B020" strokeWidth="1.5" />
+          <line x1="67" y1="36" x2="73" y2="36" stroke="#E0B020" strokeWidth="1.5" />
+        </>
+      );
+    case 'wart':
+      return (
+        <>
+          <circle cx="70" cy="62" r="4.6" fill="#8D6E63" />
+          <circle cx="68.4" cy="60.6" r="1.2" fill="#6D4C41" />
+        </>
+      );
+    case 'breath':
+      return (
+        <>
+          <ellipse cx="93" cy="76" rx="14" ry="9" fill="#BFE3B0" opacity="0.55" />
+          <path d="M104 70 q4 -4 8 0 M106 80 q4 4 8 0" stroke="#7A9B5E" strokeWidth="2" fill="none" strokeLinecap="round" />
+        </>
+      );
     case 'healthy':
       return <Plaster x="56" y="168" r={-20} />;
     default:
@@ -291,7 +325,8 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
   }
 
   const ap = appearanceFor(patient);
-  const e = expr(bodyStateFor(patient));
+  const state = bodyStateFor(patient);
+  const e = expr(state);
   const spot = ((patient.id || 'x').charCodeAt(1) || 3) + ((patient.id || 'x').charCodeAt(3) || 0);
   const w = Math.round(size * (140 / 220));
 
@@ -335,7 +370,15 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
           <circle cx="99" cy="56" r="5" fill={ap.skin} />
           <circle cx="70" cy="55" r="30" fill={ap.skin} />
           <circle cx="70" cy="55" r="30" fill={`url(#hl${uid})`} />
-          <Hair style={ap.style} color={ap.hair} />
+          {state === 'bald' ? (
+            <>
+              {/* careca: brilho no cimo da cabeça + uns fiozinhos */}
+              <ellipse cx="62" cy="40" rx="8" ry="4" fill="#ffffff" opacity="0.35" />
+              <path d="M54 40 q2 -4 5 -2 M84 41 q-2 -4 -5 -2" stroke={ap.hair} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            </>
+          ) : (
+            <Hair style={ap.style} color={ap.hair} />
+          )}
 
           {/* bochechas suaves (quando não há estado a mandar) */}
           {(e.eyes === 'open' || e.eyes === 'happy') && (
@@ -389,7 +432,7 @@ export default function PatientBody({ patient, mode, size = 150, speakOnTap = tr
           )}
 
           <Mouth kind={e.mouth} />
-          <Overlay state={bodyStateFor(patient)} skin={ap.skin} spot={spot} />
+          <Overlay state={state} skin={ap.skin} spot={spot} />
         </svg>
       </div>
 

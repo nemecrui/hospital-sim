@@ -56,6 +56,9 @@ model Patient {
   // Chegou de ambulância (salta a fila)
   emergency Boolean @default(false)
 
+  // Última vez que a secretária o acalmou (reinicia a impaciência da espera)
+  calmedAt DateTime?
+
   // Triagem
   triageColor String? // verde | amarela | laranja | vermelha
   health      Int? // 0-100 (estado do doente; sobe com o tratamento)

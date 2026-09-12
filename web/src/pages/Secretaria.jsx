@@ -1,23 +1,46 @@
 import { useContext, useMemo, useState } from 'react';
 import { HospitalContext } from '../context/HospitalContext.jsx';
 import { usePoll } from '../hooks/usePoll.js';
-import PatientCard from '../components/PatientCard.jsx';
+import WaitingRoom from '../components/WaitingRoom.jsx';
 import { getContent } from '../content.js';
+import { speakTip } from '../utils/tts.js';
+import { playSound } from '../utils/sound.js';
 
 const MAX_ACTIVE = 3;
 
 export default function Secretaria({ mode }) {
   const content = getContent(mode);
-  const { patients, pollPatients, registerPatient } = useContext(HospitalContext);
+  const { patients, pollPatients, registerPatient, calmPatient } = useContext(HospitalContext);
   const [arrival, setArrival] = useState(() => content.makeArrival());
   const [form, setForm] = useState({ name: '', age: '' });
   const [feedback, setFeedback] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [calledId, setCalledId] = useState(null);
 
   usePoll(pollPatients, 2000);
 
   const active = useMemo(() => patients.filter((p) => p.status !== 'discharged'), [patients]);
   const salaCheia = active.length >= MAX_ACTIVE;
+
+  // 📣 Chamar o próximo (o que espera há mais tempo) — anúncio em voz alta
+  const chamarProximo = () => {
+    const fila = active
+      .filter((p) => p.status === 'triage')
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const next = fila[0] || active[0];
+    if (!next) return;
+    playSound('notification');
+    const plain = String(next.name).replace(/[^\p{L}\p{N} ]/gu, '').trim() || next.name;
+    speakTip(`${plain}, é a tua vez! Faz favor de seguir para a triagem.`);
+    setCalledId(next.id);
+    setTimeout(() => setCalledId((c) => (c === next.id ? null : c)), 4000);
+  };
+
+  // 🧸 Acalmar quem espera
+  const acalmar = (p) => {
+    speakTip('Calminha, já vai ser a tua vez! Toma um miminho. 🧸');
+    calmPatient(p.id);
+  };
 
   const nextArrival = () => {
     setArrival(content.makeArrival());
@@ -50,6 +73,7 @@ export default function Secretaria({ mode }) {
   };
 
   return (
+    <div className="space-y-4">
     <div className="grid gap-4 md:grid-cols-2">
       <div className="space-y-3">
         {salaCheia ? (
@@ -134,20 +158,11 @@ export default function Secretaria({ mode }) {
           </div>
         )}
 
-        <div className="mt-4">
-          <h4 className="mb-2 text-sm font-bold">
-            👥 Na sala ({active.length}/{MAX_ACTIVE})
-          </h4>
-          <div className="space-y-2">
-            {active.length === 0 && (
-              <p className="text-sm text-gray-400">Ainda não há doentes.</p>
-            )}
-            {active.map((p) => (
-              <PatientCard key={p.id} patient={p} mode={mode} />
-            ))}
-          </div>
-        </div>
+        <p className="mt-4 text-xs text-gray-400">👥 Na sala: {active.length}/{MAX_ACTIVE}</p>
       </div>
+      </div>
+
+      <WaitingRoom patients={active} mode={mode} onCall={chamarProximo} onCalm={acalmar} calledId={calledId} />
     </div>
   );
 }
