@@ -130,6 +130,15 @@ async function tickSession(prisma, session) {
         });
       }
     }
+    // 🪡 Coser + penso (depois de uma cirurgia feita por uma médica humana)
+    for (const p of patients.filter((p) => p.status === 'suturing')) {
+      if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        await prisma.patient.update({
+          where: { id: p.id },
+          data: { status: 'discharge', assignedTo: 'CPU', health: 100 }
+        });
+      }
+    }
   }
 
   // 🔬 TAD CPU

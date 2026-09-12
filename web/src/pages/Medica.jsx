@@ -13,10 +13,33 @@ import { speakTip } from '../utils/tts.js';
 import { getContent } from '../content.js';
 import ThroatView from '../components/ThroatView.jsx';
 import EarView from '../components/EarView.jsx';
+import OperationGame from '../components/OperationGame.jsx';
 import { diagnosisInfo, diagnosisMatches } from '../utils/characters.js';
 
+// Objeto engolido (estável por doente) para a cirurgia
+const SWALLOW = [
+  { emoji: '🪙', label: 'moeda' },
+  { emoji: '🍿', label: 'pipoca' },
+  { emoji: '🔑', label: 'chave' },
+  { emoji: '🔴', label: 'bola' },
+  { emoji: '🧱', label: 'peça de lego' },
+  { emoji: '🔘', label: 'botão' },
+  { emoji: '💍', label: 'anel' }
+];
+function swallowedFor(patient) {
+  const id = String(patient?.id || 'x');
+  let s = 0;
+  for (let i = 0; i < id.length; i++) s += id.charCodeAt(i);
+  return SWALLOW[s % SWALLOW.length];
+}
+function podeOperar(patient) {
+  const probe = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
+  if (/barriga|engoliu|moeda|pipoca|chave|objeto|gastro|trov[aã]o|guloseima|estrag/.test(probe)) return true;
+  return (patient.exams || []).some((e) => /engoliu|moeda|pipoca|objeto/i.test(e.result || ''));
+}
+
 export default function Medica({ playerId, mode }) {
-  const { patients, pollPatients, prescribe, requestExams, discharge } = useContext(HospitalContext);
+  const { patients, pollPatients, prescribe, operate, requestExams, discharge } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
 
   usePoll(pollPatients, 2000);
@@ -28,8 +51,10 @@ export default function Medica({ playerId, mode }) {
       <Consulta
         patient={patient}
         mode={mode}
+        playerId={playerId}
         onBack={() => setActive(null)}
         prescribe={prescribe}
+        operate={operate}
         requestExams={requestExams}
       />
     );
@@ -66,7 +91,7 @@ export default function Medica({ playerId, mode }) {
   );
 }
 
-function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
+function Consulta({ patient, mode, playerId, onBack, prescribe, operate, requestExams }) {
   const content = getContent(mode);
   const diagnoses = content.diagnoses;
   const meds = content.meds;
@@ -75,6 +100,27 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
   const [chosenExams, setChosenExams] = useState([]);
   const [busy, setBusy] = useState(false);
   const [look, setLook] = useState(null); // 'garganta' | 'ouvido'
+  const [operando, setOperando] = useState(false);
+
+  const objeto = swallowedFor(patient);
+  const cirurgia = podeOperar(patient);
+
+  const operarFeito = async () => {
+    const ok = await operate(patient.id, diagnosis || undefined, playerId);
+    if (ok) onBack();
+  };
+
+  // Ecrã focado na cirurgia (a médica tira o objeto com a pinça)
+  if (operando) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold">🔪 Sala de operações — {patient.name}</h3>
+        <div className="card p-4">
+          <OperationGame object={objeto} onDone={operarFeito} onCancel={() => setOperando(false)} />
+        </div>
+      </div>
+    );
+  }
 
   // Observação ligada ao problema real (diagnóstico + todas as queixas), não só à 1ª.
   const probe = `${patient.diagnosis || ''} ${(patient.symptoms || []).join(' ')}`.toLowerCase();
@@ -231,6 +277,25 @@ function Consulta({ patient, mode, onBack, prescribe, requestExams }) {
           🔬 Enviar ao Técnico para exames
         </button>
       </div>
+
+      {/* Cirurgia (para barriga / engoliu um objeto) */}
+      {cirurgia && (
+        <div className="card border-2 border-rose-200 bg-rose-50 p-4">
+          <h4 className="mb-1 text-sm font-bold text-rose-700">🔪 Sala de operações</h4>
+          <p className="mb-3 text-sm text-rose-800">
+            Parece que engoliu alguma coisa! Podes operar para tirar {objeto.emoji} e depois a enfermeira cose e põe o penso.
+          </p>
+          <button
+            onClick={() => {
+              reactAs(patient, mode, 'exam');
+              setOperando(true);
+            }}
+            className="btn w-full bg-gradient-to-r from-rose-500 to-pink-600 py-2 text-white hover:shadow-lg"
+          >
+            🔪 Operar na sala de operações
+          </button>
+        </div>
+      )}
 
       {/* Prescrever tratamento (vai à enfermeira) */}
       <div className="card p-4">

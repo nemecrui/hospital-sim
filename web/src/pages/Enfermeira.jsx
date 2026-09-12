@@ -11,6 +11,8 @@ import Thermometer from '../components/Thermometer.jsx';
 import Stethoscope from '../components/Stethoscope.jsx';
 import CareGesture from '../components/CareGesture.jsx';
 import MedGesture from '../components/MedGesture.jsx';
+import Farmacia from '../components/Farmacia.jsx';
+import SutureGame from '../components/SutureGame.jsx';
 import NailClip from '../components/NailClip.jsx';
 import PatientBody from '../components/PatientBody.jsx';
 import SpeechBubble from '../components/SpeechBubble.jsx';
@@ -21,9 +23,11 @@ function gestureKind(it) {
   if (it.type === 'nails') return 'snip';
   if (it.type === 'curativo') return it.name === 'Gesso' ? 'wrap' : 'rub';
   if (it.name === 'Antibiótico' || it.name === 'Soro' || it.name === 'Vacina') return 'injection';
-  if (it.name === 'Xarope') return 'spoon';
+  if (it.name === 'Xarope') return 'measure'; // 🥄 Farmácia: medir até à linha
+  if (it.emoji === '💊') return 'count'; // 💊 Farmácia: contar os comprimidos
   return null;
 }
+const isPharmacy = (k) => k === 'count' || k === 'measure';
 
 const DOSE_WINDOW_S = 240; // 3 tomas=80s, 2 tomas=120s, 1 toma=sem espera
 
@@ -31,7 +35,7 @@ const cooldownMsFor = (total) => Math.round(DOSE_WINDOW_S / Math.max(1, total)) 
 const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : `${s}s`);
 
 export default function Enfermeira({ playerId, mode }) {
-  const { patients, pollPatients, triage, giveDose, toDischarge } = useContext(HospitalContext);
+  const { patients, pollPatients, triage, giveDose, toDischarge, suture } = useContext(HospitalContext);
   const [active, setActive] = useState(null);
   const [now, setNow] = useState(Date.now());
 
@@ -47,6 +51,9 @@ export default function Enfermeira({ playerId, mode }) {
 
   if (patient && patient.status === 'triage') {
     return <Triagem patient={patient} mode={mode} playerId={playerId} onBack={() => setActive(null)} triage={triage} />;
+  }
+  if (patient && patient.status === 'suturing') {
+    return <Suturar patient={patient} playerId={playerId} suture={suture} onBack={() => setActive(null)} />;
   }
   if (patient && patient.status === 'treatment') {
     return (
@@ -64,9 +71,21 @@ export default function Enfermeira({ playerId, mode }) {
 
   const paraTriagem = patients.filter((p) => p.status === 'triage');
   const paraTratar = patients.filter((p) => p.status === 'treatment');
+  const paraCoser = patients.filter((p) => p.status === 'suturing');
 
   return (
     <div className="space-y-6">
+      {paraCoser.length > 0 && (
+        <section>
+          <h3 className="mb-2 text-lg font-bold">🪡 Para coser ({paraCoser.length})</h3>
+          <div className="space-y-3">
+            {paraCoser.map((p) => (
+              <PatientCard key={p.id} patient={p} mode={mode} onClick={() => setActive(p.id)} actionLabel="Coser ▶" />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section>
         <h3 className="mb-2 text-lg font-bold">🩺 Triagem ({paraTriagem.length})</h3>
         <div className="space-y-3">
@@ -246,7 +265,7 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
       if (res.ok) {
         setReact((n) => n + 1); // saltinho + coração
         const gk = gestureKind(item);
-        const kind = { injection: 'injection', spoon: 'syrup', rub: 'rub', wrap: 'rub', snip: 'nails' }[gk] || 'medicine';
+        const kind = { injection: 'injection', spoon: 'syrup', measure: 'syrup', count: 'medicine', rub: 'rub', wrap: 'rub', snip: 'nails' }[gk] || 'medicine';
         reactAs(patient, mode, kind); // som/fala conforme o feitio
       }
     }
@@ -301,7 +320,7 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
                 disabled={done || waiting}
                 className="btn bg-hospital-pink px-3 py-1 text-sm text-white disabled:opacity-40"
               >
-                {done ? '✓ Feito' : waiting ? fmt(Math.ceil(cooldown / 1000)) : it.type === 'curativo' ? 'Aplicar' : 'Dar dose'}
+                {done ? '✓ Feito' : waiting ? fmt(Math.ceil(cooldown / 1000)) : isPharmacy(gestureKind(it)) ? '💊 Preparar' : it.type === 'curativo' ? 'Aplicar' : 'Dar dose'}
               </button>
             </div>
           );
@@ -322,6 +341,7 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
             };
             const cancel = () => setCare(null);
             if (kind === 'snip') return <NailClip onDone={finish} onCancel={cancel} />;
+            if (isPharmacy(kind)) return <Farmacia kind={kind} item={care} onDone={finish} onCancel={cancel} />;
             if (['rub', 'wrap'].includes(kind))
               return <CareGesture name={care.name} emoji={care.emoji} onDone={finish} onCancel={cancel} />;
             return <MedGesture kind={kind} onDone={finish} onCancel={cancel} />;
@@ -341,6 +361,29 @@ function Tratamento({ patient, mode, now, giveDose, toDischarge, playerId, onBac
           ↩ Voltar
         </button>
       </div>
+    </div>
+  );
+}
+
+function Suturar({ patient, playerId, suture, onBack }) {
+  const [busy, setBusy] = useState(false);
+  const finish = async () => {
+    if (busy) return;
+    setBusy(true);
+    const ok = await suture(patient.id, playerId);
+    if (ok) onBack();
+    else setBusy(false);
+  };
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-bold">🪡 Coser e pôr o penso — {patient.name}</h3>
+      <p className="text-sm text-gray-600">A médica já tirou o objeto. Agora é coser com cuidado e tapar com o penso!</p>
+      <div className="card p-4">
+        <SutureGame onDone={finish} onCancel={onBack} />
+      </div>
+      <button onClick={onBack} className="btn w-full bg-white px-4 py-3 text-gray-700 hover:bg-gray-100">
+        ↩ Voltar
+      </button>
     </div>
   );
 }

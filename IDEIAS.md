@@ -38,8 +38,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Dar nome ao mascote** — as miúdas tocam no ✏️ e dão um nome ao 🧸; ele passa a apresentar-se por esse nome (guardado no tablet).
 
 ### Mini-jogos novos
-- ⬜ **Sala de operações** (estilo "Operation") — tirar com a pinça o objeto engolido (moeda, pipoca, chave) sem tocar nas bordas. Ver Decisões sobre quem joga.
-- ⬜ **Farmácia** — preparar a receita: contar comprimidos, medir o xarope, misturar cores (treina contagem/medida — bom para a Sara).
+- ✅ **Sala de operações** (estilo "Operation") — a **médica** arrasta o objeto engolido (moeda, pipoca, chave, anel…) até ao tabuleiro sem tocar nas paredes (dá estrelas conforme os toques); depois passa à **enfermeira**, que **cose os pontos** e **põe o penso**. O botão "🔪 Operar" aparece na consulta para casos de barriga / engoliu um objeto.
+- ✅ **Farmácia** — a **enfermeira** prepara o medicamento antes de o dar: **contar os comprimidos** 💊 certos para o copo e **medir o xarope** 🥄 até à linha. (Falta ainda a variante "misturar cores".)
 - ⬜ **Mini-jogo da ambulância** — conduzir a ambulância até ao hospital a desviar de obstáculos.
 
 ### Mundo mais vivo

@@ -123,6 +123,42 @@ export function HospitalProvider({ children, sessionId }) {
     [pollPatients]
   );
 
+  // Médica — operar (tirou o objeto com a pinça) → vai coser
+  const operate = useCallback(
+    async (patientId, diagnosis, playerId) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/operate`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ diagnosis, playerId })
+      });
+      if (res.ok) {
+        playSound('complete');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
+  // Enfermeira — coser + penso → pronto para alta
+  const suture = useCallback(
+    async (patientId, playerId) => {
+      const res = await fetch(`${API_URL}/patients/${patientId}/suture`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId })
+      });
+      if (res.ok) {
+        playSound('complete');
+        await pollPatients();
+        return true;
+      }
+      return false;
+    },
+    [pollPatients]
+  );
+
   // Médica — pedir exames (vai ao TAD)
   const requestExams = useCallback(
     async (patientId, exams, diagnosis) => {
@@ -263,6 +299,8 @@ export function HospitalProvider({ children, sessionId }) {
         registerPatient,
         triage,
         prescribe,
+        operate,
+        suture,
         requestExams,
         examResult,
         examsDone,

@@ -135,6 +135,42 @@ export default async function patientsRoutes(fastify) {
     }
   });
 
+  // PATCH /api/patients/:id/operate - Médica tirou o objeto (pinça) → vai coser
+  fastify.patch('/patients/:id/operate', async (request, reply) => {
+    const { id } = request.params;
+    const { diagnosis, playerId } = request.body || {};
+    try {
+      const patient = await prisma.patient.update({
+        where: { id },
+        data: {
+          status: 'suturing',
+          assignedTo: playerId ?? null,
+          diagnosis: diagnosis ?? 'Engoliu um objeto'
+        }
+      });
+      return serialize(patient);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to operate' });
+    }
+  });
+
+  // PATCH /api/patients/:id/suture - Enfermeira coseu + pôs o penso → pronto p/ alta
+  fastify.patch('/patients/:id/suture', async (request, reply) => {
+    const { id } = request.params;
+    const { playerId } = request.body || {};
+    try {
+      const patient = await prisma.patient.update({
+        where: { id },
+        data: { status: 'discharge', assignedTo: playerId ?? null, health: 100 }
+      });
+      return serialize(patient);
+    } catch (err) {
+      fastify.log.error(err);
+      return reply.code(500).send({ error: 'Failed to suture' });
+    }
+  });
+
   // PATCH /api/patients/:id/prescribe - Médica: diagnóstico + prescrição
   // items: [{ name, emoji, type, total }]
   fastify.patch('/patients/:id/prescribe', async (request, reply) => {
