@@ -18,7 +18,7 @@ const HOSPITAL = {
   patientWord: 'doente',
   patientPlural: 'doentes',
   roles: { secretaria: '👩‍💼 Secretária', medica: '👨‍⚕️ Médica', enfermeira: '👩‍⚕️ Enfermeira', tad: '🔬 Técnico (TAS)' },
-  diagnoses: ['Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite', 'Alergia', 'Ferida', 'Entorse', 'Osso partido', 'Enxaqueca', 'Febre', 'Excesso de guloseimas', 'Preguicite aguda', 'Barriga de trovão', 'Nariz de palhaço', 'Cócegas crónicas', 'Dor de crescimento', 'Alergia a legumes', 'Cabeça no ar', 'Picada de abelha', 'Picada de mosquito', 'Mau hálito', 'Pústulas tóxicas', 'Unha encravada', 'Verruga de bruxa', 'Língua comprida', 'Cabeça de melão', 'Calvície repentina', 'Corno de unicórnio'],
+  diagnoses: ['Gripe', 'Constipação', 'Amigdalite', 'Otite', 'Gastroenterite', 'Alergia', 'Ferida', 'Entorse', 'Osso partido', 'Enxaqueca', 'Febre', 'Excesso de guloseimas', 'Preguicite aguda', 'Barriga de trovão', 'Nariz de palhaço', 'Cócegas crónicas', 'Dor de crescimento', 'Alergia a legumes', 'Cabeça no ar', 'Picada de abelha', 'Picada de mosquito', 'Mau hálito', 'Gases tóxicos', 'Unha encravada', 'Verruga de bruxa', 'Língua comprida', 'Cabeça de melão', 'Calvície repentina', 'Corno de unicórnio'],
   meds: [
     { name: 'Paracetamol', emoji: '💊', type: 'med', doses: 3 },
     { name: 'Ibuprofeno', emoji: '💊', type: 'med', doses: 2 },
@@ -37,7 +37,7 @@ const HOSPITAL = {
     { name: 'Gargalhada', emoji: '😂', type: 'med', doses: 3 },
     // Tratamentos para as doenças novas
     { name: 'Pomada para picadas', emoji: '🧴', type: 'curativo', doses: 2 },
-    { name: 'Creme para pústulas', emoji: '🧴', type: 'curativo', doses: 2 },
+    { name: 'Comprimido anti-gases', emoji: '💊', type: 'med', doses: 2 },
     { name: 'Elixir para a boca', emoji: '🧪', type: 'med', doses: 2 },
     { name: 'Loção para o cabelo', emoji: '🧴', type: 'curativo', doses: 2 },
     { name: 'Cortar a unha', emoji: '✂️', type: 'nails', doses: 1 },

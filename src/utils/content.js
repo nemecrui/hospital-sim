@@ -20,7 +20,7 @@ const HOSPITAL = {
     { name: 'Joelho esfolado', weight: 1 }, { name: 'Ranho verde', weight: 1 }, { name: 'Comeu muitos doces', weight: 1 },
     { name: 'Engoliu uma mosca', weight: 1 }, { name: 'Cabelo em pé', weight: 1 }, { name: 'Peido preso', weight: 1 },
     { name: 'Picada de abelha', weight: 2 }, { name: 'Picada de mosquito', weight: 1 }, { name: 'Mau hálito', weight: 1 },
-    { name: 'Pústulas tóxicas', weight: 2 }, { name: 'Unha encravada', weight: 1 }, { name: 'Verruga na ponta do nariz', weight: 1 },
+    { name: 'Gases tóxicos', weight: 2 }, { name: 'Unha encravada', weight: 1 }, { name: 'Verruga na ponta do nariz', weight: 1 },
     { name: 'Língua comprida', weight: 2 }, { name: 'Cabeça de melão', weight: 1 }, { name: 'Caiu o cabelo', weight: 1 },
     { name: 'Corno na testa', weight: 2 }
   ],
@@ -92,7 +92,7 @@ const HOSPITAL = {
       'Picada de abelha': ['foi cheirar uma flor e — zzz! — apanhou uma ferroada', 'chegou perto de mais da colmeia'],
       'Picada de mosquito': ['um mosquito fez-lhe um banquete durante a noite', 'ficou com uma borbulha que faz muita comichão'],
       'Mau hálito': ['bocejou e toda a gente fugiu a tapar o nariz', 'comeu alho e cebola ao almoço'],
-      'Pústulas tóxicas': ['ganhou umas borbulhas esquisitas que até brilham', 'mexeu numa planta muito estranha'],
+      'Gases tóxicos': ['comeu feijoada a mais e agora larga uns gases que afastam toda a gente 💨', 'tem a barriga cheia de gases com um cheirinho tóxico'],
       'Unha encravada': ['a unha do dedo grande resolveu crescer para dentro', 'calçou uns sapatos apertados demais'],
       'Verruga na ponta do nariz': ['acordou com uma verruga no nariz e diz: "estou a tornar-me bruxa!"', 'apareceu-lhe uma verruga pontiaguda'],
       'Língua comprida': ['a língua cresceu tanto que já chega ao umbigo', 'lambeu um gelado mágico e a língua esticou-se'],

@@ -197,7 +197,7 @@ export function bodyStateFor(patient) {
   if (has('corno')) return 'horn';
   if (has('careca', 'calvíc', 'calvic', 'caiu o cabelo', 'caiu-lhe o cabelo')) return 'bald';
   if (has('verruga')) return 'wart';
-  if (has('hálito', 'halito')) return 'breath';
+  if (has('hálito', 'halito', 'gases', 'gás', 'tóxico', 'toxico')) return 'breath';
   if (has('unha encravada', 'unha')) return 'wound';
   if (has('osso partido', 'partid', 'torcid', 'entorse', 'caiu', 'tornozelo', 'pata')) return 'broken';
   if (has('ouvido', 'otite', 'orelha')) return 'ear';
@@ -205,7 +205,7 @@ export function bodyStateFor(patient) {
   if (has('cabeça', 'enxaqueca')) return 'headache';
   if (has('febre', 'gripe', 'amigdalite', 'garganta')) return 'fever';
   if (has('barriga', 'gastro', 'enjoo', 'vomit', 'guloseima', 'doces', 'roncar')) return 'belly';
-  if (has('alergia', 'picada', 'abelha', 'mosquito', 'pústula', 'pustula', 'pulga', 'carraç', 'borbulh', 'comichão', 'coceira', 'legumes')) return 'allergy';
+  if (has('alergia', 'picada', 'abelha', 'mosquito', 'pulga', 'carraç', 'borbulh', 'comichão', 'coceira', 'legumes')) return 'allergy';
   if (has('constipação', 'ranho', 'espirr', 'nariz', 'tosse')) return 'cold';
   if (has('ferida', 'ferimento', 'esfolado', 'magoou', 'magoada', 'penso')) return 'wound';
   return 'generic';

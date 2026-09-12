@@ -26,7 +26,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Painel de estatísticas** — visitas, jogos, curas e instalações (anónimo), com gráfico por dia, no painel de admin.
 - ✅ **Limpeza automática** — sessões inativas apagadas sozinhas ao fim de 48h.
 - ✅ **Caras a condizer** — o boneco/avatar combina com a idade (bebé, criança, adulto, idoso) e o género (pelo nome).
-- ✅ **Doenças malucas novas** — picada de abelha 🐝 / mosquito 🦟, mau hálito 😮‍💨, pústulas tóxicas ☣️, unha encravada 💅, verruga de bruxa 🧙, língua comprida 👅 (com operação para cortar!), cabeça de melão 🍈, caiu o cabelo 🧑‍🦲 e corno de unicórnio 🦄 — cada uma com o seu desenho no corpo e tratamentos próprios.
+- ✅ **Doenças malucas novas** — picada de abelha 🐝 / mosquito 🦟, mau hálito 😮‍💨, gases tóxicos 💨, unha encravada 💅, verruga de bruxa 🧙, língua comprida 👅 (com operação para cortar!), cabeça de melão 🍈, caiu o cabelo 🧑‍🦲 e corno de unicórnio 🦄 — cada uma com o seu desenho no corpo e tratamentos próprios.
 
 ## 🚧 Em curso agora
 - 🚧 **Vozes por clip (pré-geradas)** — sistema pronto no jogo (toca clip por personagem, com recurso à voz do browser); falta **gerar os áudios** uma vez no PC (`node scripts/gen-voices.mjs`, Google TTS grátis) e fazer push.
