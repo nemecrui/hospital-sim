@@ -39,6 +39,16 @@ function expectedResult(patient, name) {
 function xrayBroken(patient) {
   return /partid|osso|torcid|entorse|caiu|tornozelo|pata/.test(probeText(patient));
 }
+// Que parte do corpo apontar/mostrar no raio-X (mão, braço, pé ou perna)
+function xrayRegion(patient) {
+  const t = probeText(patient);
+  if (/tornozelo|p[ée]\b|pé|calcanhar|dedo do pé/.test(t)) return 'pe';
+  if (/joelho|perna|coxa|t[íi]bia|canela/.test(t)) return 'perna';
+  if (/m[ãa]o|dedo|pulso|punho/.test(t)) return 'mao';
+  if (/bra[çc]o|cotovelo|antebra[çc]o/.test(t)) return 'braco';
+  if (/pata/.test(t)) return 'perna'; // animais
+  return 'braco';
+}
 function ecgTruthFor(patient) {
   return /febre|gripe/.test(probeText(patient)) || patient.emergency ? 'fast' : 'normal';
 }
@@ -138,7 +148,7 @@ function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
             </div>
 
             {open === ex.name && !ex.result && ex.name === 'Raio-X' && (
-              <XrayScanner broken={xrayBroken(patient)} onDecide={(r) => escolher(ex.name, r)} />
+              <XrayScanner region={xrayRegion(patient)} broken={xrayBroken(patient)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
             {open === ex.name && !ex.result && ex.name === 'ECG' && (
