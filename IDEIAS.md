@@ -84,6 +84,7 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ## 🎮 Estações interativas (feito)
 - ✅ Raio-X, termómetro, ECG, estetoscópio, ecografia, curativo, gesso, ver garganta/ouvido, TAC/RM, análises sangue/urina, audiograma, injeção/xarope, cortar unhas.
+- ✅ **Raio-X Mágico (câmara real)** — o raio-X pode usar a câmara do tablet com efeito de "chapa" azul e feixe de leitura; ao tocar em "Tirar raio-X" revela os ossos por cima da imagem. A câmara é só para o efeito (nada é guardado nem enviado) e, se não houver câmara/permissão, volta sozinho ao braço desenhado.
 
 ## 🏅 Extras
 - ⬜ **Guardar o "melhor dia"** — recordes entre sessões.
