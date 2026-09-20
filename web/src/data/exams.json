@@ -6,5 +6,6 @@
   { "name": "Ressonância (RM)", "emoji": "🧲", "results": ["Tudo bem", "Precisa de descanso 😴", "Precisa de férias 🏖️", "Bateria fraca 🔋"] },
   { "name": "Análise de sangue", "emoji": "🩸", "results": ["Tudo normal", "Falta de ferro", "Uma infeção 🦠", "Açúcar a mais 🍭", "Super-herói saudável 🦸"] },
   { "name": "Análise de urina", "emoji": "🧪", "results": ["Normal", "Infeção urinária", "Bebeu pouca água 🚱", "Xixi campeão 🏆"] },
-  { "name": "Audiograma", "emoji": "👂", "results": ["Ouve bem 👍", "Ouve pouco", "Ouve até os segredos 🤫", "Orelhas com cera 🕯️"] }
+  { "name": "Audiograma", "emoji": "👂", "results": ["Ouve bem 👍", "Ouve pouco", "Ouve até os segredos 🤫", "Orelhas com cera 🕯️"] },
+  { "name": "Capacidade respiratória", "emoji": "🫁", "results": ["Sopro de campeão! 🫁💪", "Respira muito bem 🫁", "Respiração normal", "Um bocadinho preso 😮‍💨", "Chiadinho — dar xarope 🥄"] }
 ]

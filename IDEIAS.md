@@ -84,7 +84,9 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 
 ## 🎮 Estações interativas (feito)
 - ✅ Raio-X, termómetro, ECG, estetoscópio, ecografia, curativo, gesso, ver garganta/ouvido, TAC/RM, análises sangue/urina, audiograma, injeção/xarope, cortar unhas.
-- ✅ **Raio-X Mágico (câmara real)** — o raio-X pode usar a câmara do tablet com efeito de "chapa" azul e feixe de leitura; ao tocar em "Tirar raio-X" revela os ossos por cima da imagem. A câmara é só para o efeito (nada é guardado nem enviado) e, se não houver câmara/permissão, volta sozinho ao braço desenhado.
+- ✅ **Raio-X Mágico (câmara real)** — o raio-X pode usar a câmara do tablet com efeito de "chapa" azul e feixe de leitura; diz que parte apontar (mão/braço/pé/perna) e ao tocar em "Tirar raio-X" revela o esqueleto próprio dessa zona, com a fratura no sítio certo. Câmara só para o efeito (nada guardado); recurso automático ao braço desenhado.
+- ✅ **Ecografia, garganta e ouvido com câmara** — a mesma "magia": apontar a câmara à barriga (ecografia 🫧), à boca ("diz aaah" 🔦) ou ao ouvido (otoscópio 👂) e, ao tocar, revela o desenho do exame. Sempre com recurso ao modo desenho quando não há câmara.
+- ✅ **Capacidade respiratória (sopro no microfone)** — novo exame: inspira fundo e sopra para o microfone; o balão enche e mede o sopro máximo (de "chiadinho" a "sopro de campeão"). Sem microfone → manter o botão premido para soprar. O microfone é só para medir (nada é gravado).
 
 ## 🏅 Extras
 - ⬜ **Guardar o "melhor dia"** — recordes entre sessões.

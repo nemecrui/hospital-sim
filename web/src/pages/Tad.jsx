@@ -9,6 +9,7 @@ import EchoScanner from '../components/EchoScanner.jsx';
 import MachineScan from '../components/MachineScan.jsx';
 import FillTube from '../components/FillTube.jsx';
 import HearingTest from '../components/HearingTest.jsx';
+import Spirometer from '../components/Spirometer.jsx';
 import examsData from '../data/exams.json';
 import { reactAs } from '../utils/tts.js';
 
@@ -179,6 +180,10 @@ function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
               <HearingTest reveal={expectedResult(patient, 'Audiograma')} results={resultsFor(ex.name)} onDecide={(r) => escolher(ex.name, r)} />
             )}
 
+            {open === ex.name && !ex.result && ex.name === 'Capacidade respiratória' && (
+              <Spirometer onDecide={(r) => escolher(ex.name, r)} />
+            )}
+
             {open === ex.name &&
               !ex.result &&
               ![
@@ -189,7 +194,8 @@ function ExamRoom({ patient, mode, playerId, examResult, examsDone, onBack }) {
                 'Ressonância (RM)',
                 'Análise de sangue',
                 'Análise de urina',
-                'Audiograma'
+                'Audiograma',
+                'Capacidade respiratória'
               ].includes(ex.name) && (
               <div className="mt-3">
                 <p className="mb-2 text-xs text-gray-500">Qual foi o resultado?</p>

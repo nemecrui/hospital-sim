@@ -11,8 +11,7 @@ import { speak, reactAs } from '../utils/tts.js';
 import { diagnosisHint } from '../utils/hints.js';
 import { speakTip } from '../utils/tts.js';
 import { getContent } from '../content.js';
-import ThroatView from '../components/ThroatView.jsx';
-import EarView from '../components/EarView.jsx';
+import { ThroatScope, EarScope } from '../components/ScopeView.jsx';
 import OperationGame from '../components/OperationGame.jsx';
 import { diagnosisInfo, diagnosisMatches } from '../utils/characters.js';
 
@@ -202,7 +201,7 @@ function Consulta({ patient, mode, playerId, onBack, prescribe, operate, request
 
         {look === 'garganta' && (
           <div className="mt-3 text-center">
-            <ThroatView inflamed={gargantaMá} />
+            <ThroatScope inflamed={gargantaMá} />
             <p className="mt-1 rounded-xl bg-blue-50 p-2 text-sm text-blue-800">
               {gargantaMá ? '😖 A garganta está muito vermelha e inflamada!' : '😀 A garganta está boa.'}
             </p>
@@ -210,7 +209,7 @@ function Consulta({ patient, mode, playerId, onBack, prescribe, operate, request
         )}
         {look === 'ouvido' && (
           <div className="mt-3 text-center">
-            <EarView inflamed={ouvidoMau} />
+            <EarScope inflamed={ouvidoMau} />
             <p className="mt-1 rounded-xl bg-blue-50 p-2 text-sm text-blue-800">
               {ouvidoMau ? '👂 O ouvido está inflamado e vermelho!' : '👍 O ouvido está bom.'}
             </p>
