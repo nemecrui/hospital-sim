@@ -16,9 +16,9 @@ export function ThroatScope({ inflamed }) {
   return (
     <CameraLens
       badge="🔦 Garganta"
-      aim='Abre a boca e diz "aaah" para a câmara 🗣️'
+      aim='Pede um "aaah" e aponta a câmara à boca aberta 🗣️'
       guide="👄"
-      facing="user"
+      facing="environment"
       filter="contrast(1.1) saturate(1.2)"
       captureLabel="🔦 Ver a garganta"
       reveal={<Scope bg="#1a0d10"><ThroatView inflamed={inflamed} /></Scope>}
