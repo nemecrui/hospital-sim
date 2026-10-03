@@ -107,6 +107,18 @@ export function playSound(kind) {
     case 'pee': // xixi a cair na sanita (análise de urina)
       noiseBurst(1.5, { freq: 1400, q: 0.9, vol: 0.12 });
       break;
+    case 'click': // clique metálico (ex.: aparelho)
+      tone(1200, 0.05, 'square');
+      tone(1500, 0.05, 'square', 0.06);
+      break;
+    case 'pop': // algodãozinho (suave)
+      tone(320, 0.08, 'sine');
+      tone(520, 0.06, 'sine', 0.05);
+      break;
+    case 'sparkle': // brilho do branqueamento
+      tone(900, 0.06, 'sine');
+      tone(1300, 0.08, 'sine', 0.05);
+      break;
     default:
       tone(440, 0.1);
   }
@@ -179,3 +191,4 @@ export function startNoise({ freq = 3000, q = 0.7, vol = 0.06 } = {}) {
 
 export const startDrill = () => startTone({ freq: 150, type: 'sawtooth', vol: 0.09, vibrato: 30 });
 export const startBrush = () => startNoise({ freq: 3600, q: 0.5, vol: 0.05 });
+export const startLight = () => startTone({ freq: 540, type: 'sine', vol: 0.045, vibrato: 6 }); // luz de branqueamento (hum suave)

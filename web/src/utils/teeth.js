@@ -36,3 +36,27 @@ export const PROBLEM_LABEL = {
   crooked: 'dente torto',
   extract: 'dente a abanar'
 };
+
+// Feitio + historinha da boca (estável por paciente) — "porque é que está assim".
+const CAUSES = [
+  'comeu muitos chocolates no Halloween 🍫',
+  'adora rebuçados e chupa-chupas 🍬',
+  'esquece-se de escovar os dentes à noite 🌙',
+  'bebeu refrigerantes a mais 🥤',
+  'abria pacotes com os dentes 😬',
+  'passou muito tempo sem vir ao dentista 📆',
+  'adormeceu sem lavar os dentes 😴',
+  'comeu bolos na festa de anos 🎂'
+];
+const FEITIOS = [
+  { label: 'medricas', emoji: '😨' },
+  { label: 'valente', emoji: '💪' },
+  { label: 'falador', emoji: '💬' },
+  { label: 'risonho', emoji: '😁' },
+  { label: 'tímido', emoji: '🙈' },
+  { label: 'brincalhão', emoji: '😜' }
+];
+export function mouthStory(patient) {
+  const id = (patient && patient.id) || (patient && patient.name) || 'x';
+  return { feitio: FEITIOS[hash(id + 'f') % FEITIOS.length], cause: CAUSES[hash(id) % CAUSES.length] };
+}
