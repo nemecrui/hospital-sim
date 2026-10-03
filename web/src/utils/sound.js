@@ -111,3 +111,71 @@ export function playSound(kind) {
       tone(440, 0.1);
   }
 }
+
+// --- Sons contínuos (devolvem uma função para parar) ---
+// Oscilador contínuo com vibrato (ex.: broca do dentista).
+export function startTone({ freq = 160, type = 'sawtooth', vol = 0.08, vibrato = 0 } = {}) {
+  if (!enabled) return () => {};
+  const c = getCtx();
+  if (!c) return () => {};
+  if (c.state === 'suspended') c.resume();
+  const osc = c.createOscillator();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const g = c.createGain();
+  g.gain.value = vol;
+  let lfo, lg;
+  if (vibrato) {
+    lfo = c.createOscillator();
+    lfo.frequency.value = vibrato;
+    lg = c.createGain();
+    lg.gain.value = freq * 0.06;
+    lfo.connect(lg);
+    lg.connect(osc.frequency);
+    lfo.start();
+  }
+  osc.connect(g);
+  g.connect(c.destination);
+  osc.start();
+  return () => {
+    try {
+      g.gain.setTargetAtTime(0.0001, c.currentTime, 0.03);
+      osc.stop(c.currentTime + 0.1);
+      if (lfo) lfo.stop(c.currentTime + 0.1);
+    } catch { /* ignore */ }
+  };
+}
+
+// Ruído filtrado contínuo em loop (ex.: escova a esfregar — "shhh").
+export function startNoise({ freq = 3000, q = 0.7, vol = 0.06 } = {}) {
+  if (!enabled) return () => {};
+  const c = getCtx();
+  if (!c) return () => {};
+  if (c.state === 'suspended') c.resume();
+  const dur = 1.2;
+  const buf = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  src.loop = true;
+  const bp = c.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = freq;
+  bp.Q.value = q;
+  const g = c.createGain();
+  g.gain.value = vol;
+  src.connect(bp);
+  bp.connect(g);
+  g.connect(c.destination);
+  src.start();
+  return () => {
+    try {
+      g.gain.setTargetAtTime(0.0001, c.currentTime, 0.03);
+      src.stop(c.currentTime + 0.12);
+    } catch { /* ignore */ }
+  };
+}
+
+export const startDrill = () => startTone({ freq: 150, type: 'sawtooth', vol: 0.09, vibrato: 30 });
+export const startBrush = () => startNoise({ freq: 3600, q: 0.5, vol: 0.05 });
