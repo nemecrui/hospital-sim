@@ -89,22 +89,33 @@ export default function Home({ onSessionReady }) {
         </h1>
         <p className="mb-4 text-center text-gray-500">Escolhe o teu jogo</p>
 
-        <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="mb-4 grid grid-cols-3 gap-3">
           <button
             onClick={() => setMode('hospital')}
-            className={`btn py-4 text-lg ${
+            className={`btn flex flex-col items-center gap-1 py-4 ${
               mode === 'hospital' ? 'bg-gradient-to-r from-hospital-pink to-pink-500 text-white' : 'bg-white text-gray-700'
             }`}
           >
-            🏥 Hospital
+            <span className="text-3xl">🏥</span>
+            <span className="text-sm font-bold">Hospital</span>
           </button>
           <button
             onClick={() => setMode('vet')}
-            className={`btn py-4 text-lg ${
+            className={`btn flex flex-col items-center gap-1 py-4 ${
               mode === 'vet' ? 'bg-gradient-to-r from-green-400 to-green-500 text-white' : 'bg-white text-gray-700'
             }`}
           >
-            🐾 Veterinário
+            <span className="text-3xl">🐾</span>
+            <span className="text-sm font-bold">Veterinário</span>
+          </button>
+          <button
+            onClick={() => setMode('dentista')}
+            className={`btn flex flex-col items-center gap-1 py-4 ${
+              mode === 'dentista' ? 'bg-gradient-to-r from-cyan-400 to-teal-400 text-white' : 'bg-white text-gray-700'
+            }`}
+          >
+            <span className="text-3xl">🦷</span>
+            <span className="text-sm font-bold">Dentista</span>
           </button>
         </div>
 

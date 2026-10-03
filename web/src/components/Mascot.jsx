@@ -15,21 +15,28 @@ function loadName() {
 export default function Mascot({ mode }) {
   const { patients } = useContext(HospitalContext);
   const vet = mode === 'vet';
+  const dent = mode === 'dentista';
 
   const [name, setName] = useState(loadName());
 
   const greetFor = (n) =>
     n
-      ? vet
-        ? `Olá! Sou ${n}, o ajudante da clínica! 🐾`
-        : `Olá! Sou ${n}, o vosso ajudante! 🏥`
-      : vet
-        ? 'Olá! Bem-vindos à clínica! 🐾 Dás-me um nome? Toca no ✏️'
-        : 'Olá! Bem-vindos ao hospital! 🏥 Dás-me um nome? Toca no ✏️';
+      ? dent
+        ? `Olá! Sou ${n}, o ajudante do consultório! 🦷`
+        : vet
+          ? `Olá! Sou ${n}, o ajudante da clínica! 🐾`
+          : `Olá! Sou ${n}, o vosso ajudante! 🏥`
+      : dent
+        ? 'Olá! Bem-vindos ao dentista! 🦷 Dás-me um nome? Toca no ✏️'
+        : vet
+          ? 'Olá! Bem-vindos à clínica! 🐾 Dás-me um nome? Toca no ✏️'
+          : 'Olá! Bem-vindos ao hospital! 🏥 Dás-me um nome? Toca no ✏️';
 
-  const idle = vet
-    ? ['Estás a cuidar tão bem dos bichinhos! 💪', 'A melhor clínica de sempre! 🌟', 'Cada animal merece um miminho 💗', 'Ele vai ficar ótimo! 🍀', 'Uma festinha cura metade! 😊']
-    : ['Estás a fazer um ótimo trabalho! 💪', 'A nossa equipa é a melhor! 🌟', 'Cuida bem de cada doente 💗', 'Vais ver que ele fica bom! 🍀', 'Um sorriso cura metade! 😊'];
+  const idle = dent
+    ? ['Que sorrisos tão bonitos! 😁', 'Escovar os dentes é importante! 🪥', 'Menos doces, mais fruta! 🍎', 'Cada dente bem tratado! ✨', 'A melhor dentista de sempre! 🌟']
+    : vet
+      ? ['Estás a cuidar tão bem dos bichinhos! 💪', 'A melhor clínica de sempre! 🌟', 'Cada animal merece um miminho 💗', 'Ele vai ficar ótimo! 🍀', 'Uma festinha cura metade! 😊']
+      : ['Estás a fazer um ótimo trabalho! 💪', 'A nossa equipa é a melhor! 🌟', 'Cuida bem de cada doente 💗', 'Vais ver que ele fica bom! 🍀', 'Um sorriso cura metade! 😊'];
   const cheers = ['Boa! Mais um curado! 🎉', 'Que equipa incrível! 👏', 'Mais um amiguinho feliz! 💚', 'Uau, conseguiram! 🥳'];
 
   const [msg, setMsg] = useState(greetFor(name));

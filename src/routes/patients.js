@@ -55,7 +55,7 @@ export default async function patientsRoutes(fastify) {
           age: Number(age),
           symptoms: JSON.stringify(symptoms),
           story: generateStory(session?.mode, symptoms[0], Number(age)),
-          status: 'triage'
+          status: session?.mode === 'dentista' ? 'diagnosis' : 'triage'
         }
       });
       return reply.code(201).send(serialize(patient));
@@ -82,7 +82,7 @@ export default async function patientsRoutes(fastify) {
           age: g.age,
           symptoms: JSON.stringify(g.symptoms),
           story: g.story,
-          status: 'triage'
+          status: s?.mode === 'dentista' ? 'diagnosis' : 'triage'
         }
       });
       return reply.code(201).send(serialize(patient));

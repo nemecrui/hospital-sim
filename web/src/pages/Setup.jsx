@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { API_URL } from '../utils/api.js';
 import { getContent } from '../content.js';
 
-const ROLE_IDS = ['secretaria', 'medica', 'enfermeira', 'tad'];
+const ALL_ROLE_IDS = ['secretaria', 'medica', 'enfermeira', 'tad'];
 
 export default function Setup({ sessionId, mode, onDone, onBack }) {
   const content = getContent(mode);
+  const ROLE_IDS = mode === 'dentista' ? ['secretaria', 'medica'] : ALL_ROLE_IDS;
+  const maxPlayers = ROLE_IDS.length;
   const [players, setPlayers] = useState(1);
   const [roles, setRoles] = useState([]);
   const [specials, setSpecials] = useState(true);
@@ -51,7 +53,7 @@ export default function Setup({ sessionId, mode, onDone, onBack }) {
 
         <label className="mb-2 block text-sm font-semibold">Quantas jogadoras?</label>
         <div className="mb-6 flex gap-3">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3, 4].filter((n) => n <= maxPlayers).map((n) => (
             <button
               key={n}
               onClick={() => setCount(n)}
@@ -91,20 +93,24 @@ export default function Setup({ sessionId, mode, onDone, onBack }) {
         </div>
 
         {/* Doentes especiais (malucos) — interruptor ligar/desligar */}
-        <button
-          onClick={() => setSpecials((v) => !v)}
-          className={`btn mb-4 flex w-full items-center justify-between py-3 text-left ${
-            specials ? 'bg-gradient-to-r from-purple-400 to-fuchsia-500 text-white' : 'bg-white text-gray-700'
-          }`}
-        >
-          <span className="font-semibold">🦖 Doentes especiais</span>
-          <span className={`rounded-full px-3 py-1 text-sm font-bold ${specials ? 'bg-white/30' : 'bg-gray-100 text-gray-500'}`}>
-            {specials ? 'Ligados ✨' : 'Desligados'}
-          </span>
-        </button>
-        <p className="mb-4 -mt-2 text-center text-xs text-gray-400">
-          De vez em quando aparece um doente maluco: dinossauro 🦖, robô 🤖, extraterrestre 👽, unicórnio 🦄…
-        </p>
+        {mode !== 'dentista' && (
+          <>
+            <button
+              onClick={() => setSpecials((v) => !v)}
+              className={`btn mb-4 flex w-full items-center justify-between py-3 text-left ${
+                specials ? 'bg-gradient-to-r from-purple-400 to-fuchsia-500 text-white' : 'bg-white text-gray-700'
+              }`}
+            >
+              <span className="font-semibold">🦖 Doentes especiais</span>
+              <span className={`rounded-full px-3 py-1 text-sm font-bold ${specials ? 'bg-white/30' : 'bg-gray-100 text-gray-500'}`}>
+                {specials ? 'Ligados ✨' : 'Desligados'}
+              </span>
+            </button>
+            <p className="mb-4 -mt-2 text-center text-xs text-gray-400">
+              De vez em quando aparece um doente maluco: dinossauro 🦖, robô 🤖, extraterrestre 👽, unicórnio 🦄…
+            </p>
+          </>
+        )}
 
         <p className="mb-4 rounded-xl bg-blue-50 p-2 text-center text-xs text-blue-700">
           🎯 O objetivo e 🎠 o tema do dia mudam sozinhos durante o jogo!

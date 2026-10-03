@@ -76,9 +76,9 @@ async function tickSession(prisma, session) {
     });
   }
 
-  // 🚑 Urgência rara
+  // 🚑 Urgência rara (não no dentista)
   const lastEmerg = patients.filter((p) => p.emergency).reduce((m, p) => Math.max(m, new Date(p.createdAt).getTime()), 0);
-  if (active.length < 5 && now - lastEmerg > 240000 && Math.random() < 0.04) {
+  if (mode !== 'dentista' && active.length < 5 && now - lastEmerg > 240000 && Math.random() < 0.04) {
     const g = generateEmergency(mode);
     await prisma.patient.create({
       data: {
@@ -100,7 +100,8 @@ async function tickSession(prisma, session) {
       await prisma.patient.create({
         data: {
           sessionId: session.id, name: g.name, age: g.age,
-          symptoms: JSON.stringify(g.symptoms), story: g.story, status: 'triage'
+          symptoms: JSON.stringify(g.symptoms), story: g.story,
+          status: mode === 'dentista' ? 'diagnosis' : 'triage'
         }
       });
     }
@@ -152,6 +153,20 @@ async function tickSession(prisma, session) {
         });
       }
     }
+  }
+
+  // 🦷 Dentista CPU — trata a boca e dá alta (sem exames/receitas)
+  if (mode === 'dentista' && cpuRoles.includes('medica')) {
+    for (const p of patients.filter((p) => p.status === 'diagnosis')) {
+      if (now - new Date(p.updatedAt).getTime() > THINK_MS) {
+        await prisma.patient.update({
+          where: { id: p.id },
+          data: { status: 'discharged', assignedTo: 'CPU', diagnosis: 'Boca tratada', rating: 4 + Math.floor(Math.random() * 2) }
+        });
+        prisma.event.create({ data: { type: 'cure', mode } }).catch(() => {});
+      }
+    }
+    return;
   }
 
   // 👨‍⚕️ Médica CPU

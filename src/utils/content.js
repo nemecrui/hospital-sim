@@ -184,7 +184,61 @@ const VET = {
   }
 };
 
-const PACKS = { hospital: HOSPITAL, vet: VET };
+/* ----------------------------- DENTISTA ----------------------------- */
+const DENTISTA = {
+  title: 'Consultório Dentário',
+  noun: 'paciente',
+  roles: { secretaria: 'Secretária', medica: 'Dentista', enfermeira: 'Enfermeira', tad: 'Técnico' },
+
+  conditions: [
+    { name: 'Dor de dente', weight: 2 }, { name: 'Cárie', weight: 2 }, { name: 'Dente amarelo', weight: 1 },
+    { name: 'Dente torto', weight: 1 }, { name: 'Dente a abanar', weight: 2 }, { name: 'Tártaro', weight: 1 },
+    { name: 'Comeu muitos doces', weight: 1 }, { name: 'Mau hálito', weight: 1 }, { name: 'Gengivas a sangrar', weight: 1 }
+  ],
+
+  scenarios: {
+    normal: { name: 'Dia normal', emoji: '🦷', prefer: null },
+    doces: { name: 'Dia dos Doces', emoji: '🍭', prefer: ['Cárie', 'Comeu muitos doces', 'Dor de dente'] },
+    sorrisos: { name: 'Dia dos Sorrisos', emoji: '😁', prefer: ['Dente amarelo', 'Dente torto', 'Tártaro'] }
+  },
+  scenarioIds: ['doces', 'sorrisos'],
+
+  diseaseGoals: ['Cárie', 'Dente a abanar', 'Dente amarelo'],
+  cpuDiagnoses: ['Boca tratada', 'Dente limpo', 'Sorriso bonito'],
+  cpuMeds: [{ name: 'Escova nova', emoji: '🪥', type: 'curativo', total: 1 }],
+
+  makeName() {
+    const first = ['João', 'Maria', 'Pedro', 'Ana', 'Carlos', 'Sofia', 'Miguel', 'Inês', 'Rui', 'Joana', 'Tiago', 'Marta', 'Diogo', 'Beatriz', 'André', 'Leonor', 'Francisco', 'Matilde'];
+    const last = ['Silva', 'Santos', 'Oliveira', 'Ferreira', 'Gomes', 'Costa', 'Martins', 'Neves', 'Ribeiro', 'Rocha', 'Carvalho', 'Sousa'];
+    return `${pick(first)} ${pick(last)}`;
+  },
+  makeAge: () => Math.floor(Math.random() * 70) + 4,
+
+  friends: [
+    { name: 'Zé Dentes', age: 7 },
+    { name: 'Mimi Sorriso', age: 6 },
+    { name: 'Vó Rosa', age: 70 }
+  ],
+
+  emergencySymptoms: ['Dente partido'],
+  emergencyStories: ['Partiu um dente a trincar um rebuçado duro!'],
+
+  story: {
+    when: ['Esta manhã', 'Ontem à noite', 'Depois do lanche', 'No fim de semana', 'Antes de dormir'],
+    onde: ['a comer doces', 'a escovar os dentes', 'no recreio', 'a abrir pacotes com os dentes', 'a trincar gelo'],
+    extras: ['Está um bocadinho nervoso.', 'Trouxe a escova favorita.', 'Promete escovar sempre!', 'Quer um sorriso bonito.', 'Não gosta nada da broca.'],
+    events: {
+      'Dor de dente': ['começou a doer um dente ao trincar', 'ficou com um dente a latejar'],
+      'Cárie': ['apareceu um buraquinho preto num dente', 'exagerou nos doces'],
+      'Dente a abanar': ['sentiu um dente a abanar', 'o dente de leite quer cair'],
+      'Dente amarelo': ['reparou que os dentes estão amarelinhos'],
+      Tártaro: ['há muito tempo que não ia ao dentista']
+    },
+    generic: ['veio à revisão dos dentes', 'veio para ficar com um sorriso bonito', 'veio ao dentista']
+  }
+};
+
+const PACKS = { hospital: HOSPITAL, vet: VET, dentista: DENTISTA };
 export function pack(mode) {
   return PACKS[mode] || HOSPITAL;
 }

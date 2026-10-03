@@ -4,6 +4,7 @@ import Home from './pages/Home.jsx';
 import Setup from './pages/Setup.jsx';
 import Secretaria from './pages/Secretaria.jsx';
 import Medica from './pages/Medica.jsx';
+import Dentista from './pages/Dentista.jsx';
 import Enfermeira from './pages/Enfermeira.jsx';
 import Tad from './pages/Tad.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -155,7 +156,7 @@ export default function App() {
         <DidYouKnow />
 
         {role === 'secretaria' && <Secretaria mode={config.mode} />}
-        {role === 'medica' && <Medica playerId={playerId} mode={config.mode} />}
+        {role === 'medica' && (config.mode === 'dentista' ? <Dentista playerId={playerId} /> : <Medica playerId={playerId} mode={config.mode} />)}
         {role === 'enfermeira' && <Enfermeira playerId={playerId} mode={config.mode} />}
         {role === 'tad' && <Tad playerId={playerId} mode={config.mode} />}
         {role === 'dashboard' && <Dashboard />}
@@ -179,9 +180,10 @@ function RoleSelector({ sessionId, config, childName, setChildName, onSelectRole
   const [music, setMusic] = useState(isMusicOn());
 
   const content = getContent(config.mode);
+  const universe = config.mode === 'dentista' ? ['secretaria', 'medica'] : ROLE_IDS;
   const humanRoles = config.humanRoles;
-  const humanRoleIds = ROLE_IDS.filter((id) => humanRoles.includes(id));
-  const cpuRoleIds = ROLE_IDS.filter((id) => !humanRoles.includes(id));
+  const humanRoleIds = universe.filter((id) => humanRoles.includes(id));
+  const cpuRoleIds = universe.filter((id) => !humanRoles.includes(id));
   const shareCode = config.code || sessionId;
 
   const copyCode = async () => {

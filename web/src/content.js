@@ -90,7 +90,27 @@ const VET = {
   }
 };
 
-const PACKS = { hospital: HOSPITAL, vet: VET };
+const DENTISTA = {
+  mode: 'dentista',
+  title: '🦷 Consultório Dentário',
+  patientWord: 'paciente',
+  patientPlural: 'pacientes',
+  roles: { secretaria: '👩‍💼 Secretária', medica: '🦷 Dentista', enfermeira: '👩‍⚕️ Enfermeira', tad: '🔬 Técnico' },
+  diagnoses: [],
+  meds: [],
+  scenarios: {
+    normal: { name: 'Dia normal', emoji: '🦷' },
+    doces: { name: 'Dia dos Doces', emoji: '🍭' },
+    sorrisos: { name: 'Dia dos Sorrisos', emoji: '😁' }
+  },
+  makeArrival() {
+    const name = `${pick(FIRST)} ${pick(LAST)}`;
+    const age = Math.floor(Math.random() * 70) + 4;
+    return { name, age, avatar: avatarFor({ name, age }, 'hospital') };
+  }
+};
+
+const PACKS = { hospital: HOSPITAL, vet: VET, dentista: DENTISTA };
 export function getContent(mode) {
   return PACKS[mode] || HOSPITAL;
 }

@@ -18,7 +18,8 @@ Estado: ✅ feito · 🚧 em curso · ⬜ por fazer
 - ✅ **Tema de hospital** — banner com relógio e fundo de cruzinhas.
 - ✅ **Sons e musiquinha** — música de fundo ligável/desligável.
 - ✅ **Vida das personagens** — feitios + balões de fala, caras que reagem ao estado, entradas em cena e festa ao curar, voz por idade e sons de animais, personagens recorrentes ("amigos do costume") e um mascote 🧸 que dá as boas-vindas e festeja as curas.
-- ✅ **Modo Hospital / Veterinário** — dois jogos na mesma base, escolhidos no ecrã inicial.
+- ✅ **Modo Hospital / Veterinário / Dentista** — três jogos na mesma base, escolhidos no ecrã inicial.
+- ✅ **Dentista** 🦷 — novo modo com 2 papéis (Secretária + Dentista). A secretária regista como no hospital; a dentista abre a boca e trata dente a dente, com ferramentas e efeitos: 🪥 limpar o tártaro, ✨ branquear, 🦷 broca + chumbo nas cáries, 🦾 aparelho (brackets + fio a endireitar) e extração realista (💉 anestesia → abanar → arrancar → algodão com um pinguinho). Barra "Boca" enche até ao sorriso saudável e dá alta com cromo.
 - ✅ **Corpo completo dos doentes** — boneco por problema (gesso, febre, borbulhas, nariz vermelho, dor de cabeça…), com variedade de pele/cabelo/roupa e o gesso/penso em partes diferentes do corpo.
 - ✅ **Exames ligados ao problema** — raio-X, ECG, ecografia, TAC/RM, audiograma e análises de sangue/urina combinam com a queixa; reações por personalidade e som de xixi/choro.
 - ✅ **Ver garganta e ouvido com imagem** — mini-exame visual (vermelho/inflamado conforme o problema).

@@ -29,7 +29,7 @@ export default async function sessionsRoutes(fastify) {
       const session = await prisma.session.create({
         data: {
           code,
-          mode: mode === 'vet' ? 'vet' : 'hospital',
+          mode: ['vet', 'dentista'].includes(mode) ? mode : 'hospital',
           players: players ? Number(players) : 1,
           humanRoles: JSON.stringify(Array.isArray(humanRoles) ? humanRoles : []),
           ...(specials != null ? { specials: !!specials } : {}),
