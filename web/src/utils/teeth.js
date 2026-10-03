@@ -26,7 +26,7 @@ export const TOOLS = [
   { id: 'carie', emoji: '🦷', label: 'Cárie' },
   { id: 'aparelho', emoji: '🦾', label: 'Aparelho' },
   { id: 'anestesia', emoji: '💉', label: 'Anestesia' },
-  { id: 'arrancar', emoji: '🩸', label: 'Arrancar' }
+  { id: 'arrancar', emoji: '🗜️', label: 'Arrancar' }
 ];
 
 export const PROBLEM_LABEL = {

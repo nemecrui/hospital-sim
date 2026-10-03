@@ -15,7 +15,7 @@ export default function DentalRoom({ patient, onComplete, onBack }) {
     makeMouth(patient.id).map((t) => ({ ...t, done: false, prog: 0, sub: 0, numb: false, removed: false, bleeding: false, cotton: false, lighting: false, rot: t.problem === 'crooked' ? (t.idx % 2 ? 15 : -15) : 0 }))
   );
   const crooked = teeth.current.find((t) => t.problem === 'crooked');
-  const side = crooked ? (crooked.idx < 3 ? [0, 1, 2] : [3, 4, 5]) : null;
+  const ALL_IDX = [0, 1, 2, 3, 4, 5]; // o aparelho vai em toda a boca (cima e baixo)
   const story = useRef(mouthStory(patient)).current;
 
   const [, force] = useReducer((x) => x + 1, 0);
@@ -82,7 +82,7 @@ export default function DentalRoom({ patient, onComplete, onBack }) {
     braces.current.placed = true;
     crooked.rot = 0;
     playSound('click'); playSound('success');
-    setMsg('Aparelho colocado em todos os dentes do lado — a endireitar! 🦾');
+    setMsg('Aparelho colocado em todos os dentes, em cima e em baixo — a endireitar! 🦾');
     setTimeout(() => { braces.current.done = true; crooked.done = true; crooked.state = 'braces'; force(); }, 1200);
     force();
   };
@@ -119,7 +119,7 @@ export default function DentalRoom({ patient, onComplete, onBack }) {
   const pickTool = (id) => { if (gesture.current) gesture.current(); tool.current = id; msg.current = null; force(); };
   const toggleXray = () => { if (gesture.current) gesture.current(); setXray((v) => !v); };
   const canBraces = !crooked || othersDone();
-  const bracedActive = braces.current.placed && side;
+  const bracedActive = braces.current.placed;
 
   return (
     <div>
@@ -156,7 +156,7 @@ export default function DentalRoom({ patient, onComplete, onBack }) {
       {/* BOCA ou RAIO-X */}
       <div className="relative mx-auto touch-none select-none overflow-hidden rounded-2xl" style={{ background: xray ? 'radial-gradient(120% 90% at 50% 25%,#13306e,#081328 70%)' : 'radial-gradient(120% 90% at 50% 18%,#7a1420,#3c0a12)' }}>
         {xray ? (
-          <Xray teeth={teeth.current} bracedSide={bracedActive ? side : null} />
+          <Xray teeth={teeth.current} />
         ) : (
           <svg viewBox="0 0 400 300" className="w-full">
             <ellipse cx="200" cy="150" rx="185" ry="135" fill="#e2566b" />
@@ -166,12 +166,12 @@ export default function DentalRoom({ patient, onComplete, onBack }) {
             <ellipse cx="200" cy="232" rx="95" ry="40" fill="#e26d78" />
 
             {bracedActive && ['up', 'low'].map((row) => (
-              <polyline key={row} fill="none" stroke="#9aa6b2" strokeWidth="2.5" points={side.map((i) => `${UPX[i]},${toothY(row, i)}`).join(' ')} />
+              <polyline key={row} fill="none" stroke="#9aa6b2" strokeWidth="2.5" points={ALL_IDX.map((i) => `${UPX[i]},${toothY(row, i)}`).join(' ')} />
             ))}
 
             {teeth.current.map((t) => (
               <Tooth key={t.key} t={t} x={UPX[t.idx]} y={toothY(t.row, t.idx)}
-                braced={!!(bracedActive && side.includes(t.idx))}
+                braced={bracedActive}
                 ringColor={t.problem === 'crooked' && !othersDone() ? '#b7a9db' : wrong.current === t.key ? '#e5484d' : '#00D9FF'}
                 fxOn={fx.current?.key === t.key ? fx.current.kind : null}
                 onDown={(e) => handleDown(t, e)} />
